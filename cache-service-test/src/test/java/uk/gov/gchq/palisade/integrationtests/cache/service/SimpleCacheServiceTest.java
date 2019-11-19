@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.palisade.integrationtests.cache.repository.BackingStore;
 import uk.gov.gchq.palisade.integrationtests.cache.repository.HashMapBackingStore;
-import uk.gov.gchq.palisade.service.ServiceState;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -35,7 +34,6 @@ public class SimpleCacheServiceTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleCacheServiceTest.class);
 
     private SimpleCacheService cacheService = new SimpleCacheService();
-    private ServiceState serviceState = new ServiceState();
     private BackingStore store = new HashMapBackingStore();
     private Duration maxLocalTTL = Duration.of(5, ChronoUnit.MINUTES);
 }
