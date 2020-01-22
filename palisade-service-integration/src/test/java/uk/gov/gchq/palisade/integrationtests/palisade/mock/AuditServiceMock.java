@@ -1,4 +1,4 @@
-package uk.gov.gchq.palisade.integrationtests.audit.mock;
+package uk.gov.gchq.palisade.integrationtests.palisade.mock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
