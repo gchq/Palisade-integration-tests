@@ -27,6 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.gchq.palisade.User;
 import uk.gov.gchq.palisade.service.palisade.request.GetUserRequest;
 import uk.gov.gchq.palisade.service.palisade.service.UserService;
+import uk.gov.gchq.palisade.service.palisade.PalisadeApplication;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -39,11 +40,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-
-// When registering data the Audit service must return 200 STATUS else test fails and return STATUS
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ActiveProfiles({"test"})
+@SpringBootTest(classes = PalisadeApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class PalisadeUserTest extends BaseTestEnvironment {
 
     @Autowired

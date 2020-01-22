@@ -14,33 +14,56 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.palisade.integrationtests.palisade;
+package uk.gov.gchq.palisade.integrationtests.palisade.service;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import uk.gov.gchq.palisade.Context;
+import uk.gov.gchq.palisade.UserId;
+import uk.gov.gchq.palisade.service.palisade.PalisadeApplication;
+import uk.gov.gchq.palisade.service.palisade.request.RegisterDataRequest;
+import uk.gov.gchq.palisade.service.palisade.service.PalisadeService;
+import uk.gov.gchq.palisade.service.request.DataRequestResponse;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
 
-//PAL-163 Scenario 1
-// Health actuator status must equal to UP else test fails and status is given as reason for failure
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({"test"})
-public class PalisadeHealthTest {
+@SpringBootTest(classes = PalisadeApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
+public class PalisadeEndToEndTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
+
+    @Autowired
+    PalisadeService palisadeService;
+
+    @Test
+    public void contextLoads() {
+        assertNotNull(palisadeService);
+    }
 
     @Test
     public void isUp() {
         final String health = this.restTemplate.getForObject("/actuator/health", String.class);
         assertThat(health, is(equalTo("{\"status\":\"UP\"}")));
+    }
+
+    @Test
+    public void endToEnd() {
+        // Given all other services are mocked
+        RegisterDataRequest request = new RegisterDataRequest().userId(new UserId().id("user-id")).resourceId("resource-id").context(new Context().purpose("purpose"));
+
+        DataRequestResponse response = restTemplate.postForObject("/registerDataRequest", null, DataRequestResponse.class);
+
+        assertThat(response, is(equalTo(true)));
     }
 }

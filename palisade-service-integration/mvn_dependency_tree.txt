@@ -1,5 +1,5 @@
 uk.gov.gchq.palisade:palisade-service-integration:jar:0.4.0-SNAPSHOT
-+- uk.gov.gchq.palisade:palisade-service:jar:jar-with-dependencies:0.4.0-SNAPSHOT:compile
++- uk.gov.gchq.palisade:palisade-service:jar:0.4.0-SNAPSHOT:compile
 |  +- com.google.guava:guava:jar:28.1-jre:compile
 |  |  +- com.google.guava:failureaccess:jar:1.0.1:compile
 |  |  +- com.google.guava:listenablefuture:jar:9999.0-empty-to-avoid-conflict-with-guava:compile

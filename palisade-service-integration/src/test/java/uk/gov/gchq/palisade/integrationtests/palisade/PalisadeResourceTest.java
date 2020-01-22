@@ -29,6 +29,7 @@ import uk.gov.gchq.palisade.resource.LeafResource;
 import uk.gov.gchq.palisade.resource.request.GetResourcesByIdRequest;
 import uk.gov.gchq.palisade.service.ConnectionDetail;
 import uk.gov.gchq.palisade.service.palisade.service.ResourceService;
+import uk.gov.gchq.palisade.service.palisade.PalisadeApplication;
 
 import java.util.Map;
 
@@ -40,8 +41,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ActiveProfiles({"test"})
+@SpringBootTest(classes = PalisadeApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class PalisadeResourceTest extends BaseTestEnvironment {
 
     @Autowired

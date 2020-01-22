@@ -39,11 +39,9 @@ import uk.gov.gchq.palisade.service.SimpleConnectionDetail;
 import uk.gov.gchq.palisade.service.palisade.policy.MultiPolicy;
 import uk.gov.gchq.palisade.service.palisade.policy.Policy;
 import uk.gov.gchq.palisade.service.request.DataRequestResponse;
-import uk.gov.gchq.palisade.service.request.Request;
 
 import java.util.AbstractMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
