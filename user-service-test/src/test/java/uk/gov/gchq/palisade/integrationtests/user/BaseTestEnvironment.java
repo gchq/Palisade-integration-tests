@@ -24,9 +24,6 @@ import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.ClassRule;
 
-import uk.gov.gchq.palisade.RequestId;
-import uk.gov.gchq.palisade.User;
-import uk.gov.gchq.palisade.UserId;
 import uk.gov.gchq.palisade.service.Service;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -46,9 +43,4 @@ public class BaseTestEnvironment {
 
     @ClassRule
     public static WireMockRule USER_SERVICE_MOCK = new WireMockRule(options().port(8087).notifier(new ConsoleNotifier(true)));
-
-    RequestId REQUEST_ID = new RequestId().id("request-id");
-
-    UserId USER_ID = new UserId().id("user-id");
-    User USER = new User().userId(USER_ID);
 }
