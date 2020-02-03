@@ -12,13 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+logging:
+  level:
+    root: TRACE
 spring:
   application:
     name: user-service
   output:
     ansi:
       enabled: always
-
 server:
   port: 8087
 
@@ -31,9 +33,9 @@ management:
     web:
       exposure:
         include:
-          - health
-          - info
-          - metrics
+        - health
+        - info
+        - metrics
 
 feign:
   client:
@@ -48,4 +50,4 @@ cache:
   implementation: hashmap
   props: "cache.properties"
   etcd:
-    - http://localhost:2379
+  - http://localhost:2379

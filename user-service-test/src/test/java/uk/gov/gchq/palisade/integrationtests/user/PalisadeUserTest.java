@@ -24,14 +24,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import uk.gov.gchq.palisade.RequestId;
 import uk.gov.gchq.palisade.User;
-import uk.gov.gchq.palisade.UserId;
 import uk.gov.gchq.palisade.service.user.UserApplication;
 import uk.gov.gchq.palisade.service.user.request.AddUserRequest;
-import uk.gov.gchq.palisade.service.user.request.GetUserRequest;
 import uk.gov.gchq.palisade.service.user.service.UserService;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -76,11 +73,14 @@ public class PalisadeUserTest {
 
     @Test
     public void getCacheWarmedUser() {
-        GetUserRequest getUserRequest = GetUserRequest.create(new RequestId().id("newUser")).withUserId(new UserId().id("Yuvon of the Yukon"));
-        Map<String, GetUserRequest> params = new HashMap<>();
-        params.put("request", getUserRequest);
-        User result = restTemplate.getForObject("/getUser2/{request}", User.class, params);
+        User result = restTemplate.getForObject("/getUser2/YvonOfTheYukon", User.class);
+        User result2 = restTemplate.getForObject("/getUser2/YvonOfTheYukon", User.class);
+        User result3 = restTemplate.getForObject("/getUser2/YvonOfTheYukon", User.class);
+        User result4 = restTemplate.getForObject("/getUser2/YvonOfTheYukon", User.class);
         System.out.println(result);
+        System.out.println(result2);
+        System.out.println(result3);
+        System.out.println(result4);
     }
 
 }
