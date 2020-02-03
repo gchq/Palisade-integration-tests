@@ -15,72 +15,72 @@
  */
 package uk.gov.gchq.palisade.integrationtests.user;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import uk.gov.gchq.palisade.RequestId;
 import uk.gov.gchq.palisade.User;
 import uk.gov.gchq.palisade.UserId;
+import uk.gov.gchq.palisade.service.user.UserApplication;
+import uk.gov.gchq.palisade.service.user.request.AddUserRequest;
 import uk.gov.gchq.palisade.service.user.request.GetUserRequest;
 import uk.gov.gchq.palisade.service.user.service.UserService;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.containing;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 // When registering data the Audit service must return 200 STATUS else test fails and return STATUS
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ActiveProfiles({"test"})
-public class PalisadeUserTest extends BaseTestEnvironment {
+@SpringBootTest(classes = UserApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+public class PalisadeUserTest {
 
     @Autowired
     private UserService userService;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private Map<String, UserService> serviceMap;
 
-    private WireMockRule userServiceMock = USER_SERVICE_MOCK;
+    @Autowired
+    private TestRestTemplate restTemplate;
 
     @Test
-    public void userServiceTest() throws IOException, ExecutionException, InterruptedException {
-        GetUserRequest getUserRequest = GetUserRequest.create(new RequestId().id("newRequest")).withUserId(new UserId().id("Yvon of the Yukon"));
-        User user = new User().userId("Yvon of the Yukon");
+    public void contextLoads() {
+        assertNotNull(serviceMap);
+        assertNotEquals(serviceMap, Collections.emptyMap());
+    }
 
-//        userServiceMock.stubFor(post(urlPathMatching("/addUser"))
-//                .withRequestBody(containing("user-id"))
-//                .willReturn(
-//                        aResponse()
-//                                .withStatus(200)
-//                                .withHeader("Content-Type", "application/json")
-//                                .withBody(objectMapper.writeValueAsString(user))
-//                ));
+    @Test
+    public void isUp() {
+        final String health = restTemplate.getForObject("/actuator/health", String.class);
+        assertThat(health, is(equalTo("{\"status\":\"UP\"}")));
+    }
 
-        userServiceMock.stubFor(post(urlPathMatching("/getUser"))
-                .withRequestBody(containing("user-id"))
-                .willReturn(
-                        aResponse()
-                                .withStatus(200)
-                                .withHeader("Content-Type", "application/json")
-                                .withBody(objectMapper.writeValueAsString(user))
-                ));
+    @Test
+    public void postUserToUserService() {
+        AddUserRequest addUserRequest = AddUserRequest.create(new RequestId().id("newRequest")).withUser(new User().userId("Johnny NewBoy"));
+        Boolean response = restTemplate.postForObject("/addUser", addUserRequest, Boolean.class);
+        assertThat(response, is(equalTo(true)));
+    }
 
-        final User subject = this.userService.getUser(getUserRequest).get();
-        assertThat(subject.getUserId().getId(), is(equalTo("user-id")));
+    @Test
+    public void getCacheWarmedUser() {
+        GetUserRequest getUserRequest = GetUserRequest.create(new RequestId().id("newUser")).withUserId(new UserId().id("Yuvon of the Yukon"));
+        Map<String, GetUserRequest> params = new HashMap<>();
+        params.put("request", getUserRequest);
+        User result = restTemplate.getForObject("/getUser2/{request}", User.class, params);
+        System.out.println(result);
     }
 
 }
