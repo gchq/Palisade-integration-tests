@@ -12,23 +12,28 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.ClassRule;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import uk.gov.gchq.palisade.User;
+import uk.gov.gchq.palisade.UserId;
 import uk.gov.gchq.palisade.resource.LeafResource;
-import uk.gov.gchq.palisade.resource.impl.DirectoryResource;
 import uk.gov.gchq.palisade.resource.impl.FileResource;
-import uk.gov.gchq.palisade.resource.impl.SystemResource;
 import uk.gov.gchq.palisade.service.ConnectionDetail;
 import uk.gov.gchq.palisade.service.Service;
 import uk.gov.gchq.palisade.service.SimpleConnectionDetail;
-import uk.gov.gchq.palisade.service.request.DataRequestResponse;
+import uk.gov.gchq.palisade.service.palisade.policy.MultiPolicy;
+import uk.gov.gchq.palisade.service.palisade.policy.Policy;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
-public class PalisadeServiceMock {
+public class ResourceServiceMock {
 
     @JsonPropertyOrder(value = {"class"}, alphabetic = true)
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
@@ -40,26 +45,29 @@ public class PalisadeServiceMock {
         }
     }
 
+
     @Autowired
     static ObjectMapper serializer;
 
     @ClassRule
     static WireMockRule serviceMock;
 
-    static WireMockRule setUp() throws JsonProcessingException {
-        LeafResource resource = new FileResource().id("mock-file-resource").parent(new DirectoryResource().id("mock-directory").parent(new SystemResource().id("root")));
-        ConnectionDetail connectionDetail = new SimpleConnectionDetail().service(new StubService());
-        Map<LeafResource, ConnectionDetail> resources = Collections.singletonMap(resource, connectionDetail);
-        DataRequestResponse response = new DataRequestResponse().token("mock-token").resources(resources);
+    static UserId userId = new UserId().id("user-id");
+    static User user = new User().userId(userId);
+    static Policy policy = new Policy<>().owner(user).resourceLevelRule("test rule", new PolicyServiceMock.StubRule<>());
 
-        serviceMock = new WireMockRule(options().port(8084).notifier(new ConsoleNotifier(true)));
-        serviceMock.stubFor(WireMock.post(urlPathMatching("/registerDataRequest"))
-            .willReturn(
-                aResponse()
-                    .withStatus(200)
-                    .withHeader("Content-Type", "application/json")
-                    .withBody(serializer.writeValueAsString(response))
-            ));
+    static Map<LeafResource, ConnectionDetail> resources = Collections.singletonMap(new FileResource().id("test-resource"), new SimpleConnectionDetail().service(new StubService()));
+
+    static WireMockRule setUp() throws JsonProcessingException {
+        serviceMock = new WireMockRule(options().port(8086).notifier(new ConsoleNotifier(true)));
+        serviceMock.stubFor(WireMock.post(urlPathMatching("getResourcesBy(Id|Resource|Type|SerialisedFormat)/"))
+                .willReturn(
+                        aResponse()
+                                .withStatus(200)
+                                .withHeader("Content-Type", "application/json")
+                                .withBody(serializer.writeValueAsString(multiPolicyBuilder.apply(resources)))
+                ));
         return serviceMock;
     }
+
 }
