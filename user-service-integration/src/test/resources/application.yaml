@@ -18,12 +18,25 @@ spring:
   output:
     ansi:
       enabled: always
+  main:
+    allow-bean-definition-overriding: true
+  cache:
+    cache-names: users
+    caffeine:
+      spec:
+        maximumSize: 500
+        expireAfterAccess: 300s
 
 server:
   port: 8087
 
 eureka:
+  instance:
+    hostname: localhost
+    port: 8083
   client:
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${eureka.instance.port}/eureka/
     enabled: false
 
 management:
@@ -34,6 +47,9 @@ management:
         - health
         - info
         - metrics
+        - loggers
+    loggers:
+      enabled: true
 
 feign:
   client:
@@ -43,9 +59,3 @@ feign:
         readTimeout: 5000
         loggerLevel: basic
     default-config: default
-
-cache:
-  implementation: hashmap
-  props: "cache.properties"
-  etcd:
-  - http://localhost:2379

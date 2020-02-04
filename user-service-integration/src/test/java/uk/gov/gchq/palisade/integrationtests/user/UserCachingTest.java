@@ -24,17 +24,21 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import uk.gov.gchq.palisade.RequestId;
 import uk.gov.gchq.palisade.User;
+import uk.gov.gchq.palisade.UserId;
 import uk.gov.gchq.palisade.service.user.UserApplication;
 import uk.gov.gchq.palisade.service.user.request.AddUserRequest;
 import uk.gov.gchq.palisade.service.user.request.GetUserRequest;
+import uk.gov.gchq.palisade.service.user.service.SimpleUserService;
 import uk.gov.gchq.palisade.service.user.service.UserService;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -45,7 +49,7 @@ import static org.junit.Assert.assertNotNull;
 public class UserCachingTest {
 
     @Autowired
-    private UserService userService;
+    private SimpleUserService userService;
 
     @Autowired
     private Map<String, UserService> serviceMap;
@@ -66,25 +70,65 @@ public class UserCachingTest {
     }
 
     @Test
-    public void postUserToUserService() {
+    public void localCachingReturnsUsers() {
         // Given
-        User user = new User().userId("new-user").addAuths(Collections.singleton("authorisation")).addRoles(Collections.singleton("role"));
+        User newUser = new User().userId("locally-added-user").addAuths(Collections.singleton("authorisation")).addRoles(Collections.singleton("role"));
 
         // When
-        AddUserRequest addUserRequest = AddUserRequest.create(new RequestId().id("addUserRequest")).withUser(user);
-        Boolean addResponse = restTemplate.postForObject("/addUser", addUserRequest, Boolean.class);
-        // Then
-        assertThat(addResponse, is(equalTo(true)));
+        userService.addUser(newUser);
+        User returnedUser = userService.getUser(newUser.getUserId());
 
-        // When
-        GetUserRequest getUserRequest = GetUserRequest.create(new RequestId().id("getUserRequest")).withUserId(user.getUserId());
-        User getResponse = restTemplate.postForObject("/getUser", getUserRequest, User.class);
         // Then
-        assertThat(getResponse, is(equalTo(user)));
+        assertThat(returnedUser, equalTo(newUser));
     }
 
     @Test
-    public void getCacheWarmedUser() {
+    public void localUncachedUsersThrowException() {
+        // Given
+        UserId userId = new UserId().id("definitely-not-a-real-user");
+
+        // When
+        User user = userService.getUser(userId);
+
+        // Then
+        assertThat(user, is(nullValue()));
+    }
+
+    @Test
+    public void localRequestReturnsUsers() throws ExecutionException, InterruptedException {
+        // Given
+        User user = new User().userId("request-added-user").addAuths(Collections.singleton("authorisation")).addRoles(Collections.singleton("role"));
+
+        // When
+        AddUserRequest addUserRequest = AddUserRequest.create(new RequestId().id("addUserRequest")).withUser(user);
+        Boolean addUserResponse = userService.addUser(addUserRequest).get();
+        // Then
+        assertThat(addUserResponse, is(equalTo(true)));
+
+        // When
+        GetUserRequest getUserRequest = GetUserRequest.create(new RequestId().id("getUserRequest")).withUserId(user.getUserId());
+        User getUserResponse = userService.getUser(getUserRequest).get();
+        // Then
+        assertThat(getUserResponse, is(equalTo(user)));
+
+    }
+
+    @Test
+    public void postUserToUserService() {
+        // Given
+        User user = new User().userId("rest-added-user").addAuths(Collections.singleton("authorisation")).addRoles(Collections.singleton("role"));
+
+        // When
+        AddUserRequest addUserRequest = AddUserRequest.create(new RequestId().id("addUserRequest")).withUser(user);
+        Boolean addUserResponse = restTemplate.postForObject("/addUser", addUserRequest, Boolean.class);
+        // Then
+        assertThat(addUserResponse, is(equalTo(true)));
+
+        // When
+        GetUserRequest getUserRequest = GetUserRequest.create(new RequestId().id("getUserRequest")).withUserId(user.getUserId());
+        User getUserResponse = restTemplate.postForObject("/getUser", getUserRequest, User.class);
+        // Then
+        assertThat(getUserResponse, is(equalTo(user)));
     }
 
 }
