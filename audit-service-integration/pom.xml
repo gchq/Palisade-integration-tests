@@ -118,7 +118,6 @@
                     <execution>
                         <phase>deploy</phase>
                         <id>ar</id>
-                        pq
                         <goals>
                             <goal>build</goal>
                             <goal>push</goal>
