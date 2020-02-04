@@ -1,28 +1,27 @@
 package uk.gov.gchq.palisade.integrationtests.palisade.mock;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import org.junit.ClassRule;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
 public class AuditServiceMock {
 
-    @ClassRule
-    static WireMockRule serviceMock;
+    public static WireMockRule getRule() {
+        return new WireMockRule(options().port(8081).notifier(new ConsoleNotifier(true)));
+    }
 
-    static WireMockRule setUp() {
-        serviceMock = new WireMockRule(options().port(8081).notifier(new ConsoleNotifier(true)));
-        serviceMock.stubFor(WireMock.post(urlPathMatching("/audit"))
+    public static void stubRule(WireMockRule serviceMock, ObjectMapper serializer) throws JsonProcessingException {
+        Boolean success = Boolean.TRUE;
+
+        serviceMock.stubFor(post(urlEqualTo("/audit"))
             .willReturn(
-                aResponse()
-                    .withStatus(200)
-                    .withHeader("Content-Type", "application/json")
-                    .withBody("true")
+                okJson(serializer.writeValueAsString(success))
             ));
-        return serviceMock;
     }
 }
