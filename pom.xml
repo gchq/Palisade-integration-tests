@@ -17,6 +17,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+    </dependencies>
 
     <parent>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -27,7 +33,7 @@
     <groupId>uk.gov.gchq.palisade</groupId>
     <artifactId>integration-tests</artifactId>
     <version>0.4.0-${revision}</version>
-    <name>palisade-integration-test</name>
+    <name>palisade-integration-tests</name>
     <description>Integration tests for palisade</description>
     <packaging>pom</packaging>
 
@@ -65,10 +71,14 @@
     </properties>
 
     <modules>
-        <module>cache-service-test</module>
-        <module>palisade-service-test</module>
-        <module>resource-service-test</module>
-        <module>user-service-test</module>
+        <module>cache-service</module>
+        <module>audit-service-integration</module>
+        <module>data-service-integration</module>
+        <module>discovery-service-integration</module>
+        <module>palisade-service-integration</module>
+        <module>policy-service-integration</module>
+        <module>resource-service-integration</module>
+        <module>user-service-integration</module>
     </modules>
 
     <dependencyManagement>
