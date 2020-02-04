@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.RestClientException;
 
 import uk.gov.gchq.palisade.RequestId;
 import uk.gov.gchq.palisade.User;
@@ -28,18 +29,13 @@ import uk.gov.gchq.palisade.UserId;
 import uk.gov.gchq.palisade.service.user.UserApplication;
 import uk.gov.gchq.palisade.service.user.request.AddUserRequest;
 import uk.gov.gchq.palisade.service.user.request.GetUserRequest;
-import uk.gov.gchq.palisade.service.user.service.SimpleUserService;
 import uk.gov.gchq.palisade.service.user.service.UserService;
 
 import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 
@@ -49,18 +45,14 @@ import static org.junit.Assert.assertNotNull;
 public class UserCachingTest {
 
     @Autowired
-    private SimpleUserService userService;
-
-    @Autowired
-    private Map<String, UserService> serviceMap;
+    private UserService userService;
 
     @Autowired
     private TestRestTemplate restTemplate;
 
     @Test
     public void contextLoads() {
-        assertNotNull(serviceMap);
-        assertNotEquals(serviceMap, Collections.emptyMap());
+        assertNotNull(userService);
     }
 
     @Test
@@ -70,51 +62,7 @@ public class UserCachingTest {
     }
 
     @Test
-    public void localCachingReturnsUsers() {
-        // Given
-        User newUser = new User().userId("locally-added-user").addAuths(Collections.singleton("authorisation")).addRoles(Collections.singleton("role"));
-
-        // When
-        userService.addUser(newUser);
-        User returnedUser = userService.getUser(newUser.getUserId());
-
-        // Then
-        assertThat(returnedUser, equalTo(newUser));
-    }
-
-    @Test
-    public void localUncachedUsersThrowException() {
-        // Given
-        UserId userId = new UserId().id("definitely-not-a-real-user");
-
-        // When
-        User user = userService.getUser(userId);
-
-        // Then
-        assertThat(user, is(nullValue()));
-    }
-
-    @Test
-    public void localRequestReturnsUsers() throws ExecutionException, InterruptedException {
-        // Given
-        User user = new User().userId("request-added-user").addAuths(Collections.singleton("authorisation")).addRoles(Collections.singleton("role"));
-
-        // When
-        AddUserRequest addUserRequest = AddUserRequest.create(new RequestId().id("addUserRequest")).withUser(user);
-        Boolean addUserResponse = userService.addUser(addUserRequest).get();
-        // Then
-        assertThat(addUserResponse, is(equalTo(true)));
-
-        // When
-        GetUserRequest getUserRequest = GetUserRequest.create(new RequestId().id("getUserRequest")).withUserId(user.getUserId());
-        User getUserResponse = userService.getUser(getUserRequest).get();
-        // Then
-        assertThat(getUserResponse, is(equalTo(user)));
-
-    }
-
-    @Test
-    public void postUserToUserService() {
+    public void addedUserIsRetrievable() {
         // Given
         User user = new User().userId("rest-added-user").addAuths(Collections.singleton("authorisation")).addRoles(Collections.singleton("role"));
 
@@ -131,4 +79,14 @@ public class UserCachingTest {
         assertThat(getUserResponse, is(equalTo(user)));
     }
 
+    @Test(expected = RestClientException.class)
+    public void nonExistentUserRetrieveFails() {
+        // Given
+        UserId userId = new UserId().id("definitely-not-a-real-user");
+
+        // When
+        GetUserRequest getUserRequest = GetUserRequest.create(new RequestId().id("getUserRequest")).withUserId(userId);
+        restTemplate.postForObject("/getUser", getUserRequest, User.class);
+        // Then - throw
+    }
 }
