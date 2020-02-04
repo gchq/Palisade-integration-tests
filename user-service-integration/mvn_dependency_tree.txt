@@ -1,4 +1,4 @@
-uk.gov.gchq.palisade:user-service-test:jar:0.4.0-SNAPSHOT
+uk.gov.gchq.palisade:user-service-integration:jar:0.4.0-SNAPSHOT
 +- uk.gov.gchq.palisade:user-service:jar:jar-with-dependencies:0.4.0-SNAPSHOT:compile
 |  +- com.jayway.jsonpath:json-path:jar:2.4.0:compile
 |  |  +- net.minidev:json-smart:jar:2.3:compile
@@ -93,7 +93,6 @@ uk.gov.gchq.palisade:user-service-test:jar:0.4.0-SNAPSHOT
 +- org.springframework.boot:spring-boot-starter:jar:2.1.8.RELEASE:compile
 |  +- org.springframework.boot:spring-boot:jar:2.1.8.RELEASE:compile
 |  |  \- org.springframework:spring-context:jar:5.1.9.RELEASE:compile
-|  +- org.springframework.boot:spring-boot-autoconfigure:jar:2.1.8.RELEASE:compile
 |  +- org.springframework.boot:spring-boot-starter-logging:jar:2.1.8.RELEASE:compile
 |  |  +- ch.qos.logback:logback-classic:jar:1.2.3:compile
 |  |  |  \- ch.qos.logback:logback-core:jar:1.2.3:compile
@@ -140,4 +139,5 @@ uk.gov.gchq.palisade:user-service-test:jar:0.4.0-SNAPSHOT
 |  |  \- com.vaadin.external.google:android-json:jar:0.0.20131108.vaadin1:test
 |  +- org.springframework:spring-test:jar:5.1.9.RELEASE:test
 |  \- org.xmlunit:xmlunit-core:jar:2.6.3:test
-\- uk.gov.gchq.palisade:user-service:jar:0.4.0-SNAPSHOT:compile
++- uk.gov.gchq.palisade:user-service:jar:0.4.0-SNAPSHOT:compile
+\- org.springframework.boot:spring-boot-autoconfigure:jar:2.1.8.RELEASE:compile
