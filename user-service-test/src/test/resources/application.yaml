@@ -12,15 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-logging:
-  level:
-    root: TRACE
 spring:
   application:
     name: user-service
   output:
     ansi:
       enabled: always
+
 server:
   port: 8087
 
