@@ -20,12 +20,13 @@ spring:
       enabled: always
   main:
     allow-bean-definition-overriding: true
-  cache:
-    cache-names: users
-    caffeine:
-      spec:
-        maximumSize: 500
-        expireAfterAccess: 300s
+
+cache:
+  type: caffeine
+  cacheNames:
+  - users
+  maximumSize: 100
+  expireAfterWrite: 5s
 
 server:
   port: 8087

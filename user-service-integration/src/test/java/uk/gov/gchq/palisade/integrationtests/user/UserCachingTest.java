@@ -27,16 +27,20 @@ import uk.gov.gchq.palisade.RequestId;
 import uk.gov.gchq.palisade.User;
 import uk.gov.gchq.palisade.UserId;
 import uk.gov.gchq.palisade.service.user.UserApplication;
+import uk.gov.gchq.palisade.service.user.exception.NoSuchUserIdException;
 import uk.gov.gchq.palisade.service.user.request.AddUserRequest;
 import uk.gov.gchq.palisade.service.user.request.GetUserRequest;
+import uk.gov.gchq.palisade.service.user.service.CachedUserService;
 import uk.gov.gchq.palisade.service.user.service.UserService;
 
 import java.util.Collections;
+import java.util.function.Function;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 
 // When registering data the Audit service must return 200 STATUS else test fails and return STATUS
@@ -88,5 +92,54 @@ public class UserCachingTest {
         GetUserRequest getUserRequest = GetUserRequest.create(new RequestId().id("getUserRequest")).withUserId(userId);
         restTemplate.postForObject("/getUser", getUserRequest, User.class);
         // Then - throw
+    }
+
+    @Test
+    public void updateUserTest() {
+        // Given
+        User user = new User().userId("rest-added-TTL-user").addAuths(Collections.singleton("authorisation")).addRoles(Collections.singleton("role"));
+        User user2 = new User().userId("rest-added-TTL-user").addAuths(Collections.singleton("newAuth")).addRoles(Collections.singleton("newRole"));
+
+        // When
+        AddUserRequest addUserRequest = AddUserRequest.create(new RequestId().id("addUserRequest")).withUser(user);
+        AddUserRequest addUserRequest2 = AddUserRequest.create(new RequestId().id("addUserRequest")).withUser(user2);
+        Boolean addUserResponse = restTemplate.postForObject("/addUser", addUserRequest, Boolean.class);
+        Boolean addUserResponse2 = restTemplate.postForObject("/addUser", addUserRequest2, Boolean.class);
+
+        // Then
+        assertThat(addUserResponse, is(equalTo(true)));
+        assertThat(addUserResponse2, is(equalTo(true)));
+
+        // And When
+        GetUserRequest getUserRequest = GetUserRequest.create(new RequestId().id("getUserRequest")).withUserId(user.getUserId());
+        User getTTLResponse = restTemplate.postForObject("/getUser", getUserRequest, User.class);
+
+        // Then
+        assertThat(getTTLResponse, is(equalTo(user2)));
+    }
+
+    @Test(expected = NoSuchUserIdException.class)
+    public void maxSizeTest() {
+        assumeTrue(userService instanceof CachedUserService);
+        Function<Integer, User> makeUser = i -> new User().userId(new UserId().id(i.toString()));
+        for (int count = 0; count <= 500; ++count) {
+            userService.addUser(makeUser.apply(count));
+            userService.getUser(makeUser.apply(count).getUserId());
+            userService.getUser(makeUser.apply(0).getUserId());
+        }
+       userService.getUser(makeUser.apply(0).getUserId());
+    }
+
+    @Test(expected = NoSuchUserIdException.class)
+    public void ttlTest() {
+        assumeTrue(userService instanceof CachedUserService);
+        User user = new User().userId("ttlTestUser").addAuths(Collections.singleton("authorisation")).addRoles(Collections.singleton("role"));
+        userService.addUser(user);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        userService.getUser(user.getUserId());
     }
 }
