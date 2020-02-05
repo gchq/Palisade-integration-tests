@@ -94,6 +94,6 @@ public class PalisadeEndToEndTest {
         DataRequestResponse response = restTemplate.postForObject("/registerDataRequest", request, DataRequestResponse.class);
 
         // Then
-        assertThat(response, is(equalTo(true)));
+        assertThat(response.getResources(), is(ResourceServiceMock.getResources()));
     }
 }

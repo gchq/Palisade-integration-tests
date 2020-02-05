@@ -19,13 +19,15 @@ public class UserServiceMock {
         return new WireMockRule(options().port(8087).notifier(new ConsoleNotifier(true)));
     }
 
-    public static void stubRule(WireMockRule serviceMock, ObjectMapper serializer) throws JsonProcessingException {
+    public static User getUser() {
         UserId userId = new UserId().id("user-id");
-        User user = new User().userId(userId);
+        return new User().userId(userId);
+    }
 
-            serviceMock.stubFor(post(urlEqualTo("/getUser"))
-                .willReturn(
-                    okJson(serializer.writeValueAsString(user))
-                ));
+    public static void stubRule(WireMockRule serviceMock, ObjectMapper serializer) throws JsonProcessingException {
+        serviceMock.stubFor(post(urlEqualTo("/getUser"))
+            .willReturn(
+                okJson(serializer.writeValueAsString(getUser()))
+            ));
     }
 }

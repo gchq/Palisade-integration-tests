@@ -16,12 +16,14 @@ public class AuditServiceMock {
         return new WireMockRule(options().port(8081).notifier(new ConsoleNotifier(true)));
     }
 
-    public static void stubRule(WireMockRule serviceMock, ObjectMapper serializer) throws JsonProcessingException {
-        Boolean success = Boolean.TRUE;
+    public static Boolean getAuditResult() {
+        return true;
+    }
 
+    public static void stubRule(WireMockRule serviceMock, ObjectMapper serializer) throws JsonProcessingException {
         serviceMock.stubFor(post(urlEqualTo("/audit"))
             .willReturn(
-                okJson(serializer.writeValueAsString(success))
+                okJson(serializer.writeValueAsString(getAuditResult()))
             ));
     }
 }

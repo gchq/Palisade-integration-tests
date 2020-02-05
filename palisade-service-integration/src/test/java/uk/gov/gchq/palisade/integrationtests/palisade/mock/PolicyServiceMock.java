@@ -11,14 +11,13 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 
 import uk.gov.gchq.palisade.Context;
 import uk.gov.gchq.palisade.User;
-import uk.gov.gchq.palisade.UserId;
 import uk.gov.gchq.palisade.resource.LeafResource;
 import uk.gov.gchq.palisade.rule.Rule;
+import uk.gov.gchq.palisade.service.ConnectionDetail;
 import uk.gov.gchq.palisade.service.palisade.policy.MultiPolicy;
 import uk.gov.gchq.palisade.service.palisade.policy.Policy;
 
 import java.util.AbstractMap.SimpleEntry;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -45,19 +44,23 @@ public class PolicyServiceMock {
         return new WireMockRule(options().port(8085).notifier(new ConsoleNotifier(true)));
     }
 
-    public static void stubRule(WireMockRule serviceMock, ObjectMapper serializer) throws JsonProcessingException {
-        UserId userId = new UserId().id("user-id");
-        User user = new User().userId(userId);
+    public static MultiPolicy getPolicies() {
+        User user = UserServiceMock.getUser();
+        Map<LeafResource, ConnectionDetail> resources = ResourceServiceMock.getResources();
+
         Policy policy = new Policy<>().owner(user).resourceLevelRule("test rule", new StubRule<>());
-        Function<Set<LeafResource>, MultiPolicy> policyBuilder = resources -> {
-            Map<LeafResource, Policy> policies = resources.stream().map(resource -> new SimpleEntry<>(resource, policy)).collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
+        Function<Set<LeafResource>, MultiPolicy> policyBuilder = resourceSet -> {
+            Map<LeafResource, Policy> policies = resourceSet.stream().map(resource -> new SimpleEntry<>(resource, policy)).collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
             return new MultiPolicy().policies(policies);
         };
-        Set<LeafResource> resources = Collections.singleton(new StubResource("type", "resource-id", "format"));
 
+        return policyBuilder.apply(resources.keySet());
+    }
+
+    public static void stubRule(WireMockRule serviceMock, ObjectMapper serializer) throws JsonProcessingException {
         serviceMock.stubFor(post(urlEqualTo("/getPolicySync"))
             .willReturn(
-                okJson(serializer.writeValueAsString(policyBuilder.apply(resources)))
+                okJson(serializer.writeValueAsString(getPolicies()))
             ));
     }
 }
