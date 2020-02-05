@@ -77,7 +77,7 @@ public class PalisadeEndToEndTest {
     }
 
     @Test
-    public void endToEnd() throws JsonProcessingException {
+    public void registerDataRequestTest() throws JsonProcessingException {
         // Given all other services are mocked
         AuditServiceMock.stubRule(auditMock, serializer);
         PolicyServiceMock.stubRule(policyMock, serializer);
