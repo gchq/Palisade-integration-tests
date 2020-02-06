@@ -25,8 +25,8 @@ cache:
   type: caffeine
   cacheNames:
   - users
-  maximumSize: 100
-  expireAfterWrite: 5s
+  maximumSize: 150
+  expireAfterWrite: 2s
 
 server:
   port: 8087
