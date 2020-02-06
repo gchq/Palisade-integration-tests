@@ -13,6 +13,9 @@
 # limitations under the License.
 #
 spring:
+  cache:
+    caffeine:
+      spec: expireAfterWrite=2s, maximumSize=100
   application:
     name: user-service
   output:
@@ -20,13 +23,6 @@ spring:
       enabled: always
   main:
     allow-bean-definition-overriding: true
-
-cache:
-  type: caffeine
-  cacheNames:
-  - users
-  maximumSize: 150
-  expireAfterWrite: 2s
 
 server:
   port: 8087

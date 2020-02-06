@@ -122,11 +122,15 @@ public class UserCachingTest {
     public void maxSizeTest() {
         assumeTrue(userService instanceof CachedUserService);
         Function<Integer, User> makeUser = i -> new User().userId(new UserId().id(i.toString()));
-        for (int count = 0; count <= 160; ++count) {
+        for (int count = 0; count <= 100; ++count) {
             userService.addUser(makeUser.apply(count));
-            userService.getUser(makeUser.apply(count).getUserId());
         }
-       userService.getUser(makeUser.apply(0).getUserId());
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        userService.getUser(makeUser.apply(0).getUserId());
     }
 
     @Test(expected = NoSuchUserIdException.class)
@@ -135,7 +139,7 @@ public class UserCachingTest {
         User user = new User().userId("ttlTestUser").addAuths(Collections.singleton("authorisation")).addRoles(Collections.singleton("role"));
         userService.addUser(user);
         try {
-            Thread.sleep(2000);
+            Thread.sleep(2500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
