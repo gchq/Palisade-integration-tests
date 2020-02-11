@@ -30,8 +30,7 @@ import uk.gov.gchq.palisade.service.user.UserApplication;
 import uk.gov.gchq.palisade.service.user.exception.NoSuchUserIdException;
 import uk.gov.gchq.palisade.service.user.request.AddUserRequest;
 import uk.gov.gchq.palisade.service.user.request.GetUserRequest;
-import uk.gov.gchq.palisade.service.user.service.CachedUserService;
-import uk.gov.gchq.palisade.service.user.service.UserService;
+import uk.gov.gchq.palisade.service.user.service.UserServiceProxy;
 
 import java.util.Collections;
 import java.util.function.Function;
@@ -49,7 +48,7 @@ import static org.junit.Assume.assumeTrue;
 public class UserCachingTest {
 
     @Autowired
-    private UserService userService;
+    private UserServiceProxy userService;
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -120,7 +119,7 @@ public class UserCachingTest {
 
     @Test(expected = NoSuchUserIdException.class)
     public void maxSizeTest() {
-        assumeTrue(userService instanceof CachedUserService);
+        assumeTrue(userService instanceof UserServiceProxy);
         Function<Integer, User> makeUser = i -> new User().userId(new UserId().id(i.toString()));
         for (int count = 0; count <= 100; ++count) {
             userService.addUser(makeUser.apply(count));
@@ -135,7 +134,7 @@ public class UserCachingTest {
 
     @Test(expected = NoSuchUserIdException.class)
     public void ttlTest() {
-        assumeTrue(userService instanceof CachedUserService);
+        assumeTrue(userService instanceof UserServiceProxy);
         User user = new User().userId("ttlTestUser").addAuths(Collections.singleton("authorisation")).addRoles(Collections.singleton("role"));
         userService.addUser(user);
         try {
