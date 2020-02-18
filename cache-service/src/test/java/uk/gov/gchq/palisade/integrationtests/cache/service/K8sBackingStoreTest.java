@@ -227,4 +227,22 @@ public class K8sBackingStoreTest extends AbstractBackingStoreTest {
         assertEquals(checkVal3, "newtest2");
         assertEquals(checkVal4, "newtest2");
     }
+
+    @Test
+    public void shouldNotRemoveTwice() {
+        //Given
+        byte[] b1 = new byte[10];
+
+        impl.add("remove_test4", Object.class, b1);
+
+        //When
+        boolean removePresent = impl.remove("remove_test4");
+        delay(1000); //delay while key is removed
+        boolean removeEmpty = impl.remove("remove_test4");
+
+        //Then
+        assertTrue(removePresent);
+        assertFalse(removeEmpty);
+    }
+
 }
