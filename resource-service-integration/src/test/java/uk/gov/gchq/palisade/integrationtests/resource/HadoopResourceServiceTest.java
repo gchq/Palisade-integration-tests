@@ -17,7 +17,6 @@
 package uk.gov.gchq.palisade.integrationtests.resource;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileSystem;
@@ -30,11 +29,8 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.palisade.RequestId;
-import uk.gov.gchq.palisade.integrationtests.resource.impl.MockDataService;
 import uk.gov.gchq.palisade.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.palisade.resource.ChildResource;
 import uk.gov.gchq.palisade.resource.LeafResource;
@@ -48,14 +44,12 @@ import uk.gov.gchq.palisade.resource.request.GetResourcesBySerialisedFormatReque
 import uk.gov.gchq.palisade.resource.request.GetResourcesByTypeRequest;
 import uk.gov.gchq.palisade.service.ConnectionDetail;
 import uk.gov.gchq.palisade.service.SimpleConnectionDetail;
-import uk.gov.gchq.palisade.service.resource.repository.SimpleCacheService;
 import uk.gov.gchq.palisade.service.resource.service.HadoopResourceService;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,13 +57,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 @RunWith(JUnit4.class)
 public class HadoopResourceServiceTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HadoopResourceServiceTest.class);
     private static final String TEST_RESOURCE_ID = "/home/user/other/thing_file.json";
     private static final String TEST_SERIALISED_FORMAT = "json";
     private static final String TEST_DATA_TYPE = "thing";
@@ -78,7 +72,8 @@ public class HadoopResourceServiceTest {
     private static final String TYPE_VALUE = "bob";
     private static final String FILE_NAME_VALUE_00001 = "00001";
     private static final String FILE_NAME_VALUE_00002 = "00002";
-    private static final String FILE = System.getProperty("os.name").toLowerCase().startsWith("win") ? "file:///" : "file://";
+    private static final Boolean IS_WIN = System.getProperty("os.name").toLowerCase().startsWith("win");
+    private static final String FILE = IS_WIN ? "file:///" : "file://";
     private static final String HDFS = "hdfs:///";
     private static File TMP_DIRECTORY;
 
@@ -89,15 +84,43 @@ public class HadoopResourceServiceTest {
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder(TMP_DIRECTORY);
     private SimpleConnectionDetail simpleConnection;
-    private String inputPathString;
+    private String root;
+    private String dir;
     private FileSystem fs;
     private HashMap<uk.gov.gchq.palisade.resource.Resource, ConnectionDetail> expected;
-    private SimpleCacheService simpleCache;
     private Configuration config = new Configuration();
     private HadoopResourceService resourceService;
 
-    static String asUri(String path) throws URISyntaxException {
-        return new Path(path.replace("\\", "/")).toUri().toString();
+    // An attempt to mimic hadoop's internal path resolution
+    static String unixify(String path) {
+        if (IS_WIN) {
+            // Windows paths use "\" whereas unix uses "/"
+            String unix = path.replace("\\", "/");
+            // Unixy paths are all expected to be under root "/"
+            // Windows paths are all under the machine's collection of devices "X://"
+            if (unix.startsWith(":/",1)) {
+                return "/" + unix;
+            } else {
+                return unix;
+            }
+        } else {
+            // We would expect a Unix machine to be reporting unix paths
+            // This implies no support for filepaths other than Windows and Unix
+            return path;
+        }
+    }
+    static String deunixify(String unix) {
+        if (IS_WIN) {
+            String path;
+            if (unix.startsWith("/")) {
+                path = unix.substring(1);
+            } else {
+                path = unix;
+            }
+            return path.replace("/", "\\");
+        } else {
+            return unix;
+        }
     }
 
     private static String getFileNameFromResourceDetails(final String name, final String type, final String format) {
@@ -107,13 +130,14 @@ public class HadoopResourceServiceTest {
 
     @Before
     public void setup() throws IOException {
-        System.setProperty("hadoop.home.dir", Paths.get(".").toAbsolutePath().normalize().toString() + "/src/test/resources/hadoop-3.0.0.bin");
+        System.setProperty("hadoop.home.dir", Paths.get(".").toAbsolutePath().normalize().toString() + "/src/test/resources");
         config = createConf();
-        inputPathString = testFolder.getRoot().getAbsolutePath() + "/inputDir";
+        root = unixify(testFolder.getRoot().getAbsolutePath()) + "/";
+        dir = root + "inputDir/";
         fs = FileSystem.get(config);
-        fs.mkdirs(new Path(inputPathString));
+        fs.mkdirs(new Path(root + "inputDir"));
         expected = Maps.newHashMap();
-        simpleConnection = new SimpleConnectionDetail().service(new MockDataService());
+        simpleConnection = new SimpleConnectionDetail().uri("data-service");
 
         resourceService = new HadoopResourceService(config);
         resourceService.addDataService(simpleConnection);
@@ -121,14 +145,13 @@ public class HadoopResourceServiceTest {
 
     @Test
     public void getResourcesByIdTest() throws Exception {
-
         //given
-        final String id = inputPathString.replace("\\", "/") + "/" + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE);
-        writeFile(fs, inputPathString, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, inputPathString, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
+        final String id = dir + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE);
+        writeFile(fs, dir, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
+        writeFile(fs, dir, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
         expected.put(new FileResource().id(FILE + id).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + inputPathString.replace("\\", "/")).parent(
-                        new SystemResource().id(FILE + testFolder.getRoot().getAbsolutePath())
+                new DirectoryResource().id(FILE + dir).parent(
+                        new SystemResource().id(FILE + root)
                 )
         ), simpleConnection);
 
@@ -140,12 +163,12 @@ public class HadoopResourceServiceTest {
     }
 
     @Test
-    public void shouldGetResourcesOutsideOfScope() throws Exception {
+    public void shouldGetResourcesOutsideOfScope() {
         //given
-        final String id = inputPathString.replace("\\", "/") + "/" + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE);
+        final String id = dir + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE);
 
         //when
-        final String found = HDFS + "/unknownDir/" + id;
+        final String found = HDFS + "/unknownDir" + id;
         try {
             resourceService.getResourcesById(new GetResourcesByIdRequest().resourceId(found));
             fail("exception expected");
@@ -158,17 +181,17 @@ public class HadoopResourceServiceTest {
     @Test
     public void shouldGetResourcesByIdOfAFolder() throws Exception {
         //given
-        final String id = inputPathString.replace("\\", "/");
-        writeFile(fs, inputPathString, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, inputPathString, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
-        expected.put(new FileResource().id(FILE + id + "/" + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + inputPathString.replace("\\", "/")).parent(
-                        new SystemResource().id(FILE + testFolder.getRoot().getAbsolutePath())
+        final String id = dir;
+        writeFile(fs, dir, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
+        writeFile(fs, dir, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
+        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
+                new DirectoryResource().id(FILE + dir).parent(
+                        new SystemResource().id(FILE + root)
                 )
         ), simpleConnection);
-        expected.put(new FileResource().id(FILE + id + "/" + getFileNameFromResourceDetails(FILE_NAME_VALUE_00002, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + inputPathString.replace("\\", "/")).parent(
-                        new SystemResource().id(FILE + testFolder.getRoot().getAbsolutePath())
+        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00002, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
+                new DirectoryResource().id(FILE + dir).parent(
+                        new SystemResource().id(FILE + root)
                 )
         ), simpleConnection);
 
@@ -182,18 +205,18 @@ public class HadoopResourceServiceTest {
     @Test
     public void shouldFilterOutIllegalFileName() throws Exception {
         //given
-        final String id = inputPathString.replace("\\", "/");
-        writeFile(fs, inputPathString, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, inputPathString, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, inputPathString + "/I AM AN ILLEGAL FILENAME");
-        expected.put(new FileResource().id(FILE + id + "/" + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + inputPathString.replace("\\", "/")).parent(
-                        new SystemResource().id(FILE + testFolder.getRoot().getAbsolutePath())
+        final String id = dir;
+        writeFile(fs, dir, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
+        writeFile(fs, dir, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
+        writeFile(fs, dir + "I AM AN ILLEGAL FILENAME");
+        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
+                new DirectoryResource().id(FILE + dir).parent(
+                        new SystemResource().id(FILE + root)
                 )
         ), simpleConnection);
-        expected.put(new FileResource().id(FILE + id + "/" + getFileNameFromResourceDetails(FILE_NAME_VALUE_00002, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + inputPathString.replace("\\", "/")).parent(
-                        new SystemResource().id(FILE + testFolder.getRoot().getAbsolutePath())
+        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00002, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
+                new DirectoryResource().id(FILE + dir).parent(
+                        new SystemResource().id(FILE + root)
                 )
         ), simpleConnection);
 
@@ -207,18 +230,18 @@ public class HadoopResourceServiceTest {
     @Test
     public void shouldGetResourcesByType() throws Exception {
         //given
-        final String id = inputPathString.replace("\\", "/");
-        writeFile(fs, inputPathString, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, inputPathString, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, inputPathString, "00003", FORMAT_VALUE, TYPE_VALUE + 2);
-        expected.put(new FileResource().id(FILE + id + "/" + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + inputPathString.replace("\\", "/")).parent(
-                        new SystemResource().id(FILE + testFolder.getRoot().getAbsolutePath())
+        final String id = dir;
+        writeFile(fs, dir, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
+        writeFile(fs, dir, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
+        writeFile(fs, dir, "00003", FORMAT_VALUE, TYPE_VALUE + 2);
+        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
+                new DirectoryResource().id(FILE + dir).parent(
+                        new SystemResource().id(FILE + root)
                 )
         ), simpleConnection);
-        expected.put(new FileResource().id(FILE + id + "/" + getFileNameFromResourceDetails(FILE_NAME_VALUE_00002, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + inputPathString.replace("\\", "/")).parent(
-                        new SystemResource().id(FILE + testFolder.getRoot().getAbsolutePath())
+        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00002, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
+                new DirectoryResource().id(FILE + dir).parent(
+                        new SystemResource().id(FILE + root)
                 )
         ), simpleConnection);
 
@@ -234,18 +257,18 @@ public class HadoopResourceServiceTest {
     @Test
     public void shouldGetResourcesByFormat() throws Exception {
         //given
-        final String id = inputPathString.replace("\\", "/");
-        writeFile(fs, inputPathString, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, inputPathString, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, inputPathString, "00003", FORMAT_VALUE + 2, TYPE_VALUE);
-        expected.put(new FileResource().id(FILE + id + "/" + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + inputPathString.replace("\\", "/")).parent(
-                        new SystemResource().id(FILE + testFolder.getRoot().getAbsolutePath())
+        final String id = dir;
+        writeFile(fs, dir, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
+        writeFile(fs, dir, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
+        writeFile(fs, dir, "00003", FORMAT_VALUE + 2, TYPE_VALUE);
+        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
+                new DirectoryResource().id(FILE + dir).parent(
+                        new SystemResource().id(FILE + root)
                 )
         ), simpleConnection);
-        expected.put(new FileResource().id(FILE + id + "/" + getFileNameFromResourceDetails(FILE_NAME_VALUE_00002, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + inputPathString.replace("\\", "/")).parent(
-                        new SystemResource().id(FILE + testFolder.getRoot().getAbsolutePath())
+        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00002, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
+                new DirectoryResource().id(FILE + dir).parent(
+                        new SystemResource().id(FILE + root)
                 )
         ), simpleConnection);
 
@@ -261,17 +284,17 @@ public class HadoopResourceServiceTest {
     @Test
     public void shouldGetResourcesByResource() throws Exception {
         //given
-        final String id = inputPathString.replace("\\", "/");
-        writeFile(fs, inputPathString, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, inputPathString, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
-        expected.put(new FileResource().id(FILE + id + "/" + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + inputPathString.replace("\\", "/")).parent(
-                        new SystemResource().id(FILE + testFolder.getRoot().getAbsolutePath())
+        final String id = dir;
+        writeFile(fs, dir, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
+        writeFile(fs, dir, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
+        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
+                new DirectoryResource().id(FILE + dir).parent(
+                        new SystemResource().id(FILE + root)
                 )
         ), simpleConnection);
-        expected.put(new FileResource().id(FILE + id + "/" + getFileNameFromResourceDetails(FILE_NAME_VALUE_00002, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + inputPathString.replace("\\", "/")).parent(
-                        new SystemResource().id(FILE + testFolder.getRoot().getAbsolutePath())
+        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00002, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
+                new DirectoryResource().id(FILE + dir).parent(
+                        new SystemResource().id(FILE + root)
                 )
         ), simpleConnection);
         //when
@@ -284,7 +307,7 @@ public class HadoopResourceServiceTest {
     }
 
     @Test
-    public void addResourceTest() throws Exception {
+    public void addResourceTest() {
         try {
             resourceService.addResource(null);
             fail("exception expected");
@@ -323,9 +346,9 @@ public class HadoopResourceServiceTest {
     @Test
     public void shouldErrorWithNoConnectionDetails() throws Exception {
         //given
-        final String id = inputPathString.replace("\\", "/") + "/" + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE);
-        writeFile(fs, inputPathString, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, inputPathString, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
+        final String id = dir + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE);
+        writeFile(fs, dir, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
+        writeFile(fs, dir, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
         expected.put(new FileResource().id(id).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE), simpleConnection);
 
         //when
@@ -344,12 +367,12 @@ public class HadoopResourceServiceTest {
     @Test
     public void shouldGetFormatConnectionWhenNoTypeConnection() throws Exception {
         //given
-        final String id = inputPathString.replace("\\", "/") + "/" + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE);
-        writeFile(fs, inputPathString, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, inputPathString, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
+        final String id = dir + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE);
+        writeFile(fs, dir, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
+        writeFile(fs, dir, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
         expected.put(new FileResource().id(FILE + id).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + inputPathString.replace("\\", "/")).parent(
-                        new SystemResource().id(FILE + testFolder.getRoot().getAbsolutePath())
+                new DirectoryResource().id(FILE + dir).parent(
+                        new SystemResource().id(FILE + root)
                 )
         ), simpleConnection);
 
@@ -361,30 +384,41 @@ public class HadoopResourceServiceTest {
     }
 
     @Test
-    public void shouldResolveParents() throws Exception {
-        String[] walk = new String[]{
-                testFolder.getRoot().getAbsolutePath(),
-                "inputDir",
-                "folder1",
-                "folder2",
-                getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE)};
+    public void shouldResolveParents() {
+        final String id = dir + "folder1/folder2/" + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE);
+        final FileResource fileResource = new FileResource().id(id);
 
-        ChildResource childResource = new FileResource().id(asUri(String.join("/", walk)));
-        HadoopResourceService.resolveParents(childResource, config);
-        ParentResource parentResource = childResource.getParent();
+        HadoopResourceService.resolveParents(fileResource, config);
+        final ParentResource parent1 = fileResource.getParent();
 
-        for (int depth = walk.length; depth > 1; depth--) {
-            String parent = String.join("/", ArrayUtils.subarray(walk, 0, depth - 1));
-            String child = parent + "/" + walk[depth - 1];
+        assertEquals(dir + "folder1/folder2/", unixify(parent1.getId()));
+        assertTrue(parent1 instanceof ChildResource);
+        assertTrue(parent1 instanceof DirectoryResource);
 
-            assertEquals(asUri(parent), asUri(parentResource.getId()));
-            assertEquals(asUri(child), asUri(childResource.getId()));
+        final ChildResource child = (ChildResource) parent1;
 
-            if (depth > 2) {
-                childResource = (ChildResource) parentResource;
-                parentResource = childResource.getParent();
-            }
-        }
+        HadoopResourceService.resolveParents(child, config);
+        final ParentResource parent2 = child.getParent();
+
+        assertEquals(dir + "folder1/", unixify(parent2.getId()));
+        assertTrue(parent2 instanceof ChildResource);
+        assertTrue(parent2 instanceof DirectoryResource);
+
+        final ChildResource child2 = (ChildResource) parent2;
+
+        HadoopResourceService.resolveParents(child2, config);
+        final ParentResource parent3 = child2.getParent();
+
+        assertEquals(dir, unixify(parent3.getId()));
+        assertTrue(parent3 instanceof ChildResource);
+        assertTrue(parent3 instanceof DirectoryResource);
+
+        final ChildResource child3 = (ChildResource) parent3;
+
+        HadoopResourceService.resolveParents(child3, config);
+        final ParentResource parent4 = child3.getParent();
+
+        assertEquals(root, unixify(parent4.getId()));
     }
 
     private LeafResource mockResource() {
@@ -402,7 +436,6 @@ public class HadoopResourceServiceTest {
     }
 
     private CompletableFuture<Map<LeafResource, ConnectionDetail>> mockCompletableFuture() {
-
         final CompletableFuture<Map<LeafResource, ConnectionDetail>> future = new CompletableFuture<Map<LeafResource, ConnectionDetail>>();
         final Map<LeafResource, ConnectionDetail> map = new HashMap<>();
         map.put(mockResource(), mockConnection());
@@ -413,17 +446,17 @@ public class HadoopResourceServiceTest {
     private Configuration createConf() {
         // Set up local conf
         final Configuration conf = new Configuration();
-        conf.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, FILE + testFolder.getRoot().getAbsolutePath().replace("\\", "/"));
+        conf.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, FILE + unixify(testFolder.getRoot().getAbsolutePath()));
         return conf;
     }
 
     private void writeFile(final FileSystem fs, final String parentPath, final String name, final String format, final String type) throws IOException {
-        writeFile(fs, parentPath + "/" + getFileNameFromResourceDetails(name, type, format));
+        writeFile(fs, parentPath + getFileNameFromResourceDetails(name, type, format));
     }
 
     private void writeFile(final FileSystem fs, final String filePathString) throws IOException {
         //Write Some file
-        final Path filePath = new Path(filePathString);
+        final Path filePath = new Path(deunixify(filePathString));
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(filePath, true)))) {
             writer.write("myContents");
         }

@@ -12,13 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-FROM openjdk:11@sha256:736dd07fc5cb53060a49d38c86b9e673974510c5a18afc40b1c936475f59aee7
-VOLUME /tmp
 
-ARG JAR_FILE
+#For List of rules to ignore see: https://github.com/hadolint/hadolint#rules
+#and add in this format: - DL3000
+ignored:
 
-COPY $JAR_FILE /usr/share/audit-service/audit-service-test.jar
-
-LABEL service="audit-test" project="integration-tests"
-
-ENTRYPOINT ["java", "-jar", "/usr/share/audit-service/audit-service-test.jar"]
+trustedRegistries:
+- docker.io
