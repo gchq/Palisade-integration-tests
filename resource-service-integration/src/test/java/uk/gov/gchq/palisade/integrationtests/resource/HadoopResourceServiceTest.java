@@ -31,7 +31,6 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.palisade.RequestId;
-import uk.gov.gchq.palisade.integrationtests.resource.impl.MockDataService;
 import uk.gov.gchq.palisade.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.palisade.resource.ChildResource;
 import uk.gov.gchq.palisade.resource.LeafResource;
@@ -138,7 +137,7 @@ public class HadoopResourceServiceTest {
         fs = FileSystem.get(config);
         fs.mkdirs(new Path(root + "inputDir"));
         expected = Maps.newHashMap();
-        simpleConnection = new SimpleConnectionDetail().service(new MockDataService());
+        simpleConnection = new SimpleConnectionDetail().uri("data-service");
 
         resourceService = new HadoopResourceService(config);
         resourceService.addDataService(simpleConnection);

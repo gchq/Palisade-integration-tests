@@ -17,8 +17,8 @@ VOLUME /tmp
 
 ARG JAR_FILE
 
-ADD $JAR_FILE /usr/share/palisade-service/cache-service-test.jar
+COPY $JAR_FILE /usr/share/palisade-service/cache-service-test.jar
 
-LABEL service="cache-test", project="integration-tests"
+LABEL service="cache-test" project="integration-tests"
 
 ENTRYPOINT ["java", "-jar", "/usr/share/palisade-service/cache-service-test.jar"]
