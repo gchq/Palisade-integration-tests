@@ -1,0 +1,68 @@
+# Copyright 2020 Crown Copyright
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+spring:
+  application:
+    name: palisade-service
+  output:
+    ansi:
+      enabled: always
+  main:
+    allow-bean-definition-overriding: true
+
+server:
+  port: 8084
+
+eureka:
+  instance:
+    hostname: localhost
+    port: 8083
+  client:
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${eureka.instance.port}/eureka/
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+        - health
+        - info
+        - metrics
+        - loggers
+    loggers:
+      enabled: true
+
+web:
+  client:
+    audit-service: http://localhost:8081
+    policy-service: http://localhost:8085
+    resource-service: http://localhost:8086
+    user-service: http://localhost:8087
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: basic
+    default-config: default
+
+cache:
+  implementation: hashmap
+  props: "cache.properties"
+  etcd:
+  - http://localhost:2379

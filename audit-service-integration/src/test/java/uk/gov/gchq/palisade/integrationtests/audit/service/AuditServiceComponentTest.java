@@ -65,7 +65,7 @@ public class AuditServiceComponentTest extends AuditTestCommon {
 
     @Test
     public void isUp() {
-        final String health = this.restTemplate.getForObject("/actuator/health", String.class);
+        final String health = restTemplate.getForObject("/actuator/health", String.class);
 
         assertThat(health, is(equalTo("{\"status\":\"UP\"}")));
     }
