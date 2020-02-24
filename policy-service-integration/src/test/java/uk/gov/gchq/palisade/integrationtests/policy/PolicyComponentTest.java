@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -79,12 +80,14 @@ public class PolicyComponentTest extends PolicyTestCommon {
         CanAccessRequest accessRequest = new CanAccessRequest().user(user).resources(resources).context(context);
         accessRequest.originalRequestId(new RequestId().id("test-id"));
         CanAccessResponse accessResponse = restTemplate.postForObject("/canAccess", accessRequest, CanAccessResponse.class);
-        assertThat(accessResponse.getCanAccessResources(), equalTo(resources));
+        for (Resource resource: resources) {
+            assertThat(accessResponse.getCanAccessResources(), hasItem(resource));
+        }
 
         // When the policies on the resource are requested
         GetPolicyRequest getRequest = new GetPolicyRequest().user(user).resources(resources).context(context);
         getRequest.originalRequestId(new RequestId().id("test-id"));
-        MultiPolicy getResponse = restTemplate.postForObject("/getPolcySync", getRequest, MultiPolicy.class);
+        MultiPolicy getResponse = restTemplate.postForObject("/getPolicySync", getRequest, MultiPolicy.class);
 
         // Then the policy just added is found on the resource
         assertThat(getResponse.getPolicy(newFile), equalTo(passThroughPolicy));
