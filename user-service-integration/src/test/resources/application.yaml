@@ -15,7 +15,7 @@
 spring:
   cache:
     caffeine:
-      spec: expireAfterWrite=2s, maximumSize=100
+      spec: expireAfterWrite=20s, maximumSize=100
   application:
     name: user-service
   output:

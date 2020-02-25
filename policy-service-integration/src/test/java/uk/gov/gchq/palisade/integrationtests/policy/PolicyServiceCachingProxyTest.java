@@ -30,6 +30,7 @@ import uk.gov.gchq.palisade.policy.PassThroughRule;
 import uk.gov.gchq.palisade.resource.Resource;
 import uk.gov.gchq.palisade.resource.StubResource;
 import uk.gov.gchq.palisade.resource.impl.FileResource;
+import uk.gov.gchq.palisade.resource.impl.SystemResource;
 import uk.gov.gchq.palisade.service.policy.PolicyApplication;
 import uk.gov.gchq.palisade.service.policy.request.Policy;
 import uk.gov.gchq.palisade.service.policy.service.PolicyService;
@@ -97,7 +98,7 @@ public class PolicyServiceCachingProxyTest extends PolicyTestCommon {
         // Given - the requested resource is not added
 
         // When
-        Optional<Policy> policy = cacheProxy.getPolicy(newFile);
+        Optional<Policy> policy = cacheProxy.getPolicy(new FileResource().id("does not exist").type("null").serialisedFormat("null").parent(new SystemResource().id("also does not exist")));
 
         // Then
         assertTrue(policy.isEmpty());
