@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.palisade.integrationtests.policy;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +25,12 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import uk.gov.gchq.palisade.RequestId;
-import uk.gov.gchq.palisade.resource.Resource;
+import uk.gov.gchq.palisade.resource.LeafResource;
 import uk.gov.gchq.palisade.service.policy.PolicyApplication;
 import uk.gov.gchq.palisade.service.policy.request.CanAccessRequest;
 import uk.gov.gchq.palisade.service.policy.request.CanAccessResponse;
 import uk.gov.gchq.palisade.service.policy.request.GetPolicyRequest;
-import uk.gov.gchq.palisade.service.policy.request.MultiPolicy;
+import uk.gov.gchq.palisade.service.policy.request.GetPolicyResponse;
 import uk.gov.gchq.palisade.service.policy.request.SetResourcePolicyRequest;
 import uk.gov.gchq.palisade.service.policy.service.PolicyService;
 
@@ -53,10 +54,14 @@ public class PolicyComponentTest extends PolicyTestCommon {
     @Autowired
     TestRestTemplate restTemplate;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     @Test
     public void contextLoads() {
         assertNotNull(serviceMap);
         assertNotEquals(serviceMap, Collections.emptyMap());
+        assertNotNull(objectMapper);
     }
 
     @Test
@@ -69,7 +74,7 @@ public class PolicyComponentTest extends PolicyTestCommon {
     @Test
     public void componentTest() {
         // Given there are resources and policies to be added
-        Collection<Resource> resources = Collections.singleton(newFile);
+        Collection<LeafResource> resources = Collections.singleton(newFile);
 
         // When a resource is added
         SetResourcePolicyRequest addRequest = new SetResourcePolicyRequest().resource(newFile).policy(passThroughPolicy);
@@ -80,16 +85,16 @@ public class PolicyComponentTest extends PolicyTestCommon {
         CanAccessRequest accessRequest = new CanAccessRequest().user(user).resources(resources).context(context);
         accessRequest.originalRequestId(new RequestId().id("test-id"));
         CanAccessResponse accessResponse = restTemplate.postForObject("/canAccess", accessRequest, CanAccessResponse.class);
-        for (Resource resource: resources) {
+        for (LeafResource resource: resources) {
             assertThat(accessResponse.getCanAccessResources(), hasItem(resource));
         }
 
         // When the policies on the resource are requested
         GetPolicyRequest getRequest = new GetPolicyRequest().user(user).resources(resources).context(context);
         getRequest.originalRequestId(new RequestId().id("test-id"));
-        MultiPolicy getResponse = restTemplate.postForObject("/getPolicySync", getRequest, MultiPolicy.class);
+        GetPolicyResponse getResponse = restTemplate.postForObject("/getPolicySync", getRequest, GetPolicyResponse.class);
 
         // Then the policy just added is found on the resource
-        assertThat(getResponse.getPolicy(newFile), equalTo(passThroughPolicy));
+        assertThat(getResponse.getRecordRules().get(newFile), equalTo(passThroughPolicy.getRecordRules()));
     }
 }

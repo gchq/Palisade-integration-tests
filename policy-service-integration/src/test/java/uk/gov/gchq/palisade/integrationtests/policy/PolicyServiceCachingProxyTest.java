@@ -50,8 +50,6 @@ import static org.junit.Assume.assumeTrue;
 public class PolicyServiceCachingProxyTest extends PolicyTestCommon {
     private static final Logger LOGGER = LoggerFactory.getLogger(PolicyServiceCachingProxyTest.class);
 
-
-
     @Autowired
     private PolicyServiceCachingProxy cacheProxy;
     @Autowired
