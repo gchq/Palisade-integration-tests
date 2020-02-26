@@ -16,21 +16,24 @@
 
 package uk.gov.gchq.palisade.integrationtests.policy;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.Response;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import uk.gov.gchq.palisade.RequestId;
 import uk.gov.gchq.palisade.resource.LeafResource;
+import uk.gov.gchq.palisade.rule.Rules;
 import uk.gov.gchq.palisade.service.policy.PolicyApplication;
 import uk.gov.gchq.palisade.service.policy.request.CanAccessRequest;
 import uk.gov.gchq.palisade.service.policy.request.CanAccessResponse;
 import uk.gov.gchq.palisade.service.policy.request.GetPolicyRequest;
-import uk.gov.gchq.palisade.service.policy.request.GetPolicyResponse;
 import uk.gov.gchq.palisade.service.policy.request.SetResourcePolicyRequest;
 import uk.gov.gchq.palisade.service.policy.service.PolicyService;
 
@@ -41,34 +44,32 @@ import java.util.Map;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = PolicyApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@EnableFeignClients
+@SpringBootTest(classes = PolicyApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
 public class PolicyComponentTest extends PolicyTestCommon {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PolicyCachingProxyTest.class);
+
     @Autowired
     Map<String, PolicyService> serviceMap;
 
     @Autowired
-    TestRestTemplate restTemplate;
-
-    @Autowired
-    ObjectMapper objectMapper;
+    PolicyClient policyClient;
 
     @Test
     public void contextLoads() {
         assertNotNull(serviceMap);
         assertNotEquals(serviceMap, Collections.emptyMap());
-        assertNotNull(objectMapper);
     }
 
     @Test
     public void isUp() {
-        final String health = restTemplate.getForObject("/actuator/health", String.class);
+        Response health = policyClient.getActuatorHealth();
 
-        assertThat(health, is(equalTo("{\"status\":\"UP\"}")));
+        assertThat(health.status(), equalTo(200));
     }
 
     @Test
@@ -79,12 +80,12 @@ public class PolicyComponentTest extends PolicyTestCommon {
         // When a resource is added
         SetResourcePolicyRequest addRequest = new SetResourcePolicyRequest().resource(newFile).policy(passThroughPolicy);
         addRequest.originalRequestId(new RequestId().id("test-id"));
-        restTemplate.put("/setResourcePolicyAsync", addRequest);
+        policyClient.setResourcePolicyAsync(addRequest);
 
         // Given it is accessible
         CanAccessRequest accessRequest = new CanAccessRequest().user(user).resources(resources).context(context);
         accessRequest.originalRequestId(new RequestId().id("test-id"));
-        CanAccessResponse accessResponse = restTemplate.postForObject("/canAccess", accessRequest, CanAccessResponse.class);
+        CanAccessResponse accessResponse = policyClient.canAccess(accessRequest);
         for (LeafResource resource: resources) {
             assertThat(accessResponse.getCanAccessResources(), hasItem(resource));
         }
@@ -92,9 +93,10 @@ public class PolicyComponentTest extends PolicyTestCommon {
         // When the policies on the resource are requested
         GetPolicyRequest getRequest = new GetPolicyRequest().user(user).resources(resources).context(context);
         getRequest.originalRequestId(new RequestId().id("test-id"));
-        GetPolicyResponse getResponse = restTemplate.postForObject("/getPolicySync", getRequest, GetPolicyResponse.class);
+        Map<LeafResource, Rules> getResponse = policyClient.getPolicySync(getRequest);
+        LOGGER.info("Response: {}", getResponse);
 
         // Then the policy just added is found on the resource
-        assertThat(getResponse.getRecordRules().get(newFile), equalTo(passThroughPolicy.getRecordRules()));
+        assertThat(getResponse.get(newFile), equalTo(passThroughPolicy.getRecordRules()));
     }
 }

@@ -155,5 +155,4 @@ uk.gov.gchq.palisade:user-service-integration:jar:0.4.0-SNAPSHOT
 |  |  \- com.vaadin.external.google:android-json:jar:0.0.20131108.vaadin1:test
 |  +- org.springframework:spring-test:jar:5.1.9.RELEASE:test
 |  \- org.xmlunit:xmlunit-core:jar:2.6.3:test
-+- uk.gov.gchq.palisade:user-service:jar:0.4.0-SNAPSHOT:compile
 \- org.springframework.boot:spring-boot-autoconfigure:jar:2.1.8.RELEASE:compile

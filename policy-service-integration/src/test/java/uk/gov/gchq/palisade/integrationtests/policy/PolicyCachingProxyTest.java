@@ -44,11 +44,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
-
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = PolicyApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class PolicyServiceCachingProxyTest extends PolicyTestCommon {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PolicyServiceCachingProxyTest.class);
+public class PolicyCachingProxyTest extends PolicyTestCommon {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PolicyCachingProxyTest.class);
 
     @Autowired
     private PolicyServiceCachingProxy cacheProxy;
