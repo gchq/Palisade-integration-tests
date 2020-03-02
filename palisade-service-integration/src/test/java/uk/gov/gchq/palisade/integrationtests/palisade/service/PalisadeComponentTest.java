@@ -118,7 +118,7 @@ public class PalisadeComponentTest {
 
         //When the final service starts
         userMock.start();
-        //Then Palisade service still shows as up
+        //Then Palisade service shows as up
         final String allUpHealth = this.restTemplate.getForObject("/actuator/health", String.class);
         assertThat(allUpHealth, is(equalTo("{\"status\":\"UP\"}")));
     }
