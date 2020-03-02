@@ -28,8 +28,11 @@ import uk.gov.gchq.palisade.service.SimpleConnectionDetail;
 import java.util.Collections;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
@@ -47,9 +50,16 @@ public class ResourceServiceMock {
 
     public static void stubRule(WireMockRule serviceMock, ObjectMapper serializer) throws JsonProcessingException {
         serviceMock.stubFor(post(urlMatching("/getResourcesBy(Id|Resource|Type|SerialisedFormat)"))
-            .willReturn(
-                okJson(serializer.writeValueAsString(getResources()))
-            ));
+                .willReturn(
+                        okJson(serializer.writeValueAsString(getResources()))
+                ));
+    }
+
+    public static void stubHealthRule(WireMockRule serviceMock, ObjectMapper serializer) throws JsonProcessingException {
+        serviceMock.stubFor(get(urlEqualTo("/actuator/health"))
+                .willReturn(
+                        aResponse()
+                ));
     }
 
 }

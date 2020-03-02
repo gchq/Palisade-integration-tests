@@ -39,6 +39,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -78,5 +80,12 @@ public class PolicyServiceMock {
             .willReturn(
                 okJson(serializer.writeValueAsString(getPolicies()))
             ));
+    }
+
+    public static void stubHealthRule(WireMockRule serviceMock, ObjectMapper serializer) throws JsonProcessingException {
+        serviceMock.stubFor(get(urlEqualTo("/actuator/health"))
+                .willReturn(
+                        aResponse()
+                ));
     }
 }

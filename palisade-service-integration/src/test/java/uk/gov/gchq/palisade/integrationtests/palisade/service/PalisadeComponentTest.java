@@ -76,8 +76,11 @@ public class PalisadeComponentTest {
     public void setUp() throws JsonProcessingException {
         AuditServiceMock.stubRule(auditMock, serializer);
         PolicyServiceMock.stubRule(policyMock, serializer);
+        PolicyServiceMock.stubHealthRule(policyMock, serializer);
         ResourceServiceMock.stubRule(resourceMock, serializer);
+        ResourceServiceMock.stubHealthRule(resourceMock, serializer);
         UserServiceMock.stubRule(userMock, serializer);
+        UserServiceMock.stubHealthRule(userMock, serializer);
     }
 
     @Test
@@ -90,6 +93,51 @@ public class PalisadeComponentTest {
         final String health = this.restTemplate.getForObject("/actuator/health", String.class);
         assertThat(health, is(equalTo("{\"status\":\"UP\"}")));
     }
+
+    @Test
+    public void userServiceDownsPalisade() {
+        //Given the UserService goes down
+        userMock.stop();
+        //Then the Palisade Service also reports down.
+        final String downHealth = this.restTemplate.getForObject("/actuator/health", String.class);
+        assertThat(downHealth, is(equalTo("{\"status\":\"DOWN\"}")));
+
+        //When the UserService restarts
+        userMock.start();
+        //Then
+        final String upHealth = this.restTemplate.getForObject("/actuator/health", String.class);
+        assertThat(upHealth, is(equalTo("{\"status\":\"UP\"}")));
+    }
+
+    @Test
+    public void allServicesDown() {
+        //Given all services are down
+        policyMock.stop();
+        resourceMock.stop();
+        userMock.stop();
+        //Then the Palisade Service also reports down.
+        final String downHealth = this.restTemplate.getForObject("/actuator/health", String.class);
+        assertThat(downHealth, is(equalTo("{\"status\":\"DOWN\"}")));
+
+        //When the services start one by one
+        policyMock.start();
+        //Then Palisade service still shows as down
+        final String policyDownHealth = this.restTemplate.getForObject("/actuator/health", String.class);
+        assertThat(policyDownHealth, is(equalTo("{\"status\":\"DOWN\"}")));
+
+        //When the resource service starts
+        resourceMock.start();
+        //Then Palisade service still shows as down
+        final String resourceDownHealth = this.restTemplate.getForObject("/actuator/health", String.class);
+        assertThat(resourceDownHealth, is(equalTo("{\"status\":\"DOWN\"}")));
+
+        //When the final service starts
+        userMock.start();
+        //Then Palisade service still shows as up
+        final String allUpHealth = this.restTemplate.getForObject("/actuator/health", String.class);
+        assertThat(allUpHealth, is(equalTo("{\"status\":\"UP\"}")));
+    }
+
 
     @Test
     public void registerDataRequestTest() {

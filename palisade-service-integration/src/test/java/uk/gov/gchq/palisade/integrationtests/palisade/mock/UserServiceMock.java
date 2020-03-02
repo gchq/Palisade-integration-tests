@@ -24,6 +24,8 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import uk.gov.gchq.palisade.User;
 import uk.gov.gchq.palisade.UserId;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -42,8 +44,15 @@ public class UserServiceMock {
 
     public static void stubRule(WireMockRule serviceMock, ObjectMapper serializer) throws JsonProcessingException {
         serviceMock.stubFor(post(urlEqualTo("/getUser"))
-            .willReturn(
-                okJson(serializer.writeValueAsString(getUser()))
-            ));
+                .willReturn(
+                        okJson(serializer.writeValueAsString(getUser()))
+                ));
+    }
+
+    public static void stubHealthRule(WireMockRule serviceMock, ObjectMapper serializer) throws JsonProcessingException {
+        serviceMock.stubFor(get(urlEqualTo("/actuator/health"))
+                .willReturn(
+                        aResponse()
+                ));
     }
 }
