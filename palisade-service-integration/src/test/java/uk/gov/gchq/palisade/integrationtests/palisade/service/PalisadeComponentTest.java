@@ -95,21 +95,6 @@ public class PalisadeComponentTest {
     }
 
     @Test
-    public void userServiceDownsPalisade() {
-        //Given the UserService goes down
-        userMock.stop();
-        //Then the Palisade Service also reports down.
-        final String downHealth = this.restTemplate.getForObject("/actuator/health", String.class);
-        assertThat(downHealth, is(equalTo("{\"status\":\"DOWN\"}")));
-
-        //When the UserService restarts
-        userMock.start();
-        //Then
-        final String upHealth = this.restTemplate.getForObject("/actuator/health", String.class);
-        assertThat(upHealth, is(equalTo("{\"status\":\"UP\"}")));
-    }
-
-    @Test
     public void allServicesDown() {
         //Given all services are down
         policyMock.stop();
