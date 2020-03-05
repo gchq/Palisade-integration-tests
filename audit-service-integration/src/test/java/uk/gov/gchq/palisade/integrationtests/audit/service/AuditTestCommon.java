@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.palisade.integrationtests.audit.service;
 
 import org.mockito.internal.util.collections.Sets;
@@ -12,10 +28,7 @@ import uk.gov.gchq.palisade.resource.impl.FileResource;
 import uk.gov.gchq.palisade.resource.impl.SystemResource;
 import uk.gov.gchq.palisade.rule.Rules;
 import uk.gov.gchq.palisade.service.Service;
-import uk.gov.gchq.palisade.service.audit.request.ReadRequestCompleteAuditRequest;
-import uk.gov.gchq.palisade.service.audit.request.ReadRequestExceptionAuditRequest;
-import uk.gov.gchq.palisade.service.audit.request.RegisterRequestCompleteAuditRequest;
-import uk.gov.gchq.palisade.service.audit.request.RegisterRequestExceptionAuditRequest;
+import uk.gov.gchq.palisade.service.audit.request.AuditRequest;
 
 import java.util.Collections;
 
@@ -60,15 +73,15 @@ class AuditTestCommon {
         return new Rules<>().message(TEST_RULES_APPLIED);
     }
 
-    static RegisterRequestCompleteAuditRequest registerRequestCompleteAuditRequest() {
-        return RegisterRequestCompleteAuditRequest.create(mockOriginalRequestId())
+    static AuditRequest.RegisterRequestCompleteAuditRequest registerRequestCompleteAuditRequest() {
+        return AuditRequest.RegisterRequestCompleteAuditRequest.create(mockOriginalRequestId())
                 .withUser(mockUser())
                 .withLeafResources(Sets.newSet(mockResource()))
                 .withContext(mockContext());
     }
 
-    static RegisterRequestExceptionAuditRequest registerRequestExceptionAuditRequest() {
-        return RegisterRequestExceptionAuditRequest.create(mockOriginalRequestId())
+    static AuditRequest.RegisterRequestExceptionAuditRequest registerRequestExceptionAuditRequest() {
+        return AuditRequest.RegisterRequestExceptionAuditRequest.create(mockOriginalRequestId())
                 .withUserId(mockUserID())
                 .withResourceId(mockResource().getId())
                 .withContext(mockContext())
@@ -76,8 +89,8 @@ class AuditTestCommon {
                 .withServiceClass(Service.class);
     }
 
-    static ReadRequestCompleteAuditRequest readRequestCompleteAuditRequest() {
-        return ReadRequestCompleteAuditRequest.create(mockOriginalRequestId())
+    static AuditRequest.ReadRequestCompleteAuditRequest readRequestCompleteAuditRequest() {
+        return AuditRequest.ReadRequestCompleteAuditRequest.create(mockOriginalRequestId())
                 .withUser(mockUser())
                 .withLeafResource(mockResource())
                 .withContext(mockContext())
@@ -86,8 +99,8 @@ class AuditTestCommon {
                 .withNumberOfRecordsProcessed(TEST_NUMBER_OF_RECORDS_PROCESSED);
     }
 
-    static ReadRequestExceptionAuditRequest readRequestExceptionAuditRequest() {
-        return ReadRequestExceptionAuditRequest.create(mockOriginalRequestId())
+    static AuditRequest.ReadRequestExceptionAuditRequest readRequestExceptionAuditRequest() {
+        return AuditRequest.ReadRequestExceptionAuditRequest.create(mockOriginalRequestId())
                 .withToken(TEST_TOKEN)
                 .withLeafResource(mockResource())
                 .withException(mockException());

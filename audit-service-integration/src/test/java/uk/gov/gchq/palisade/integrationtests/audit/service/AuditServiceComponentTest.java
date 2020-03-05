@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.palisade.integrationtests.audit.service;
 
 import org.junit.Test;
@@ -26,8 +42,8 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = AuditApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
-public class AuditEndToEndTest extends AuditTestCommon {
-    Logger LOGGER = LoggerFactory.getLogger(AuditEndToEndTest.class);
+public class AuditServiceComponentTest extends AuditTestCommon {
+    Logger LOGGER = LoggerFactory.getLogger(AuditServiceComponentTest.class);
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -49,13 +65,13 @@ public class AuditEndToEndTest extends AuditTestCommon {
 
     @Test
     public void isUp() {
-        final String health = this.restTemplate.getForObject("/actuator/health", String.class);
+        final String health = restTemplate.getForObject("/actuator/health", String.class);
 
         assertThat(health, is(equalTo("{\"status\":\"UP\"}")));
     }
 
     @Test
-    public void endToEnd() {
+    public void componentTest() {
         requests.forEach(request -> {
             Boolean response = restTemplate.postForObject("/audit", request, Boolean.class);
 

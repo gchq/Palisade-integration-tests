@@ -13,8 +13,11 @@
 # limitations under the License.
 #
 spring:
+  cache:
+    caffeine:
+      spec: expireAfterWrite=2s, maximumSize=100
   application:
-    name: palisade-service
+    name: user-service
   output:
     ansi:
       enabled: always
@@ -22,7 +25,7 @@ spring:
     allow-bean-definition-overriding: true
 
 server:
-  port: 8084
+  port: 8087
 
 eureka:
   instance:
@@ -45,13 +48,6 @@ management:
     loggers:
       enabled: true
 
-web:
-  client:
-    audit-service: http://localhost:8081
-    policy-service: http://localhost:8085
-    resource-service: http://localhost:8086
-    user-service: http://localhost:8087
-
 feign:
   client:
     config:
@@ -61,8 +57,5 @@ feign:
         loggerLevel: basic
     default-config: default
 
-cache:
-  implementation: hashmap
-  props: "cache.properties"
-  etcd:
-  - http://localhost:2379
+user-service:
+  implementation: null-user-service

@@ -12,13 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-FROM openjdk:11@sha256:736dd07fc5cb53060a49d38c86b9e673974510c5a18afc40b1c936475f59aee7
-VOLUME /tmp
+replicaCount: 1
 
-ARG JAR_FILE
+service:
+  port: 8011
 
-COPY $JAR_FILE /usr/share/audit-service/audit-service-test.jar
+image:
+  repository: palisade/user-service-test
+  tag: 48479c1-SNAPSHOT
+  pullPolicy: IfNotPresent
 
-LABEL service="audit-test" project="integration-tests"
+resources:
+  limits:
+    cpu: 750m
+    memory: 2.5Gi
+  requests:
+    cpu: 250m
+    memory: 1Gi
 
-ENTRYPOINT ["java", "-jar", "/usr/share/audit-service/audit-service-test.jar"]
+nodeSelector: {}
+tolerations: []
+affinity: {}
