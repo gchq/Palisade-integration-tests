@@ -74,7 +74,7 @@ spec:
             echo sh(script: 'env|sort', returnStdout: true)
         }
         stage('Build Palisade Services') {
-                git url: 'https://github.com/gchq/Palisade-integration-tests.git'
+                git url: 'https://github.com/gchq/Palisade-services.git'
                 sh "git fetch origin develop"
                 sh "git checkout ${env.BRANCH_NAME} || git checkout develop"
                     container('docker-cmds') {
