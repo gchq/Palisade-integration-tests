@@ -91,8 +91,6 @@ spec:
                 }
             }
         }
-
-
         stage('Hadolinting') {
             container('hadolint') {
                 sh 'hadolint */Dockerfile'
