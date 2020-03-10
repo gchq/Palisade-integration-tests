@@ -17,6 +17,7 @@
 package uk.gov.gchq.palisade.integrationtests.palisade.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.Before;
@@ -27,6 +28,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import uk.gov.gchq.palisade.Context;
@@ -38,6 +42,10 @@ import uk.gov.gchq.palisade.integrationtests.palisade.mock.ResourceServiceMock;
 import uk.gov.gchq.palisade.integrationtests.palisade.mock.UserServiceMock;
 import uk.gov.gchq.palisade.resource.Resource;
 import uk.gov.gchq.palisade.service.palisade.PalisadeApplication;
+import uk.gov.gchq.palisade.service.palisade.config.ApplicationConfiguration;
+import uk.gov.gchq.palisade.service.palisade.repository.DataRequestRepository;
+import uk.gov.gchq.palisade.service.palisade.repository.LeafResourceRulesRepository;
+import uk.gov.gchq.palisade.service.palisade.repository.PersistenceLayer;
 import uk.gov.gchq.palisade.service.palisade.request.GetDataRequestConfig;
 import uk.gov.gchq.palisade.service.palisade.request.RegisterDataRequest;
 import uk.gov.gchq.palisade.service.palisade.service.PalisadeService;
@@ -54,6 +62,8 @@ import static org.junit.Assume.assumeTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = PalisadeApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD) //reset db after each test
+@EnableJpaRepositories(basePackages = {"uk.gov.gchq.palisade.service.palisade.repository"})
 public class PalisadeComponentTest {
 
     @Autowired
@@ -62,6 +72,8 @@ public class PalisadeComponentTest {
     private ObjectMapper serializer;
     @Autowired
     private PalisadeService palisadeService;
+    @Autowired
+    private PersistenceLayer persistenceLayer;
 
     @Rule
     public WireMockRule auditMock = AuditServiceMock.getRule();
@@ -81,6 +93,7 @@ public class PalisadeComponentTest {
         ResourceServiceMock.stubHealthRule(resourceMock, serializer);
         UserServiceMock.stubRule(userMock, serializer);
         UserServiceMock.stubHealthRule(userMock, serializer);
+        serializer.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Test
@@ -141,7 +154,7 @@ public class PalisadeComponentTest {
     }
 
     @Test
-    public void getDataRequestConfigTest() {
+    public void getDataRequestConfigTest() throws InterruptedException {
         // Given all other services are mocked
         assumeTrue(auditMock.isRunning());
         assumeTrue(policyMock.isRunning());
