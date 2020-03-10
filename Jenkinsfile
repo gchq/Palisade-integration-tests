@@ -73,6 +73,16 @@ spec:
         stage('Bootstrap') {
             echo sh(script: 'env|sort', returnStdout: true)
         }
+        stage('Build Palisade Services') {
+                git url: 'https://github.com/gchq/Palisade-services.git'
+                sh "git fetch origin develop"
+                sh "git checkout ${env.BRANCH_NAME} || git checkout develop"
+                    container('docker-cmds') {
+                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                            sh 'mvn -s $MAVEN_SETTINGS install'
+                        }
+                    }
+                }
         stage('Install a Maven project') {
             git branch: "${env.BRANCH_NAME}", url: 'https://github.com/gchq/Palisade-integration-tests.git'
             container('docker-cmds') {
