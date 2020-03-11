@@ -59,8 +59,7 @@ import static org.junit.Assume.assumeTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = PalisadeApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-//reset db after each test
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD) //reset db after each test
 @EnableJpaRepositories(basePackages = {"uk.gov.gchq.palisade.service.palisade.repository"})
 public class PalisadeComponentTest {
 
@@ -89,11 +88,6 @@ public class PalisadeComponentTest {
         ResourceServiceMock.stubRule(resourceMock, serializer);
         UserServiceMock.stubRule(userMock, serializer);
         serializer.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
-
-    @After
-    public void tearDown() {
-
     }
 
     @Test
