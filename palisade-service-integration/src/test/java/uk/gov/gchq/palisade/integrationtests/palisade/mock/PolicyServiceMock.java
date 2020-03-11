@@ -51,7 +51,7 @@ public class PolicyServiceMock {
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
     static class StubRule<T> implements Rule<T> {
         @Override
-        public T apply(T data, User user, Context context) {
+        public T apply(final T data, final User user, final Context context) {
             return null;
         }
     }
@@ -73,7 +73,7 @@ public class PolicyServiceMock {
         return policyBuilder.apply(resources.keySet());
     }
 
-    public static void stubRule(WireMockRule serviceMock, ObjectMapper serializer) throws JsonProcessingException {
+    public static void stubRule(final WireMockRule serviceMock, final ObjectMapper serializer) throws JsonProcessingException {
         serviceMock.stubFor(post(urlEqualTo("/getPolicySync"))
             .willReturn(
                 okJson(serializer.writeValueAsString(getPolicies()))

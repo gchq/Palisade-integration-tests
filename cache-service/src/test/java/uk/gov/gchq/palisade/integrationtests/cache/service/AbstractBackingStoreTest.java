@@ -385,7 +385,7 @@ public abstract class AbstractBackingStoreTest {
 
     //Time to live tests
 
-    protected void delay(long millis) {
+    protected void delay(final long millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
@@ -409,7 +409,7 @@ public abstract class AbstractBackingStoreTest {
         boolean completedInTime;
         SimpleCacheObject result;
 
-        public TestResult(final boolean completedInTime, final SimpleCacheObject result) {
+         TestResult(final boolean completedInTime, final SimpleCacheObject result) {
             this.completedInTime = completedInTime;
             this.result = result;
         }
@@ -417,8 +417,12 @@ public abstract class AbstractBackingStoreTest {
 
     /**
      * Method to check if the retrieval happened within a certain time.
+     *
+     * @param key the name/key of the test
+     * @param safeDelay the time in milliseconds to delay
+     * @return TestResult
      */
-    protected TestResult timedRetrieve(String key, long safeDelay) {
+    protected TestResult timedRetrieve(final String key, final long safeDelay) {
         long time = System.currentTimeMillis();
         SimpleCacheObject result = impl.get(key);
         time = System.currentTimeMillis() - time;
@@ -520,10 +524,10 @@ public abstract class AbstractBackingStoreTest {
      * @return true if streams are equal
      */
     public static <T> boolean streamEqual(final Stream<? extends T> expected, final Stream<? extends T> actual) {
-        Stream<? extends T> sort_expected = expected.sorted();
-        Stream<? extends T> sort_actual = actual.sorted();
-        List<? extends T> lhs = sort_expected.collect(Collectors.toList());
-        List<? extends T> rhs = sort_actual.collect(Collectors.toList());
+        Stream<? extends T> sortExpected = expected.sorted();
+        Stream<? extends T> sortActual = actual.sorted();
+        List<? extends T> lhs = sortExpected.collect(Collectors.toList());
+        List<? extends T> rhs = sortActual.collect(Collectors.toList());
         return lhs.equals(rhs);
     }
 }

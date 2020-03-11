@@ -17,8 +17,7 @@ uk.gov.gchq.palisade:palisade-service-integration:jar:0.4.0-SNAPSHOT
 |  |  |  |  +- commons-jxpath:commons-jxpath:jar:1.3:test
 |  |  |  |  +- joda-time:joda-time:jar:2.10.3:test
 |  |  |  |  \- org.antlr:antlr-runtime:jar:3.4:test
-|  |  |  |     +- org.antlr:stringtemplate:jar:3.2.1:test
-|  |  |  |     \- antlr:antlr:jar:2.7.7:test
+|  |  |  |     \- org.antlr:stringtemplate:jar:3.2.1:test
 |  |  |  \- org.apache.commons:commons-math:jar:2.2:test
 |  |  +- com.thoughtworks.xstream:xstream:jar:1.4.11.1:test
 |  |  |  +- xmlpull:xmlpull:jar:1.1.3.1:test
@@ -75,14 +74,34 @@ uk.gov.gchq.palisade:palisade-service-integration:jar:0.4.0-SNAPSHOT
 |  |  +- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:jar:2.9.9:test
 |  |  \- javax.validation:validation-api:jar:2.0.1.Final:compile
 |  +- org.apache.commons:commons-compress:jar:1.19:test
+|  +- org.springframework.boot:spring-boot-starter-data-jpa:jar:2.1.8.RELEASE:test
+|  |  +- org.springframework.boot:spring-boot-starter-aop:jar:2.1.8.RELEASE:test
+|  |  |  \- org.aspectj:aspectjweaver:jar:1.9.4:test
+|  |  +- org.springframework.boot:spring-boot-starter-jdbc:jar:2.1.8.RELEASE:test
+|  |  |  +- com.zaxxer:HikariCP:jar:3.2.0:test
+|  |  |  \- org.springframework:spring-jdbc:jar:5.1.9.RELEASE:test
+|  |  +- javax.transaction:javax.transaction-api:jar:1.3:test
+|  |  +- javax.xml.bind:jaxb-api:jar:2.3.1:test
+|  |  |  \- javax.activation:javax.activation-api:jar:1.2.0:test
+|  |  +- org.hibernate:hibernate-core:jar:5.3.11.Final:test
+|  |  |  +- javax.persistence:javax.persistence-api:jar:2.2:test
+|  |  |  +- org.javassist:javassist:jar:3.23.2-GA:test
+|  |  |  +- antlr:antlr:jar:2.7.7:test
+|  |  |  +- org.jboss:jandex:jar:2.0.5.Final:test
+|  |  |  +- org.dom4j:dom4j:jar:2.1.1:test
+|  |  |  \- org.hibernate.common:hibernate-commons-annotations:jar:5.0.4.Final:test
+|  |  +- org.springframework.data:spring-data-jpa:jar:2.1.10.RELEASE:test
+|  |  |  +- org.springframework.data:spring-data-commons:jar:2.1.10.RELEASE:test
+|  |  |  +- org.springframework:spring-orm:jar:5.1.9.RELEASE:test
+|  |  |  \- org.springframework:spring-tx:jar:5.1.9.RELEASE:test
+|  |  \- org.springframework:spring-aspects:jar:5.1.9.RELEASE:test
+|  +- com.h2database:h2:jar:1.4.199:test
 |  +- org.springframework.cloud:spring-cloud-config-client:jar:2.1.4.RELEASE:test
 |  |  +- org.springframework.cloud:spring-cloud-commons:jar:2.1.3.RELEASE:test
 |  |  |  \- org.springframework.security:spring-security-crypto:jar:5.1.6.RELEASE:test
 |  |  \- org.springframework.cloud:spring-cloud-context:jar:2.1.3.RELEASE:test
 |  +- org.springframework.cloud:spring-cloud-netflix-eureka-client:jar:2.1.3.RELEASE:test
 |  |  \- org.springframework.cloud:spring-cloud-netflix-hystrix:jar:2.1.3.RELEASE:test
-|  |     \- org.springframework.boot:spring-boot-starter-aop:jar:2.1.8.RELEASE:test
-|  |        \- org.aspectj:aspectjweaver:jar:1.9.4:test
 |  +- org.springframework.cloud:spring-cloud-starter-openfeign:jar:2.1.3.RELEASE:test
 |  |  +- org.springframework.cloud:spring-cloud-starter:jar:2.1.3.RELEASE:test
 |  |  |  \- org.springframework.security:spring-security-rsa:jar:1.0.7.RELEASE:test
@@ -181,6 +200,4 @@ uk.gov.gchq.palisade:palisade-service-integration:jar:0.4.0-SNAPSHOT
 |  |  \- com.vaadin.external.google:android-json:jar:0.0.20131108.vaadin1:test
 |  +- org.springframework:spring-test:jar:5.1.9.RELEASE:test
 |  \- org.xmlunit:xmlunit-core:jar:2.6.3:test
-|     \- javax.xml.bind:jaxb-api:jar:2.3.1:test
-|        \- javax.activation:javax.activation-api:jar:1.2.0:test
 \- org.springframework.boot:spring-boot-autoconfigure:jar:2.1.8.RELEASE:compile
