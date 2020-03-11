@@ -73,7 +73,7 @@ public class PolicyTestCommon {
     static final Policy secretPolicy = new Policy<>()
             .owner(secretUser)
             .resourceLevelRule("Check user has 'Secret' auth", (PredicateRule<Resource>) (resource, user, context) -> user.getAuths().contains("Secret"))
-            .recordLevelPredicateRule("Redact all with 'Testing' purpose", (record, user, context) -> context.getPurpose().equals("Testing"));
+            .recordLevelPredicateRule("Redact all with 'Testing' purpose", (record, user, context) -> !context.getPurpose().equals("Testing"));
 
     // A secret file - accessible only to the secret user
     static final FileResource secretTxtFile = new FileResource().id("/txt/secret/secrets.txt").serialisedFormat("txt").type("txt").parent(secretDirectory);

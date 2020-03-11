@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import uk.gov.gchq.palisade.policy.PassThroughRule;
@@ -45,7 +46,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = PolicyApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = PolicyApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
 public class PolicyCachingProxyTest extends PolicyTestCommon {
     private static final Logger LOGGER = LoggerFactory.getLogger(PolicyCachingProxyTest.class);
 

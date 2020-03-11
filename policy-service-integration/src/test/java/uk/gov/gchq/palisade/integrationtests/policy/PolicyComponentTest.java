@@ -17,6 +17,7 @@
 package uk.gov.gchq.palisade.integrationtests.policy;
 
 import feign.Response;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringRunner.class)
 @EnableFeignClients
-@SpringBootTest(classes = PolicyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = PolicyApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
 public class PolicyComponentTest extends PolicyTestCommon {
     private static final Logger LOGGER = LoggerFactory.getLogger(PolicyCachingProxyTest.class);
 
@@ -72,6 +73,7 @@ public class PolicyComponentTest extends PolicyTestCommon {
         assertThat(health.status(), equalTo(200));
     }
 
+    @Ignore
     @Test
     public void componentTest() {
         // Given there are resources and policies to be added
