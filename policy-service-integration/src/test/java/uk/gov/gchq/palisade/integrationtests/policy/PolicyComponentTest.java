@@ -49,7 +49,7 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringRunner.class)
 @EnableFeignClients
-@SpringBootTest(classes = PolicyApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = PolicyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class PolicyComponentTest extends PolicyTestCommon {
     private static final Logger LOGGER = LoggerFactory.getLogger(PolicyCachingProxyTest.class);
 
