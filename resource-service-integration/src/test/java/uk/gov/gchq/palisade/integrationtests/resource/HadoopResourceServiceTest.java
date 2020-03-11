@@ -75,14 +75,14 @@ public class HadoopResourceServiceTest {
     private static final Boolean IS_WIN = System.getProperty("os.name").toLowerCase().startsWith("win");
     private static final String FILE = IS_WIN ? "file:///" : "file://";
     private static final String HDFS = "hdfs:///";
-    private static File tmpDirectory;
+    private static final File TMP_DIRECTORY;
 
     static {
-        tmpDirectory = PathUtils.getTestDir(HadoopResourceServiceTest.class);
+        TMP_DIRECTORY = PathUtils.getTestDir(HadoopResourceServiceTest.class);
     }
 
     @Rule
-    public TemporaryFolder testFolder = new TemporaryFolder(tmpDirectory);
+    public TemporaryFolder testFolder = new TemporaryFolder(TMP_DIRECTORY);
     private SimpleConnectionDetail simpleConnection;
     private String root;
     private String dir;
