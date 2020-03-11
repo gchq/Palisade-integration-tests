@@ -25,7 +25,7 @@ spring:
     allow-bean-definition-overriding: true
 
 server:
-  port: 8085
+  port: 18085
 
 eureka:
   instance:
