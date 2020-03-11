@@ -40,7 +40,7 @@ public interface PolicyClient {
     Response getActuatorHealth();
 
     @PostMapping(value = "/canAccess", consumes = "application/json", produces = "application/json")
-    CanAccessResponse canAccess(final URI url, @RequestBody final CanAccessRequest request);
+    CanAccessResponse canAccess(final CanAccessRequest request);
 
     @PostMapping(path = "/getPolicySync", consumes = "application/json", produces = "application/json")
     Map<LeafResource, Rules> getPolicySync(final GetPolicyRequest request);
