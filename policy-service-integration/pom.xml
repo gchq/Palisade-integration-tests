@@ -100,18 +100,7 @@
     <build>
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/values.yaml</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <excludes>
-                    <exclude>**/values.yaml</exclude>
-                </excludes>
+                <directory>src/test/resources</directory>
             </resource>
         </resources>
         <plugins>
