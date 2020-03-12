@@ -73,7 +73,7 @@ public class PolicyComponentTest extends PolicyTestCommon {
         assertThat(health.status(), equalTo(200));
     }
 
-    @Ignore // TODO: This test is failing with a 400 error (cannot use PassThroughRule as a subclass of Rule)
+    //@Ignore // TODO: This test is failing with a 400 error (cannot use PassThroughRule as a subclass of Rule)L-3
     @Test
     public void componentTest() {
         // Given there are resources and policies to be added
