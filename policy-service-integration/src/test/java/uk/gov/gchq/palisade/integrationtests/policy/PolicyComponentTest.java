@@ -52,7 +52,7 @@ import static org.junit.Assert.assertNotNull;
 @EnableFeignClients
 @SpringBootTest(classes = PolicyApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
 public class PolicyComponentTest extends PolicyTestCommon {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PolicyCachingProxyTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PolicyComponentTest.class);
 
     @Autowired
     Map<String, PolicyService> serviceMap;
