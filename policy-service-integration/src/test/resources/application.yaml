@@ -31,7 +31,7 @@ eureka:
   instance:
     hostname: localhost
     port: 8083
-    preferIpAddress: true
+    preferIpAddress: false
   client:
     serviceUrl:
       defaultZone: http://${eureka.instance.hostname}:${eureka.instance.port}/eureka/
