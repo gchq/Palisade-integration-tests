@@ -17,7 +17,6 @@
 package uk.gov.gchq.palisade.integrationtests.policy;
 
 import feign.Response;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -76,15 +75,15 @@ public class PolicyComponentTest extends PolicyTestCommon {
     @Test
     public void componentTest() {
         // Given there are resources and policies to be added
-        Collection<LeafResource> resources = Collections.singleton(newFile);
+        Collection<LeafResource> resources = Collections.singleton(NEW_FILE);
 
         // When a resource is added
-        SetResourcePolicyRequest addRequest = new SetResourcePolicyRequest().resource(newFile).policy(passThroughPolicy);
+        SetResourcePolicyRequest addRequest = new SetResourcePolicyRequest().resource(NEW_FILE).policy(PASS_THROUGH_POLICY);
         addRequest.originalRequestId(new RequestId().id("test-id"));
         policyClient.setResourcePolicyAsync(addRequest);
 
         // Given it is accessible
-        CanAccessRequest accessRequest = new CanAccessRequest().user(user).resources(resources).context(context);
+        CanAccessRequest accessRequest = new CanAccessRequest().user(USER).resources(resources).context(CONTEXT);
         accessRequest.originalRequestId(new RequestId().id("test-id"));
         CanAccessResponse accessResponse = policyClient.canAccess(accessRequest);
         for (LeafResource resource: resources) {
@@ -92,12 +91,12 @@ public class PolicyComponentTest extends PolicyTestCommon {
         }
 
         // When the policies on the resource are requested
-        GetPolicyRequest getRequest = new GetPolicyRequest().user(user).resources(resources).context(context);
+        GetPolicyRequest getRequest = new GetPolicyRequest().user(USER).resources(resources).context(CONTEXT);
         getRequest.originalRequestId(new RequestId().id("test-id"));
         Map<LeafResource, Rules> getResponse = policyClient.getPolicySync(getRequest);
         LOGGER.info("Response: {}", getResponse);
 
         // Then the policy just added is found on the resource
-        assertThat(getResponse.get(newFile), equalTo(passThroughPolicy.getRecordRules()));
+        assertThat(getResponse.get(NEW_FILE), equalTo(PASS_THROUGH_POLICY.getRecordRules()));
     }
 }

@@ -20,7 +20,6 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import uk.gov.gchq.palisade.resource.LeafResource;
 import uk.gov.gchq.palisade.rule.Rules;
@@ -31,7 +30,6 @@ import uk.gov.gchq.palisade.service.policy.request.GetPolicyRequest;
 import uk.gov.gchq.palisade.service.policy.request.SetResourcePolicyRequest;
 import uk.gov.gchq.palisade.service.policy.request.SetTypePolicyRequest;
 
-import java.net.URI;
 import java.util.Map;
 
 @FeignClient(name = "policy-service", url = "localhost:${server.port}", configuration = ApplicationConfiguration.class)

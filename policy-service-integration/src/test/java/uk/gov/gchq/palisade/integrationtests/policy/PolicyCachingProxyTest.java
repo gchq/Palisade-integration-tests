@@ -19,8 +19,6 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -58,15 +56,15 @@ public class PolicyCachingProxyTest extends PolicyTestCommon {
     @Before
     public void setup() {
         // Add the system resource to the policy service
-        assertThat(cacheProxy.setResourcePolicy(txtSystem, txtPolicy), CoreMatchers.equalTo(txtPolicy));
+        assertThat(cacheProxy.setResourcePolicy(TXT_SYSTEM, TXT_POLICY), CoreMatchers.equalTo(TXT_POLICY));
 
         // Add the directory resources to the policy service
-        assertThat(cacheProxy.setResourcePolicy(jsonDirectory, jsonPolicy), CoreMatchers.equalTo(jsonPolicy));
-        assertThat(cacheProxy.setResourcePolicy(secretDirectory, secretPolicy), CoreMatchers.equalTo(secretPolicy));
+        assertThat(cacheProxy.setResourcePolicy(JSON_DIRECTORY, JSON_POLICY), CoreMatchers.equalTo(JSON_POLICY));
+        assertThat(cacheProxy.setResourcePolicy(SECRET_DIRECTORY, SECRET_POLICY), CoreMatchers.equalTo(SECRET_POLICY));
 
         // Add the file resources to the policy service
-        for (FileResource fileResource : fileResources) {
-            assertThat(cacheProxy.setResourcePolicy(fileResource, passThroughPolicy), CoreMatchers.equalTo(passThroughPolicy));
+        for (FileResource fileResource : FILE_RESOURCES) {
+            assertThat(cacheProxy.setResourcePolicy(fileResource, PASS_THROUGH_POLICY), CoreMatchers.equalTo(PASS_THROUGH_POLICY));
         }
     }
 
@@ -81,7 +79,7 @@ public class PolicyCachingProxyTest extends PolicyTestCommon {
         // Given - resources have been added as above
         // Given there is no underlying policy storage (gets must be wholly cache-based)
 
-        for (Resource resource : fileResources) {
+        for (Resource resource : FILE_RESOURCES) {
             // When
             Optional<Policy> policy = cacheProxy.getPolicy(resource);
 
@@ -125,7 +123,7 @@ public class PolicyCachingProxyTest extends PolicyTestCommon {
     @Test
     public void cacheTtlTest() {
         // Given - the requested resource has policies available
-        assumeTrue(cacheProxy.getPolicy(accessibleJsonTxtFile).isPresent());
+        assumeTrue(cacheProxy.getPolicy(ACCESSIBLE_JSON_TXT_FILE).isPresent());
         // Given - a sufficient amount of time has passed
         try {
             Thread.sleep(2500);
@@ -134,7 +132,7 @@ public class PolicyCachingProxyTest extends PolicyTestCommon {
         }
 
         // When - an old entry is requested
-        Optional<Policy> cachedPolicy = cacheProxy.getPolicy(accessibleJsonTxtFile);
+        Optional<Policy> cachedPolicy = cacheProxy.getPolicy(ACCESSIBLE_JSON_TXT_FILE);
 
         // Then - it has been evicted
         assertTrue(cachedPolicy.isEmpty());
