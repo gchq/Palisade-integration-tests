@@ -23,7 +23,7 @@ import java.util.Comparator;
 
 public class StubResource extends AbstractLeafResource {
 
-    private static SystemResource parent = new SystemResource().id("file");
+    private static final SystemResource PARENT = new SystemResource().id("file");
 
     public StubResource() {
 
@@ -33,7 +33,7 @@ public class StubResource extends AbstractLeafResource {
         id(id);
         type(type);
         serialisedFormat(format);
-        parent(parent);
+        parent(PARENT);
     }
 
     private static Comparator<StubResource> comp = Comparator.comparing(StubResource::getSerialisedFormat).thenComparing(StubResource::getType).thenComparing(StubResource::getId);
