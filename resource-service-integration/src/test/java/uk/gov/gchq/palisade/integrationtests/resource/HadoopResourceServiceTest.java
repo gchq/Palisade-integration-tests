@@ -75,7 +75,7 @@ public class HadoopResourceServiceTest {
     private static final Boolean IS_WIN = System.getProperty("os.name").toLowerCase().startsWith("win");
     private static final String FILE = IS_WIN ? "file:///" : "file://";
     private static final String HDFS = "hdfs:///";
-    private static File TMP_DIRECTORY;
+    private static final File TMP_DIRECTORY;
 
     static {
         TMP_DIRECTORY = PathUtils.getTestDir(HadoopResourceServiceTest.class);
@@ -92,13 +92,13 @@ public class HadoopResourceServiceTest {
     private HadoopResourceService resourceService;
 
     // An attempt to mimic hadoop's internal path resolution
-    static String unixify(String path) {
+    static String unixify(final String path) {
         if (IS_WIN) {
             // Windows paths use "\" whereas unix uses "/"
             String unix = path.replace("\\", "/");
             // Unixy paths are all expected to be under root "/"
             // Windows paths are all under the machine's collection of devices "X://"
-            if (unix.startsWith(":/",1)) {
+            if (unix.startsWith(":/", 1)) {
                 return "/" + unix;
             } else {
                 return unix;
@@ -109,7 +109,8 @@ public class HadoopResourceServiceTest {
             return path;
         }
     }
-    static String deunixify(String unix) {
+
+    static String deunixify(final String unix) {
         if (IS_WIN) {
             String path;
             if (unix.startsWith("/")) {
