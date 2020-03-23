@@ -29,14 +29,12 @@ import uk.gov.gchq.palisade.Context;
 import uk.gov.gchq.palisade.User;
 import uk.gov.gchq.palisade.resource.LeafResource;
 import uk.gov.gchq.palisade.rule.Rule;
+import uk.gov.gchq.palisade.rule.Rules;
 import uk.gov.gchq.palisade.service.ConnectionDetail;
-import uk.gov.gchq.palisade.service.palisade.policy.MultiPolicy;
-import uk.gov.gchq.palisade.service.palisade.policy.Policy;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -53,7 +51,7 @@ public class PolicyServiceMock {
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
     static class StubRule<T> implements Rule<T> {
         @Override
-        public T apply(T data, User user, Context context) {
+        public T apply(final T data, final User user, final Context context) {
             return null;
         }
     }
@@ -62,20 +60,16 @@ public class PolicyServiceMock {
         return new WireMockRule(options().port(8085).notifier(new ConsoleNotifier(true)));
     }
 
-    public static MultiPolicy getPolicies() {
-        User user = UserServiceMock.getUser();
+    public static Map<LeafResource, Rules> getPolicies() {
         Map<LeafResource, ConnectionDetail> resources = ResourceServiceMock.getResources();
+        Rules rules = new Rules().addRules(Collections.singletonMap("stub-rule", new StubRule()));
 
-        Policy policy = new Policy<>().owner(user).resourceLevelRule("test rule", new StubRule<>());
-        Function<Set<LeafResource>, MultiPolicy> policyBuilder = resourceSet -> {
-            Map<LeafResource, Policy> policies = resourceSet.stream().map(resource -> new SimpleEntry<>(resource, policy)).collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
-            return new MultiPolicy().policies(policies);
-        };
-
-        return policyBuilder.apply(resources.keySet());
+        return resources.entrySet().stream()
+                .map(entry -> new SimpleEntry<>(entry.getKey(), rules))
+                .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
     }
 
-    public static void stubRule(WireMockRule serviceMock, ObjectMapper serializer) throws JsonProcessingException {
+    public static void stubRule(final WireMockRule serviceMock, final ObjectMapper serializer) throws JsonProcessingException {
         serviceMock.stubFor(post(urlEqualTo("/getPolicySync"))
             .willReturn(
                 okJson(serializer.writeValueAsString(getPolicies()))

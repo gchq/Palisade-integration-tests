@@ -45,7 +45,7 @@ public class PalisadeServiceMock {
         return new WireMockRule(options().port(8084).notifier(new ConsoleNotifier(true)));
     }
 
-    public static void stubRule(WireMockRule serviceMock, ObjectMapper serializer) throws JsonProcessingException {
+    public static void stubRule(final WireMockRule serviceMock, final ObjectMapper serializer) throws JsonProcessingException {
         LeafResource resource = new FileResource().id("mock-file-resource").parent(new DirectoryResource().id("mock-directory").parent(new SystemResource().id("root")));
         ConnectionDetail connectionDetail = new SimpleConnectionDetail().uri("data-service-mock");
         Map<LeafResource, ConnectionDetail> resources = Collections.singletonMap(resource, connectionDetail);

@@ -140,6 +140,7 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${checkstyle.plugin.version}</version>
                 <configuration>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <configLocation>code-style/checkstyle.xml</configLocation>
                     <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
@@ -151,15 +152,6 @@
                     <execution>
                         <id>validate</id>
                         <phase>${checkstyle.phase}</phase>
-                        <configuration>
-                            <configLocation>code-style/checkstyle.xml
-                            </configLocation>
-                            <encoding>UTF-8</encoding>
-                            <consoleOutput>true</consoleOutput>
-                            <failsOnError>true</failsOnError>
-                            <headerLocation>code-style/licenseHeader.txt
-                            </headerLocation>
-                        </configuration>
                         <goals>
                             <goal>check</goal>
                         </goals>

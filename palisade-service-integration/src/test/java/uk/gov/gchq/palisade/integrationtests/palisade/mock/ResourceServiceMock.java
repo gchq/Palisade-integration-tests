@@ -48,7 +48,7 @@ public class ResourceServiceMock {
         return Collections.singletonMap(resource, connectionDetail);
     }
 
-    public static void stubRule(WireMockRule serviceMock, ObjectMapper serializer) throws JsonProcessingException {
+    public static void stubRule(final WireMockRule serviceMock, final ObjectMapper serializer) throws JsonProcessingException {
         serviceMock.stubFor(post(urlMatching("/getResourcesBy(Id|Resource|Type|SerialisedFormat)"))
                 .willReturn(
                         okJson(serializer.writeValueAsString(getResources()))

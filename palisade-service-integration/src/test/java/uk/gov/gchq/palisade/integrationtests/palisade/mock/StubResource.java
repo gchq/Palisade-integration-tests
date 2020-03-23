@@ -23,13 +23,13 @@ import java.util.Comparator;
 
 public class StubResource extends AbstractLeafResource {
 
-    private static SystemResource PARENT = new SystemResource().id("file");
+    private static final SystemResource PARENT = new SystemResource().id("file");
 
     public StubResource() {
 
     }
 
-    public StubResource(String type, String id, String format) {
+    public StubResource(final String type, final String id, final String format) {
         id(id);
         type(type);
         serialisedFormat(format);
@@ -43,7 +43,8 @@ public class StubResource extends AbstractLeafResource {
      * Implemented to allow this class to be used in TreeMaps in tests.
      */
     @Override
-    public int compareTo(Resource o) {
+    public int compareTo(final Resource o) {
         return comp.compare(this, (StubResource) o);
     }
+
 }

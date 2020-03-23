@@ -42,7 +42,7 @@ public class UserServiceMock {
         return new User().userId(userId);
     }
 
-    public static void stubRule(WireMockRule serviceMock, ObjectMapper serializer) throws JsonProcessingException {
+    public static void stubRule(final WireMockRule serviceMock, final ObjectMapper serializer) throws JsonProcessingException {
         serviceMock.stubFor(post(urlEqualTo("/getUser"))
                 .willReturn(
                         okJson(serializer.writeValueAsString(getUser()))

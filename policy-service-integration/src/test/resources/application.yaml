@@ -1,4 +1,4 @@
-# Copyright 2019 Crown Copyright
+# Copyright 2020 Crown Copyright
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,18 +12,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 spring:
+  cache:
+    caffeine:
+      spec: expireAfterWrite=2s, maximumSize=100
   application:
-    name: cache-service
+    name: policy-service
   output:
     ansi:
       enabled: always
   main:
     allow-bean-definition-overriding: true
 
-cache:
-  implementation: hashmap
-  props: "cache.properties"
-  etcd:
-  - http://localhost:2379
+server:
+  port: 18085
+
+eureka:
+  instance:
+    hostname: localhost
+    port: 8083
+    preferIpAddress: false
+  client:
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${eureka.instance.port}/eureka/
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+        - health
+        - info
+        - metrics
+        - loggers
+    loggers:
+      enabled: true

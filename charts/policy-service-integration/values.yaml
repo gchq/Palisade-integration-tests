@@ -1,4 +1,4 @@
-# Copyright 2019 Crown Copyright
+# Copyright 2020 Crown Copyright
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,18 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+replicaCount: 1
 
-spring:
-  application:
-    name: cache-service
-  output:
-    ansi:
-      enabled: always
-  main:
-    allow-bean-definition-overriding: true
+service:
+  port: 8013
 
-cache:
-  implementation: hashmap
-  props: "cache.properties"
-  etcd:
-  - http://localhost:2379
+image:
+  repository: palisade/policy-service-test
+  tag: 48479c1-SNAPSHOT
+  pullPolicy: IfNotPresent
+
+resources:
+  limits:
+    cpu: 750m
+    memory: 2.5Gi
+  requests:
+    cpu: 250m
+    memory: 1Gi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
