@@ -83,6 +83,7 @@ public class PalisadeComponentTest {
     @Before
     public void setUp() throws JsonProcessingException {
         AuditServiceMock.stubRule(auditMock, serializer);
+        AuditServiceMock.stubHealthRule(auditMock, serializer);
         PolicyServiceMock.stubRule(policyMock, serializer);
         PolicyServiceMock.stubHealthRule(policyMock, serializer);
         ResourceServiceMock.stubRule(resourceMock, serializer);
@@ -106,12 +107,19 @@ public class PalisadeComponentTest {
     @Test
     public void allServicesDown() {
         //Given all services are down
+        auditMock.stop();
         policyMock.stop();
         resourceMock.stop();
         userMock.stop();
         //Then the Palisade Service also reports down.
         final String downHealth = this.restTemplate.getForObject("/actuator/health", String.class);
         assertThat(downHealth, is(equalTo("{\"status\":\"DOWN\"}")));
+
+        //When the services start one by one
+        auditMock.start();
+        //Then Palisade service still shows as down
+        final String auditDownHealth = this.restTemplate.getForObject("/actuator/health", String.class);
+        assertThat(auditDownHealth, is(equalTo("{\"status\":\"DOWN\"}")));
 
         //When the services start one by one
         policyMock.start();
