@@ -71,12 +71,12 @@ public class PolicyServiceMock {
 
     public static void stubRule(final WireMockRule serviceMock, final ObjectMapper serializer) throws JsonProcessingException {
         serviceMock.stubFor(post(urlEqualTo("/getPolicySync"))
-            .willReturn(
-                okJson(serializer.writeValueAsString(getPolicies()))
-            ));
+                .willReturn(
+                        okJson(serializer.writeValueAsString(getPolicies()))
+                ));
     }
 
-    public static void stubHealthRule(WireMockRule serviceMock, ObjectMapper serializer) throws JsonProcessingException {
+    public static void stubHealthRule(final WireMockRule serviceMock, final ObjectMapper serializer) throws JsonProcessingException {
         serviceMock.stubFor(get(urlEqualTo("/actuator/health"))
                 .willReturn(
                         aResponse()
