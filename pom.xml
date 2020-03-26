@@ -65,7 +65,6 @@
     </properties>
 
     <modules>
-        <module>cache-service</module>
         <module>audit-service-integration</module>
         <module>data-service-integration</module>
         <module>discovery-service-integration</module>
