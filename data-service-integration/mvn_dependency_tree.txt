@@ -1,6 +1,5 @@
 uk.gov.gchq.palisade:data-service-integration:jar:0.4.0-SNAPSHOT
 +- uk.gov.gchq.palisade:data-service:jar:0.4.0-SNAPSHOT:compile
-|  +- com.google.code.gson:gson:jar:2.8.5:compile
 |  +- com.netflix.eureka:eureka-client:jar:1.9.13:compile
 |  |  +- org.codehaus.jettison:jettison:jar:1.3.7:compile
 |  |  |  \- stax:stax-api:jar:1.0.1:compile
@@ -87,6 +86,7 @@ uk.gov.gchq.palisade:data-service-integration:jar:0.4.0-SNAPSHOT
 |        +- org.apache.commons:commons-text:jar:1.4:compile
 |        +- com.google.re2j:re2j:jar:1.1:compile
 |        +- com.google.protobuf:protobuf-java:jar:2.5.0:compile
+|        +- com.google.code.gson:gson:jar:2.8.5:compile
 |        +- org.apache.hadoop:hadoop-auth:jar:3.2.0:compile
 |        |  +- com.nimbusds:nimbus-jose-jwt:jar:4.41.1:compile
 |        |  |  \- com.github.stephenc.jcip:jcip-annotations:jar:1.0-1:compile
@@ -201,5 +201,6 @@ uk.gov.gchq.palisade:data-service-integration:jar:0.4.0-SNAPSHOT
 |  \- org.xmlunit:xmlunit-core:jar:2.6.3:test
 |     \- javax.xml.bind:jaxb-api:jar:2.3.1:compile
 |        \- javax.activation:javax.activation-api:jar:1.2.0:compile
++- uk.gov.gchq.palisade:common:jar:tests:0.4.0-SNAPSHOT:test
 +- junit:junit:jar:4.12:compile
 \- org.springframework.boot:spring-boot-autoconfigure:jar:2.1.8.RELEASE:compile
