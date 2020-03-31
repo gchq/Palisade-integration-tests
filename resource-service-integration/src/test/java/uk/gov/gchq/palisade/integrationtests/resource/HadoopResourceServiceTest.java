@@ -31,7 +31,6 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.palisade.RequestId;
-import uk.gov.gchq.palisade.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.palisade.resource.ChildResource;
 import uk.gov.gchq.palisade.resource.LeafResource;
 import uk.gov.gchq.palisade.resource.ParentResource;
