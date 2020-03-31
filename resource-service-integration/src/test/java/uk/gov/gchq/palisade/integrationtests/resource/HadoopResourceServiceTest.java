@@ -318,33 +318,6 @@ public class HadoopResourceServiceTest {
     }
 
     @Test
-    public void shouldJSONSerialiser() throws Exception {
-        //use local copy for this test
-        final HadoopResourceService service = new HadoopResourceService(config);
-
-        final byte[] serialise = JSONSerialiser.serialise(service, true);
-        final String expected = String.format("{%n" +
-                "  \"@id\" : 1,%n" +
-                "  \"class\" : \"uk.gov.gchq.palisade.service.resource.service.HadoopResourceService\",%n" +
-                "  \"conf\" : {%n" +
-                "  }%n" +
-                "}%n");
-
-        final String stringOfSerialised = new String(serialise);
-        final String[] split = stringOfSerialised.split(System.lineSeparator());
-        final StringBuilder modified = new StringBuilder();
-        for (String s : split) {
-            if (!s.startsWith("    \"fs.defaultFS")) {
-                modified.append(s).append(System.lineSeparator());
-            }
-        }
-
-        final String modifiedActual = modified.toString();
-        assertEquals(stringOfSerialised, expected, modifiedActual);
-        assertEquals(service, JSONSerialiser.deserialise(serialise, HadoopResourceService.class));
-    }
-
-    @Test
     public void shouldErrorWithNoConnectionDetails() throws Exception {
         //given
         final String id = dir + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE);
