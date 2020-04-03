@@ -30,6 +30,5 @@ public class DataServiceMock {
     }
 
     public static void stubRule(final WireMockRule serviceMock, final ObjectMapper serializer) throws JsonProcessingException {
-
     }
 }

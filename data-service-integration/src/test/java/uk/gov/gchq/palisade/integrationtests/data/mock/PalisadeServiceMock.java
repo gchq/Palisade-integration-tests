@@ -24,14 +24,14 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import uk.gov.gchq.palisade.Context;
 import uk.gov.gchq.palisade.RequestId;
 import uk.gov.gchq.palisade.User;
+import uk.gov.gchq.palisade.integrationtests.data.util.TestUtil;
 import uk.gov.gchq.palisade.policy.PassThroughRule;
 import uk.gov.gchq.palisade.resource.LeafResource;
-import uk.gov.gchq.palisade.resource.impl.DirectoryResource;
 import uk.gov.gchq.palisade.resource.impl.FileResource;
-import uk.gov.gchq.palisade.resource.impl.SystemResource;
 import uk.gov.gchq.palisade.rule.Rules;
 import uk.gov.gchq.palisade.service.request.DataRequestConfig;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,12 +48,9 @@ public class PalisadeServiceMock {
         return new WireMockRule(options().port(8084).notifier(new ConsoleNotifier(true)));
     }
 
-    public static DataRequestConfig getDataRequestConfig(final ObjectMapper serializer) throws JsonProcessingException {
+    public static DataRequestConfig getDataRequestConfig() throws JsonProcessingException {
         Map<LeafResource, Rules> leafResourceToRules = new HashMap<>();
-        LeafResource resource = new FileResource().id("mock-file-resource")
-                .parent(new DirectoryResource().id("mock-directory").parent(new SystemResource().id("root")))
-                .serialisedFormat("format")
-                .type("test");
+        FileResource resource = TestUtil.createFileResource(Path.of("/resources/data"), "test");
         Rules rules = new Rules().rule("Test Rule", new PassThroughRule<>());
         leafResourceToRules.put(resource, rules);
 
@@ -69,7 +66,7 @@ public class PalisadeServiceMock {
     public static void stubRule(final WireMockRule serviceMock, final ObjectMapper serializer) throws JsonProcessingException {
         serviceMock.stubFor(post(urlEqualTo("/getDataRequestConfig"))
                 .willReturn(
-                        okJson(serializer.writeValueAsString(getDataRequestConfig(serializer)))
+                        okJson(serializer.writeValueAsString(getDataRequestConfig()))
                 ));
     }
 

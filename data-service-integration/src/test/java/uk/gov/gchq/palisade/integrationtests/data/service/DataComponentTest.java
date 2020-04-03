@@ -36,35 +36,33 @@ import uk.gov.gchq.palisade.integrationtests.data.mock.AuditServiceMock;
 import uk.gov.gchq.palisade.integrationtests.data.mock.PalisadeServiceMock;
 import uk.gov.gchq.palisade.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.palisade.service.data.DataApplication;
-import uk.gov.gchq.palisade.service.data.service.DataService;
+import uk.gov.gchq.palisade.service.data.web.DataController;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = DataApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
-public class DataServiceComponentTest {
+public class DataComponentTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DataServiceComponentTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataComponentTest.class);
 
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired
-    private DataService dataService;
+    private DataController dataController;
 
     @Rule
     public WireMockRule auditMock = AuditServiceMock.getRule();
     @Rule
     public WireMockRule palisadeMock = PalisadeServiceMock.getRule();
 
-    private ObjectMapper serializer;
+    private ObjectMapper serializer = JSONSerialiser.createDefaultMapper();
 
     @Before
     public void setUp() throws JsonProcessingException {
-        serializer = JSONSerialiser.createDefaultMapper();
         AuditServiceMock.stubRule(auditMock, serializer);
         AuditServiceMock.stubHealthRule(auditMock, serializer);
         PalisadeServiceMock.stubRule(palisadeMock, serializer);
@@ -74,47 +72,12 @@ public class DataServiceComponentTest {
 
     @Test
     public void contextLoads() {
-        assertNotNull(dataService);
+        assertNotNull(dataController);
     }
 
     @Test
     public void isUp() {
-        final String health = this.restTemplate.getForObject("/actuator/health", String.class);
+        final String health = restTemplate.getForObject("/actuator/health", String.class);
         assertThat(health, is(equalTo("{\"status\":\"UP\"}")));
-    }
-
-    @Test
-    public void allServicesDown() {
-        // Given that all services are down
-        auditMock.stop();
-        palisadeMock.stop();
-        // Then the Data Service also reports as down.
-        final String downHealth = this.restTemplate.getForObject("/actuator/health", String.class);
-        LOGGER.info(downHealth);
-        assertThat(downHealth, is(equalTo("{\"status\":\"DOWN\"}")));
-
-        // When services are started one by one
-        auditMock.start();
-        // Then Data Service still reports as down
-        final String auditDownHealth = this.restTemplate.getForObject("/actuator/health", String.class);
-        LOGGER.info(auditDownHealth);
-        assertThat(auditDownHealth, is(equalTo("{\"status\":\"DOWN\"}")));
-
-        // When services are started one by one
-        palisadeMock.start();
-        // The Data Service reports as up
-        final String allUpHealth = this.restTemplate.getForObject("/actuator/health", String.class);
-        LOGGER.info(allUpHealth);
-        assertThat(allUpHealth, is(equalTo("{\"status\":\"UP\"}")));
-    }
-
-    @Test
-    public void readChunkedTest() {
-        // Given all the services are mocked
-        assertTrue(auditMock.isRunning());
-        assertTrue(palisadeMock.isRunning());
-
-        // Given a data request has been registered
-
     }
 }
