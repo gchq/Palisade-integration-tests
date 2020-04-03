@@ -43,7 +43,7 @@ public class TestUtil {
 
     public static FileResource createFileResource(final Path path, final String type) {
         FileResource file = fileResource(path).serialisedFormat("avro").type(type);
-        resolveParents(path.getParent(), file);
+        resolveParents(path, file);
 
         return file;
     }

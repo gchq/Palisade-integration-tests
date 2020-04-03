@@ -30,18 +30,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import uk.gov.gchq.palisade.integrationtests.data.mock.AuditServiceMock;
 import uk.gov.gchq.palisade.integrationtests.data.mock.PalisadeServiceMock;
+import uk.gov.gchq.palisade.integrationtests.data.util.TestUtil;
 import uk.gov.gchq.palisade.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.palisade.resource.impl.FileResource;
 import uk.gov.gchq.palisade.service.data.DataApplication;
+import uk.gov.gchq.palisade.service.data.request.ReadRequest;
 import uk.gov.gchq.palisade.service.data.web.DataController;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = DataApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
@@ -79,5 +88,25 @@ public class DataComponentTest {
     public void isUp() {
         final String health = restTemplate.getForObject("/actuator/health", String.class);
         assertThat(health, is(equalTo("{\"status\":\"UP\"}")));
+    }
+
+    @Test
+    public void readChunkedTest() {
+        // Given all the services are mocked
+        assertTrue(auditMock.isRunning());
+        assertTrue(palisadeMock.isRunning());
+
+        // Given
+
+
+        // When
+        Path currentPath = Paths.get("./resources/data/test_file.avro");
+        FileResource resource = TestUtil.createFileResource(currentPath.toAbsolutePath().normalize(), "test");
+        System.out.println(resource.toString());
+        ReadRequest readRequest = new ReadRequest().token("token").resource(resource);
+        ResponseEntity<StreamingResponseBody> streamResponse = restTemplate.postForObject("read/chunked", readRequest, ResponseEntity.class);
+
+        // Then
+        assertTrue(streamResponse.hasBody());
     }
 }

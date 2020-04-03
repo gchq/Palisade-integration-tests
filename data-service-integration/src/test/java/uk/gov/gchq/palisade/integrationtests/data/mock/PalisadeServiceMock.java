@@ -32,6 +32,7 @@ import uk.gov.gchq.palisade.rule.Rules;
 import uk.gov.gchq.palisade.service.request.DataRequestConfig;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +51,8 @@ public class PalisadeServiceMock {
 
     public static DataRequestConfig getDataRequestConfig() throws JsonProcessingException {
         Map<LeafResource, Rules> leafResourceToRules = new HashMap<>();
-        FileResource resource = TestUtil.createFileResource(Path.of("/resources/data"), "test");
+        Path path = Paths.get("./resources/data/test_file.avro");
+        FileResource resource = TestUtil.createFileResource(path.toAbsolutePath().normalize(), "test");
         Rules rules = new Rules().rule("Test Rule", new PassThroughRule<>());
         leafResourceToRules.put(resource, rules);
 
