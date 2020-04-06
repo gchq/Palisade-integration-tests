@@ -27,7 +27,6 @@ import uk.gov.gchq.palisade.resource.impl.FileResource;
 import uk.gov.gchq.palisade.resource.impl.SystemResource;
 import uk.gov.gchq.palisade.rule.PredicateRule;
 import uk.gov.gchq.palisade.service.request.Policy;
-//import uk.gov.gchq.palisade.service.policy.request.Policy;
 
 import java.util.Arrays;
 import java.util.HashSet;
