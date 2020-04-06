@@ -25,17 +25,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import uk.gov.gchq.palisade.RequestId;
 import uk.gov.gchq.palisade.resource.LeafResource;
 import uk.gov.gchq.palisade.rule.Rules;
+import uk.gov.gchq.palisade.service.PolicyConfiguration;
 import uk.gov.gchq.palisade.service.policy.PolicyApplication;
 import uk.gov.gchq.palisade.service.policy.request.CanAccessRequest;
 import uk.gov.gchq.palisade.service.policy.request.CanAccessResponse;
 import uk.gov.gchq.palisade.service.policy.request.GetPolicyRequest;
 import uk.gov.gchq.palisade.service.policy.request.SetResourcePolicyRequest;
 import uk.gov.gchq.palisade.service.policy.service.PolicyService;
+import uk.gov.gchq.palisade.service.policy.web.PolicyController;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -48,10 +50,15 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringRunner.class)
+@Import(PolicyTestConfiguration.class)
 @EnableFeignClients
-@SpringBootTest(classes = PolicyApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = {PolicyApplication.class, PolicyController.class, PolicyConfiguration.class}, webEnvironment = WebEnvironment.DEFINED_PORT)
 public class PolicyComponentTest extends PolicyTestCommon {
     private static final Logger LOGGER = LoggerFactory.getLogger(PolicyComponentTest.class);
+
+
+    @Autowired
+    PolicyController policyController;
 
     @Autowired
     Map<String, PolicyService> serviceMap;
@@ -79,12 +86,10 @@ public class PolicyComponentTest extends PolicyTestCommon {
 
         // When a resource is added
         SetResourcePolicyRequest addRequest = new SetResourcePolicyRequest().resource(NEW_FILE).policy(PASS_THROUGH_POLICY);
-        addRequest.originalRequestId(new RequestId().id("test-id"));
         policyClient.setResourcePolicyAsync(addRequest);
 
         // Given it is accessible
         CanAccessRequest accessRequest = new CanAccessRequest().user(USER).resources(resources).context(CONTEXT);
-        accessRequest.originalRequestId(new RequestId().id("test-id"));
         CanAccessResponse accessResponse = policyClient.canAccess(accessRequest);
         for (LeafResource resource: resources) {
             assertThat(accessResponse.getCanAccessResources(), hasItem(resource));
@@ -92,7 +97,6 @@ public class PolicyComponentTest extends PolicyTestCommon {
 
         // When the policies on the resource are requested
         GetPolicyRequest getRequest = new GetPolicyRequest().user(USER).resources(resources).context(CONTEXT);
-        getRequest.originalRequestId(new RequestId().id("test-id"));
         Map<LeafResource, Rules> getResponse = policyClient.getPolicySync(getRequest);
         LOGGER.info("Response: {}", getResponse);
 
