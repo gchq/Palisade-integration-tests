@@ -125,12 +125,11 @@ public class DataComponentTest {
                 .andExpect(request().asyncStarted())
                 .andReturn();
 
+        // Then
         mockMvc.perform(MockMvcRequestBuilders.asyncDispatch(result))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().bytes(fileBytes));
-
-        // Then
 
     }
 }
