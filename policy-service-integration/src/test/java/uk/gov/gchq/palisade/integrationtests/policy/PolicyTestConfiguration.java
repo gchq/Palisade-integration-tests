@@ -33,20 +33,17 @@ public class PolicyTestConfiguration {
 
 
     @Bean
-    @Qualifier("policyConfiguration")
     public PolicyConfiguration policyConfiguration() {
         return new StdPolicyConfiguration();
     }
 
 
     @Bean
-    @Qualifier("userConfiguration")
     public UserConfiguration userConfiguration() {
         return new StdUserConfiguration();
     }
 
     @Bean
-    @Qualifier("policyService")
     public PolicyService policyService() {
         return new NullPolicyService();
     }
