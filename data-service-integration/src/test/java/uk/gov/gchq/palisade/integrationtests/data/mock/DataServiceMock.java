@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.palisade.integrationtests.data.mock;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 
@@ -27,8 +25,5 @@ public class DataServiceMock {
 
     public static WireMockRule getRule() {
         return new WireMockRule(options().port(8082).notifier(new ConsoleNotifier(true)));
-    }
-
-    public static void stubRule(final WireMockRule serviceMock, final ObjectMapper serializer) throws JsonProcessingException {
     }
 }

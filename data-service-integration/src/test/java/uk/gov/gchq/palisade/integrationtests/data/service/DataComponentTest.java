@@ -27,13 +27,16 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import uk.gov.gchq.palisade.RequestId;
 import uk.gov.gchq.palisade.integrationtests.data.mock.AuditServiceMock;
 import uk.gov.gchq.palisade.integrationtests.data.mock.PalisadeServiceMock;
 import uk.gov.gchq.palisade.integrationtests.data.util.TestUtil;
@@ -43,6 +46,7 @@ import uk.gov.gchq.palisade.service.data.DataApplication;
 import uk.gov.gchq.palisade.service.data.request.ReadRequest;
 import uk.gov.gchq.palisade.service.data.web.DataController;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -51,9 +55,17 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = DataApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
+@AutoConfigureMockMvc
 public class DataComponentTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataComponentTest.class);
@@ -62,6 +74,8 @@ public class DataComponentTest {
     private TestRestTemplate restTemplate;
     @Autowired
     private DataController dataController;
+    @Autowired
+    private MockMvc mockMvc;
 
     @Rule
     public WireMockRule auditMock = AuditServiceMock.getRule();
@@ -91,22 +105,32 @@ public class DataComponentTest {
     }
 
     @Test
-    public void readChunkedTest() {
+    public void readChunkedTest() throws Exception {
         // Given all the services are mocked
         assertTrue(auditMock.isRunning());
         assertTrue(palisadeMock.isRunning());
 
         // Given
-
-
-        // When
-        Path currentPath = Paths.get("./resources/data/test_file.avro");
-        FileResource resource = TestUtil.createFileResource(currentPath.toAbsolutePath().normalize(), "test");
-        System.out.println(resource.toString());
+        Path currentPath = Paths.get("./resources/data/test_file.avro").toAbsolutePath().normalize();
+        FileResource resource = TestUtil.createFileResource(currentPath, "test");
         ReadRequest readRequest = new ReadRequest().token("token").resource(resource);
-        ResponseEntity<StreamingResponseBody> streamResponse = restTemplate.postForObject("read/chunked", readRequest, ResponseEntity.class);
+        readRequest.setOriginalRequestId(new RequestId().id("original"));
+        byte[] fileBytes = Files.readAllBytes(currentPath);
+
+        // When - using MockMvc
+        MvcResult result = mockMvc.perform(post("/read/chunked")
+                .accept(APPLICATION_OCTET_STREAM_VALUE)
+                .contentType(APPLICATION_JSON_VALUE)
+                .content(serializer.writeValueAsString(readRequest)))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        mockMvc.perform(MockMvcRequestBuilders.asyncDispatch(result))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().bytes(fileBytes));
 
         // Then
-        assertTrue(streamResponse.hasBody());
+
     }
 }
