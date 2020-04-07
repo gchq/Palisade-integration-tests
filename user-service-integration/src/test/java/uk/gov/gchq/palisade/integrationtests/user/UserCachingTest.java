@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.palisade.integrationtests.user;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,8 @@ import static org.junit.Assume.assumeTrue;
 
 
 // When registering data the Audit service must return 200 STATUS else test fails and return STATUS
+//TODO
+@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = UserApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class UserCachingTest {
