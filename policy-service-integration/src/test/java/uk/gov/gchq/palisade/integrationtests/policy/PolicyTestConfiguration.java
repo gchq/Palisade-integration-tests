@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.palisade.integrationtests.policy;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
@@ -47,4 +46,5 @@ public class PolicyTestConfiguration {
     public PolicyService policyService() {
         return new NullPolicyService();
     }
+
 }

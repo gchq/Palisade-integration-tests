@@ -47,7 +47,7 @@ import static org.junit.Assume.assumeTrue;
 
 @RunWith(SpringRunner.class)
 @Import(PolicyTestConfiguration.class)
-@SpringBootTest(classes = {   PolicyApplication.class}, webEnvironment = WebEnvironment.NONE)
+@SpringBootTest(classes = { PolicyApplication.class}, webEnvironment = WebEnvironment.NONE)
 @ComponentScan(basePackages = "uk.gov.gchq.palisade")
 public class PolicyCachingProxyTest extends PolicyTestCommon {
 
