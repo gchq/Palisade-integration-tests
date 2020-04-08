@@ -44,7 +44,6 @@ import static org.junit.Assume.assumeTrue;
 
 
 // When registering data the Audit service must return 200 STATUS else test fails and return STATUS
-//TODO
 @Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = UserApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)

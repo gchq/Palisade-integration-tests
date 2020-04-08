@@ -105,7 +105,6 @@ public class PalisadeComponentTest {
         assertThat(health, is(equalTo("{\"status\":\"UP\"}")));
     }
 
-    //TODO
     @Ignore
     @Test
     public void allServicesDown() {
