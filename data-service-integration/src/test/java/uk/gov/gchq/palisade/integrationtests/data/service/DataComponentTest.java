@@ -39,9 +39,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import uk.gov.gchq.palisade.RequestId;
 import uk.gov.gchq.palisade.integrationtests.data.mock.AuditServiceMock;
 import uk.gov.gchq.palisade.integrationtests.data.mock.PalisadeServiceMock;
-import uk.gov.gchq.palisade.integrationtests.data.mock.PolicyServiceMock;
-import uk.gov.gchq.palisade.integrationtests.data.mock.ResourceServiceMock;
-import uk.gov.gchq.palisade.integrationtests.data.mock.UserServiceMock;
 import uk.gov.gchq.palisade.integrationtests.data.util.TestUtil;
 import uk.gov.gchq.palisade.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.palisade.resource.impl.FileResource;
@@ -84,12 +81,6 @@ public class DataComponentTest {
     public WireMockRule auditMock = AuditServiceMock.getRule();
     @Rule
     public WireMockRule palisadeMock = PalisadeServiceMock.getRule();
-    @Rule
-    public WireMockRule policyMock = PolicyServiceMock.getRule();
-    @Rule
-    public WireMockRule resourceMock = ResourceServiceMock.getRule();
-    @Rule
-    public WireMockRule userMock = UserServiceMock.getRule();
 
     private ObjectMapper serializer = JSONSerialiser.createDefaultMapper();
 
@@ -99,12 +90,6 @@ public class DataComponentTest {
         AuditServiceMock.stubHealthRule(auditMock, serializer);
         PalisadeServiceMock.stubRule(palisadeMock, serializer);
         PalisadeServiceMock.stubHealthRule(palisadeMock, serializer);
-        PolicyServiceMock.stubRule(policyMock, serializer);
-        PolicyServiceMock.stubHealthRule(policyMock, serializer);
-        ResourceServiceMock.stubRule(resourceMock, serializer);
-        ResourceServiceMock.stubHealthRule(resourceMock, serializer);
-        UserServiceMock.stubRule(userMock, serializer);
-        UserServiceMock.stubHealthRule(userMock, serializer);
         serializer.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
@@ -119,43 +104,23 @@ public class DataComponentTest {
         assertThat(health, is(equalTo("{\"status\":\"UP\"}")));
     }
 
+    @Test
     public void allServicesDown() {
-        // Given all services are down
+        // Given audit and palisade services are down
         auditMock.stop();
-        policyMock.stop();
-        resourceMock.stop();
-        userMock.stop();
         palisadeMock.stop();
         // Then the Data Service also reports down.
         final String downHealth = this.restTemplate.getForObject("/actuator/health", String.class);
         assertThat(downHealth, is(equalTo("{\"status\":\"DOWN\"}")));
 
-        // When the services start one by one
-        auditMock.start();
+        // When only the palisade-service is started
+        palisadeMock.start();
         // Then Data service still shows as down
         final String auditDownHealth = this.restTemplate.getForObject("/actuator/health", String.class);
         assertThat(auditDownHealth, is(equalTo("{\"status\":\"DOWN\"}")));
 
-        // When the services start one by one
-        policyMock.start();
-        // Then Data service still shows as down
-        final String policyDownHealth = this.restTemplate.getForObject("/actuator/health", String.class);
-        assertThat(policyDownHealth, is(equalTo("{\"status\":\"DOWN\"}")));
-
-        // When the resource service starts
-        resourceMock.start();
-        // Then Data service still shows as down
-        final String resourceDownHealth = this.restTemplate.getForObject("/actuator/health", String.class);
-        assertThat(resourceDownHealth, is(equalTo("{\"status\":\"DOWN\"}")));
-
-        // When the user service starts
-        userMock.start();
-        // Then Data service still shows as down
-        final String userDownHealth = this.restTemplate.getForObject("/actuator/health", String.class);
-        assertThat(userDownHealth, is(equalTo("{\"status\":\"DOWN\"}")));
-
-        // When the final service starts
-        palisadeMock.start();
+        // When the audit-service is started as well
+        auditMock.start();
         // Then Data service shows as up
         final String allUpHealth = this.restTemplate.getForObject("/actuator/health", String.class);
         assertThat(allUpHealth, is(equalTo("{\"status\":\"UP\"}")));
