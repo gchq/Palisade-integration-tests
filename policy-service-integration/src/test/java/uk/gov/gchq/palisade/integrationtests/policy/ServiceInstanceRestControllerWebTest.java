@@ -73,19 +73,28 @@ public class ServiceInstanceRestControllerWebTest {
     private MockMvc mockMvc;
 
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
 
     @Before
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-
     }
 
-
+    /**
+     * Tests the ServiceInstanceRestController for the service endpoint "/service-instances/{ApplicationName}"
+     * It tests that the service endpoint for the following:
+     * 1) request  URL is /service-instances/{ApplicationName} where the ApplicationName is the name for the application is specific for this query.
+     * 2) request is a doGet process
+     * 4) response data is Json format for a List of ServiceInstances
+     * 5) status is 200 OK
+     *
+     * @throws Exception if the test fails
+     */
     @Test
     public void shouldReturnServiceInstance() throws Exception {
 
-        when(discoveryClient.getInstances(anyString())).thenReturn(listTestServiceInstance());
+        String[] services = {"A Service", "Another Service"};
+        when(discoveryClient.getInstances(anyString())).thenReturn(listTestServiceInstance(services));
 
         MvcResult mvcResult = mockMvc.perform(get(SERVICE_INSTANCES_URL, APPLICATION_NAME)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -99,9 +108,7 @@ public class ServiceInstanceRestControllerWebTest {
         assertTrue(responseList.size() == 2);
         PolicyTestUtil.TestServiceInstance firstInstance = (PolicyTestUtil.TestServiceInstance) responseList.get(0);
         PolicyTestUtil.TestServiceInstance secondInstance = (PolicyTestUtil.TestServiceInstance) responseList.get(1);
+        //don't know the order, but should only get two services: "A Service" and "Another Service"
         assertTrue((firstInstance.getServiceId().equals("A Service") && secondInstance.getServiceId().equals("Another Service")) || (secondInstance.getServiceId().equals("A Service") && firstInstance.getServiceId().equals("Another Service")));
-
     }
-
-
 }

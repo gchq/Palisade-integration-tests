@@ -35,15 +35,16 @@ public class PolicyControllerTest {
     @Autowired
     private PolicyController policyController;
 
-    /* Smoke test,
-     * 1) check to see that the application context is loading
-     * 2) and that the Controller can be retrieved
+    /**
+     * Smoke for test PolicyController
+     * 1) check to see that the Application Context is loading
+     * 2) and that the Controller can be retrieved from the Application Context
+     *
+     * @throws Exception if the test fails
      */
     @Test
-
     public void testContextLoads() throws Exception {
         assertThat(policyController).isNotNull();
     }
-
 
 }

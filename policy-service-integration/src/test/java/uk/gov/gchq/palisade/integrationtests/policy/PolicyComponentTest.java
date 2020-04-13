@@ -56,15 +56,11 @@ import static org.junit.Assert.assertNotNull;
 public class PolicyComponentTest extends PolicyTestCommon {
     private static final Logger LOGGER = LoggerFactory.getLogger(PolicyComponentTest.class);
 
+    @Autowired
+    private Map<String, PolicyService> serviceMap;
 
     @Autowired
-    PolicyController policyController;
-
-    @Autowired
-    Map<String, PolicyService> serviceMap;
-
-    @Autowired
-    PolicyClient policyClient;
+    private PolicyClient policyClient;
 
     @Test
     public void contextLoads() {
@@ -91,7 +87,7 @@ public class PolicyComponentTest extends PolicyTestCommon {
         // Given it is accessible
         CanAccessRequest accessRequest = new CanAccessRequest().user(USER).resources(resources).context(CONTEXT);
         CanAccessResponse accessResponse = policyClient.canAccess(accessRequest);
-        for (LeafResource resource: resources) {
+        for (LeafResource resource : resources) {
             assertThat(accessResponse.getCanAccessResources(), hasItem(resource));
         }
 

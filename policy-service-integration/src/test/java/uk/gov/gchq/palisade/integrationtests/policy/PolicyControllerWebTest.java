@@ -78,13 +78,25 @@ public class PolicyControllerWebTest {
     private MockMvc mockMvc;
 
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
 
     @Before
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
 
+    /**
+     * Tests the PolicyController for the service endpoint "/canAccess"
+     * It tests that the service endpoint for the following:
+     * 1) request URL is "/canAccess"
+     * 2) request is a doPost process
+     * 3) request data is in JSON format for a CanAccessRequest object
+     * 4) response data is Json format
+     * 5) response includes the text canAccessResources
+     * 6) response status is 200 OK
+     *
+     * @throws Exception if the test fails
+     */
 
     @Test
     public void shouldReturnCanAccess() throws Exception {
@@ -103,10 +115,19 @@ public class PolicyControllerWebTest {
                 .andDo(print())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(content().string(containsString("canAccessResources")));
-
     }
 
-
+    /**
+     * Tests the PolicyController for the service endpoint "/getPolicySync"
+     * It tests that the service endpoint for the following:
+     * 1) request  URL is "/getPolicySync"
+     * 2) request is a doPost process
+     * 3) request data is in JSON format for a GetPolicyRequest object
+     * 4) response data is Json format
+     * 5) status is 200 OK
+     *
+     * @throws Exception if the test fails
+     */
     @Test
     public void shouldReturnPolicySync() throws Exception {
 
@@ -124,10 +145,17 @@ public class PolicyControllerWebTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
-
-
     }
 
+    /**
+     * Tests the PolicyController for the service endpoint "/setResourcePolicyAsync"
+     * It tests that the service endpoint for the following:
+     * 1) request  URL is "/setResourcePolicyAsync"
+     * 2) request is a doPut process
+     * 3) request data is in JSON format for a SetResourcePolicyRequest object
+     * 4) response status is 200 OK
+     * @throws Exception if the test fails
+     */
     @Test
     public void shouldSetResourcePolicyAsync() throws Exception {
 
@@ -136,24 +164,29 @@ public class PolicyControllerWebTest {
                 .resource(mockResource());
         String jsonSetResourcePolicyRequestMessage = mapper.writeValueAsString(getSetResourcePolicyRequest);
 
-
         this.mockMvc.perform(put(SET_RESOURCE_POLICY_ASYNC_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(StandardCharsets.UTF_8.name())
                 .content(jsonSetResourcePolicyRequestMessage))
                 .andDo(print())
                 .andExpect(status().isOk());
-
     }
 
-
+    /**
+     * Tests the PolicyController for the service endpoint "/setTypePolicyAsync"
+     * It tests that the service endpoint for the following:
+     * 1) request  URL is "/setTypePolicyAsync"
+     * 2) request is a doPut process
+     * 3) request data is in JSON format for a SetTypePolicyRequest object
+     * 4) response status is 200 OK
+     * @throws Exception if the test fails
+     */
     @Test
     public void shouldSetTypePolicyAsync() throws Exception {
 
         SetTypePolicyRequest setTypePolicyRequest = (new SetTypePolicyRequest())
                 .policy(mockPolicy())
                 .type("Test type");
-
         String jsonSetTypePolicyAsyncMessage = mapper.writeValueAsString(setTypePolicyRequest);
 
         this.mockMvc.perform(put(SET_TYPE_POLICY_ASYNC_URL)
@@ -162,7 +195,6 @@ public class PolicyControllerWebTest {
                 .content(jsonSetTypePolicyAsyncMessage))
                 .andDo(print())
                 .andExpect(status().isOk());
-
     }
 
 }

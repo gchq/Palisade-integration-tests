@@ -36,12 +36,16 @@ import java.util.Map;
 import java.util.UUID;
 
 
+/**
+ * Set of methods and classes used in construction of integration tests in this package.
+ */
 public class PolicyTestUtil {
 
-    static List<ServiceInstance> listTestServiceInstance() {
+    static List<ServiceInstance> listTestServiceInstance(final String[] services) {
         List<ServiceInstance> listServiceInstance = new ArrayList<>();
-        listServiceInstance.add(new TestServiceInstance("A Service"));
-        listServiceInstance.add(new TestServiceInstance("Another Service"));
+        for (String service : services) {
+            listServiceInstance.add(new TestServiceInstance(service));
+        }
         return listServiceInstance;
     }
 
@@ -52,10 +56,9 @@ public class PolicyTestUtil {
         TestServiceInstance() {
         }
 
-         TestServiceInstance(final String serviceId) {
+        TestServiceInstance(final String serviceId) {
             this.serviceId = serviceId;
         }
-
 
         @Override
         public String getServiceId() {
@@ -92,9 +95,7 @@ public class PolicyTestUtil {
         }
     }
 
-
     static User mockUser() {
-
         return (new User())
                 .userId("Alice")
                 .roles("HR")
@@ -111,7 +112,6 @@ public class PolicyTestUtil {
         return (new RequestId()).id(UUID.randomUUID().toString());
     }
 
-
     static LeafResource mockResource() {
         return (new FileResource())
                 .id("TEST_RESOURCE_ID")
@@ -121,9 +121,7 @@ public class PolicyTestUtil {
                         .id("resource")
                         .parent((new SystemResource())
                                 .id("root")));
-
     }
-
 
     static Collection<LeafResource> mockResources() {
         List resources = new ArrayList<LeafResource>();
@@ -131,13 +129,10 @@ public class PolicyTestUtil {
         return resources;
     }
 
-
     static Policy mockPolicy() {
         return (new Policy())
                 .owner(mockUser())
                 .resourceRules(new Rules<>())
                 .recordRules(new Rules<>());
     }
-
-
 }

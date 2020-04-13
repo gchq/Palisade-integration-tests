@@ -27,6 +27,10 @@ import uk.gov.gchq.palisade.service.policy.service.NullPolicyService;
 import uk.gov.gchq.palisade.service.policy.service.PolicyService;
 
 
+/**
+ * Configuration class used to load class into the Application Context specifically needed for the tests.
+ */
+
 @TestConfiguration
 public class PolicyTestConfiguration {
 
