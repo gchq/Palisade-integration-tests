@@ -23,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import uk.gov.gchq.palisade.policy.PassThroughRule;
@@ -31,9 +33,9 @@ import uk.gov.gchq.palisade.resource.StubResource;
 import uk.gov.gchq.palisade.resource.impl.FileResource;
 import uk.gov.gchq.palisade.resource.impl.SystemResource;
 import uk.gov.gchq.palisade.service.policy.PolicyApplication;
-import uk.gov.gchq.palisade.service.policy.request.Policy;
 import uk.gov.gchq.palisade.service.policy.service.PolicyService;
 import uk.gov.gchq.palisade.service.policy.service.PolicyServiceCachingProxy;
+import uk.gov.gchq.palisade.service.request.Policy;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -44,11 +46,14 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = PolicyApplication.class, webEnvironment = WebEnvironment.NONE)
+@Import(PolicyTestConfiguration.class)
+@SpringBootTest(classes = { PolicyApplication.class}, webEnvironment = WebEnvironment.NONE)
+@ComponentScan(basePackages = "uk.gov.gchq.palisade")
 public class PolicyCachingProxyTest extends PolicyTestCommon {
 
     @Autowired
     private PolicyServiceCachingProxy cacheProxy;
+
     @Autowired
     @Qualifier("impl")
     private PolicyService policyService;
