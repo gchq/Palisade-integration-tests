@@ -74,15 +74,15 @@ spec:
             echo sh(script: 'env|sort', returnStdout: true)
         }
         stage('Build Palisade Services') {
-                git url: 'https://github.com/gchq/Palisade-services.git'
-                sh "git fetch origin develop"
-                sh "git checkout ${env.BRANCH_NAME} || git checkout develop"
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install'
-                        }
-                    }
+            git url: 'https://github.com/gchq/Palisade-services.git'
+            sh "git fetch origin develop"
+            sh "git checkout ${env.BRANCH_NAME} || git checkout develop"
+            container('docker-cmds') {
+                configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                    sh 'mvn -s $MAVEN_SETTINGS install'
                 }
+            }
+        }
         stage('Install a Maven project') {
             git branch: "${env.BRANCH_NAME}", url: 'https://github.com/gchq/Palisade-integration-tests.git'
             container('docker-cmds') {
@@ -94,6 +94,76 @@ spec:
         stage('Hadolinting') {
             container('hadolint') {
                 sh 'hadolint */Dockerfile'
+            }
+        }
+        stage('Do a Palisade') {
+            x = env.BRANCH_NAME
+            if (x.substring(0, 2) == "PR") {
+                dir ('Palisade-common') {
+                git url: 'https://github.com/gchq/Palisade-common.git'
+                sh "git fetch origin develop"
+                sh "git checkout ${env.BRANCH_NAME} || git checkout develop"
+                    container('docker-cmds') {
+                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                            sh 'mvn -s $MAVEN_SETTINGS install'
+                        }
+                    }
+                }
+                dir ('Palisade-readers') {
+                git url: 'https://github.com/gchq/Palisade-readers.git'
+                sh "git fetch origin develop"
+                sh "git checkout ${env.BRANCH_NAME} || git checkout develop"
+                    container('docker-cmds') {
+                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                            sh 'mvn -s $MAVEN_SETTINGS install'
+                        }
+                    }
+                }
+                dir ('Palisade-clients') {
+                git url: 'https://github.com/gchq/Palisade-clients.git'
+                sh "git fetch origin develop"
+                sh "git checkout ${env.BRANCH_NAME} || git checkout develop"
+                    container('docker-cmds') {
+                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                            sh 'mvn -s $MAVEN_SETTINGS install'
+                        }
+                    }
+                }
+                dir ('Palisade-services') {
+                git url: 'https://github.com/gchq/Palisade-services.git'
+                sh "git fetch origin develop"
+                sh "git checkout ${env.BRANCH_NAME} || git checkout develop"
+                    container('docker-cmds') {
+                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                            sh 'mvn -s $MAVEN_SETTINGS package'
+                        }
+                    }
+                }
+                dir ('Palisade-examples') {
+                    git url: 'https://github.com/gchq/Palisade-Examples.git'
+                    sh "git fetch origin develop"
+                    sh "git checkout ${env.BRANCH_NAME} || git checkout develop"
+                    container('docker-cmds') {
+                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                            sh '''
+                                mvn -s $MAVEN_SETTINGS install -Dmaven.test.skip=true
+                                cd ../Palisade-services
+                                java -jar -Dspring.profiles.active=discovery,debug services-manager/target/services-manager-*-exec.jar --manager.mode=run && java -jar -Dspring.profiles.active=example,debug services-manager/target/services-manager-*-exec.jar --manager.mode=run
+                                cd ../Palisade-examples
+                                ./deployment/local-jvm/bash-scripts/configureExamples.sh
+                                ./deployment/local-jvm/bash-scripts/runFormattedLocalJVMExample.sh > deployment/local-jvm/bash-scripts/exampleOutput.txt
+                                chmod +x deployment/local-jvm/bash-scripts/verify.sh
+                            '''
+                            sh './deployment/local-jvm/bash-scripts/verify.sh | tail -1 > numOfLines.txt'
+                            String numOfLines = readFile 'numOfLines.txt'
+                            if (numOfLines.trim().equals("780")){
+                                currentBuild.result = 'SUCCESS'
+                            } else {
+                                error("Number of lines was not 780, but was: ${numOfLines.trim()}")
+                            }
+                        }
+                    }
+                }
             }
         }
     }
