@@ -26,11 +26,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import uk.gov.gchq.palisade.Context;
@@ -51,15 +53,15 @@ import uk.gov.gchq.palisade.service.request.DataRequestResponse;
 
 import java.util.Collections;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = PalisadeApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD) //reset db after each test
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD) //reset db after each test
 @EnableJpaRepositories(basePackages = {"uk.gov.gchq.palisade.service.palisade.repository"})
 public class PalisadeComponentTest {
 
@@ -142,7 +144,6 @@ public class PalisadeComponentTest {
         assertThat(allUpHealth, is(equalTo("{\"status\":\"UP\"}")));
     }
 
-
     @Test
     public void registerDataRequestTest() {
         // Given all other services are mocked
@@ -171,7 +172,7 @@ public class PalisadeComponentTest {
         DataRequestResponse dataResponse = restTemplate.postForObject("/registerDataRequest", dataRequest, DataRequestResponse.class);
 
         // When the data service requests the request config
-        for (Resource resource : ResourceServiceMock.getResources().keySet()) {
+        for (Resource resource : ResourceServiceMock.getResources()) {
             GetDataRequestConfig configRequest = (GetDataRequestConfig) new GetDataRequestConfig()
                     .token(new RequestId().id(dataResponse.getToken()))
                     .resource(resource)

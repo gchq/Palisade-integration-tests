@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.palisade.integrationtests.resource;
 
-import com.google.common.collect.Maps;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileSystem;
@@ -30,17 +29,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
-import uk.gov.gchq.palisade.RequestId;
 import uk.gov.gchq.palisade.resource.ChildResource;
 import uk.gov.gchq.palisade.resource.LeafResource;
 import uk.gov.gchq.palisade.resource.ParentResource;
 import uk.gov.gchq.palisade.resource.impl.DirectoryResource;
 import uk.gov.gchq.palisade.resource.impl.FileResource;
 import uk.gov.gchq.palisade.resource.impl.SystemResource;
-import uk.gov.gchq.palisade.resource.request.GetResourcesByIdRequest;
-import uk.gov.gchq.palisade.resource.request.GetResourcesByResourceRequest;
-import uk.gov.gchq.palisade.resource.request.GetResourcesBySerialisedFormatRequest;
-import uk.gov.gchq.palisade.resource.request.GetResourcesByTypeRequest;
 import uk.gov.gchq.palisade.service.ConnectionDetail;
 import uk.gov.gchq.palisade.service.SimpleConnectionDetail;
 import uk.gov.gchq.palisade.service.resource.service.HadoopResourceService;
@@ -50,12 +44,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
@@ -82,11 +82,13 @@ public class HadoopResourceServiceTest {
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder(TMP_DIRECTORY);
-    private SimpleConnectionDetail simpleConnection;
+    private String id1;
+    private String id2;
+    private LeafResource resource1;
+    private LeafResource resource2;
     private String root;
     private String dir;
     private FileSystem fs;
-    private HashMap<uk.gov.gchq.palisade.resource.Resource, ConnectionDetail> expected;
     private Configuration config = new Configuration();
     private HadoopResourceService resourceService;
 
@@ -136,41 +138,53 @@ public class HadoopResourceServiceTest {
         dir = root + "inputDir/";
         fs = FileSystem.get(config);
         fs.mkdirs(new Path(root + "inputDir"));
-        expected = Maps.newHashMap();
-        simpleConnection = new SimpleConnectionDetail().uri("data-service");
+        writeFile(fs, dir, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
+        writeFile(fs, dir, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
+
+        ConnectionDetail connectionDetail = new SimpleConnectionDetail().uri("data-service");
+        id1 = dir + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE);
+        resource1 = new FileResource()
+                .id(FILE + id1)
+                .type(TYPE_VALUE)
+                .serialisedFormat(FORMAT_VALUE)
+                .connectionDetail(connectionDetail)
+                .parent(new DirectoryResource()
+                        .id(FILE + dir)
+                        .parent(new SystemResource().id(FILE + root)));
+        id2 = dir + getFileNameFromResourceDetails(FILE_NAME_VALUE_00002, TYPE_VALUE, FORMAT_VALUE);
+        resource2 = new FileResource()
+                .id(FILE + id2)
+                .type(TYPE_VALUE)
+                .serialisedFormat(FORMAT_VALUE)
+                .connectionDetail(connectionDetail)
+                .parent(new DirectoryResource()
+                        .id(FILE + dir)
+                        .parent(new SystemResource().id(FILE + root)));
 
         resourceService = new HadoopResourceService(config);
-        resourceService.addDataService(simpleConnection);
+        resourceService.addDataService(connectionDetail);
     }
 
     @Test
     public void getResourcesByIdTest() throws Exception {
         //given
-        final String id = dir + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE);
-        writeFile(fs, dir, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, dir, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
-        expected.put(new FileResource().id(FILE + id).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + dir).parent(
-                        new SystemResource().id(FILE + root)
-                )
-        ), simpleConnection);
 
         //when
-        final CompletableFuture<Map<LeafResource, ConnectionDetail>> resourcesById = resourceService.getResourcesById(new GetResourcesByIdRequest().resourceId(FILE + id));
+        final Stream<LeafResource> resourcesById = resourceService.getResourcesById(FILE + id1);
 
         //then
-        assertEquals(expected, resourcesById.get());
+        Set<LeafResource> expected = Collections.singleton(resource1);
+        assertEquals(expected, resourcesById.collect(Collectors.toSet()));
     }
 
     @Test
     public void shouldGetResourcesOutsideOfScope() {
         //given
-        final String id = dir + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE);
 
         //when
-        final String found = HDFS + "/unknownDir" + id;
+        final String found = HDFS + "/unknownDir" + id1;
         try {
-            resourceService.getResourcesById(new GetResourcesByIdRequest().resourceId(found));
+            resourceService.getResourcesById(found);
             fail("exception expected");
         } catch (Exception e) {
             //then
@@ -181,179 +195,71 @@ public class HadoopResourceServiceTest {
     @Test
     public void shouldGetResourcesByIdOfAFolder() throws Exception {
         //given
-        final String id = dir;
-        writeFile(fs, dir, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, dir, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
-        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + dir).parent(
-                        new SystemResource().id(FILE + root)
-                )
-        ), simpleConnection);
-        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00002, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + dir).parent(
-                        new SystemResource().id(FILE + root)
-                )
-        ), simpleConnection);
 
         //when
-        final CompletableFuture<Map<LeafResource, ConnectionDetail>> resourcesById = resourceService.getResourcesById(new GetResourcesByIdRequest().resourceId(FILE + id));
+        final Stream<LeafResource> resourcesById = resourceService.getResourcesById(FILE + dir);
 
         //then
-        assertEquals(expected, resourcesById.join());
+        Set<LeafResource> expected = new HashSet<>(Arrays.asList(resource1, resource2));
+        assertEquals(expected, resourcesById.collect(Collectors.toSet()));
     }
 
     @Test
     public void shouldFilterOutIllegalFileName() throws Exception {
         //given
-        final String id = dir;
-        writeFile(fs, dir, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, dir, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
         writeFile(fs, dir + "I AM AN ILLEGAL FILENAME");
-        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + dir).parent(
-                        new SystemResource().id(FILE + root)
-                )
-        ), simpleConnection);
-        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00002, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + dir).parent(
-                        new SystemResource().id(FILE + root)
-                )
-        ), simpleConnection);
 
         //when
-        final CompletableFuture<Map<LeafResource, ConnectionDetail>> resourcesById = resourceService.getResourcesById(new GetResourcesByIdRequest().resourceId(FILE + id));
+        final Stream<LeafResource> resourcesById = resourceService.getResourcesById(FILE + dir);
 
         //then
-        assertEquals(expected, resourcesById.join());
+        Set<LeafResource> expected = new HashSet<>(Arrays.asList(resource1, resource2));
+        assertEquals(expected, resourcesById.collect(Collectors.toSet()));
     }
 
     @Test
     public void shouldGetResourcesByType() throws Exception {
         //given
-        final String id = dir;
-        writeFile(fs, dir, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, dir, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, dir, "00003", FORMAT_VALUE, TYPE_VALUE + 2);
-        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + dir).parent(
-                        new SystemResource().id(FILE + root)
-                )
-        ), simpleConnection);
-        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00002, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + dir).parent(
-                        new SystemResource().id(FILE + root)
-                )
-        ), simpleConnection);
+        writeFile(fs, dir, "00003", FORMAT_VALUE, "not" + TYPE_VALUE);
 
         //when
-        GetResourcesByTypeRequest getResourcesByTypeRequest = new GetResourcesByTypeRequest().type(TYPE_VALUE);
-        getResourcesByTypeRequest.setOriginalRequestId(new RequestId().id("test shouldGetResourcesByType"));
-        final CompletableFuture<Map<LeafResource, ConnectionDetail>> resourcesById = resourceService.getResourcesByType(getResourcesByTypeRequest);
+        final Stream<LeafResource> resourcesByType = resourceService.getResourcesByType(TYPE_VALUE);
 
         //then
-        assertEquals(expected, resourcesById.join());
+        Set<LeafResource> expected = new HashSet<>(Arrays.asList(resource1, resource2));
+        assertEquals(expected, resourcesByType.collect(Collectors.toSet()));
     }
 
     @Test
     public void shouldGetResourcesByFormat() throws Exception {
         //given
-        final String id = dir;
-        writeFile(fs, dir, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, dir, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, dir, "00003", FORMAT_VALUE + 2, TYPE_VALUE);
-        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + dir).parent(
-                        new SystemResource().id(FILE + root)
-                )
-        ), simpleConnection);
-        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00002, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + dir).parent(
-                        new SystemResource().id(FILE + root)
-                )
-        ), simpleConnection);
+        writeFile(fs, dir, "00003", "not" +  FORMAT_VALUE, TYPE_VALUE);
 
         //when
-        GetResourcesBySerialisedFormatRequest getResourcesBySerialisedFormatRequest = new GetResourcesBySerialisedFormatRequest().serialisedFormat(FORMAT_VALUE);
-        getResourcesBySerialisedFormatRequest.setOriginalRequestId(new RequestId().id("test shouldGetResourcesByFormat"));
-        final CompletableFuture<Map<LeafResource, ConnectionDetail>> resourcesById = resourceService.getResourcesBySerialisedFormat(getResourcesBySerialisedFormatRequest);
+        final Stream<LeafResource> resourcesBySerialisedFormat = resourceService.getResourcesBySerialisedFormat(FORMAT_VALUE);
 
         //then
-        assertEquals(expected, resourcesById.join());
+        Set<LeafResource> expected = new HashSet<>(Arrays.asList(resource1, resource2));
+        assertEquals(expected, resourcesBySerialisedFormat.collect(Collectors.toSet()));
+
     }
 
     @Test
     public void shouldGetResourcesByResource() throws Exception {
         //given
-        final String id = dir;
-        writeFile(fs, dir, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, dir, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
-        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + dir).parent(
-                        new SystemResource().id(FILE + root)
-                )
-        ), simpleConnection);
-        expected.put(new FileResource().id(FILE + id + getFileNameFromResourceDetails(FILE_NAME_VALUE_00002, TYPE_VALUE, FORMAT_VALUE)).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + dir).parent(
-                        new SystemResource().id(FILE + root)
-                )
-        ), simpleConnection);
+
         //when
-        GetResourcesByResourceRequest getResourcesByResourceRequest = new GetResourcesByResourceRequest().resource(new DirectoryResource().id(FILE + id));
-        getResourcesByResourceRequest.setOriginalRequestId(new RequestId().id("test shouldGetResourcesByResource"));
-        final CompletableFuture<Map<LeafResource, ConnectionDetail>> resourcesById = resourceService.getResourcesByResource(getResourcesByResourceRequest);
+        final Stream<LeafResource> resourcesByResource = resourceService.getResourcesByResource(new DirectoryResource().id(FILE + dir));
 
         //then
-        assertEquals(expected, resourcesById.join());
+        Set<LeafResource> expected = new HashSet<>(Arrays.asList(resource1, resource2));
+        assertEquals(expected, resourcesByResource.collect(Collectors.toSet()));
     }
 
     @Test
     public void addResourceTest() {
-        try {
-            resourceService.addResource(null);
-            fail("exception expected");
-        } catch (UnsupportedOperationException e) {
-            assertEquals(HadoopResourceService.ERROR_ADD_RESOURCE, e.getMessage());
-        }
-    }
-
-    @Test
-    public void shouldErrorWithNoConnectionDetails() throws Exception {
-        //given
-        final String id = dir + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE);
-        writeFile(fs, dir, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, dir, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
-        expected.put(new FileResource().id(id).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE), simpleConnection);
-
-        //when
-        try {
-            //this test needs a local HDFS resource service
-            final CompletableFuture<Map<LeafResource, ConnectionDetail>> resourcesById = new HadoopResourceService(config)
-                    .getResourcesById(new GetResourcesByIdRequest().resourceId(FILE + id));
-            resourcesById.get();
-            fail("exception expected");
-        } catch (ExecutionException e) {
-            //then
-            assertEquals(HadoopResourceService.ERROR_NO_DATA_SERVICES, e.getCause().getMessage());
-        }
-    }
-
-    @Test
-    public void shouldGetFormatConnectionWhenNoTypeConnection() throws Exception {
-        //given
-        final String id = dir + getFileNameFromResourceDetails(FILE_NAME_VALUE_00001, TYPE_VALUE, FORMAT_VALUE);
-        writeFile(fs, dir, FILE_NAME_VALUE_00001, FORMAT_VALUE, TYPE_VALUE);
-        writeFile(fs, dir, FILE_NAME_VALUE_00002, FORMAT_VALUE, TYPE_VALUE);
-        expected.put(new FileResource().id(FILE + id).type(TYPE_VALUE).serialisedFormat(FORMAT_VALUE).parent(
-                new DirectoryResource().id(FILE + dir).parent(
-                        new SystemResource().id(FILE + root)
-                )
-        ), simpleConnection);
-
-        //when
-        final CompletableFuture<Map<LeafResource, ConnectionDetail>> resourcesById = resourceService.getResourcesById(new GetResourcesByIdRequest().resourceId(FILE + id));
-
-        //then
-        assertEquals(expected, resourcesById.join());
+        boolean success = resourceService.addResource(null);
+        assertFalse(success);
     }
 
     @Test

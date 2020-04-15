@@ -36,7 +36,6 @@ import uk.gov.gchq.palisade.service.user.service.UserServiceProxy;
 import java.util.Collections;
 import java.util.function.Function;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;

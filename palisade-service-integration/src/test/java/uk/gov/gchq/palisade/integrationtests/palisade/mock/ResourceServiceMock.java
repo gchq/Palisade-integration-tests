@@ -22,11 +22,14 @@ import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 
 import uk.gov.gchq.palisade.resource.LeafResource;
+import uk.gov.gchq.palisade.resource.impl.FileResource;
+import uk.gov.gchq.palisade.resource.impl.SystemResource;
 import uk.gov.gchq.palisade.service.ConnectionDetail;
 import uk.gov.gchq.palisade.service.SimpleConnectionDetail;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -42,10 +45,15 @@ public class ResourceServiceMock {
         return new WireMockRule(options().port(8086).notifier(new ConsoleNotifier(true)));
     }
 
-    public static Map<LeafResource, ConnectionDetail> getResources() {
-        LeafResource resource = new StubResource("type", "resource-id", "format");
+    public static Set<LeafResource> getResources() {
         ConnectionDetail connectionDetail = new SimpleConnectionDetail().uri("data-service-mock");
-        return Collections.singletonMap(resource, connectionDetail);
+        LeafResource resource = new FileResource()
+                .id("root/resource-id")
+                .type("type")
+                .serialisedFormat("format")
+                .connectionDetail(connectionDetail)
+                .parent(new SystemResource().id("root"));
+        return Collections.singleton(resource);
     }
 
     public static void stubRule(final WireMockRule serviceMock, final ObjectMapper serializer) throws JsonProcessingException {

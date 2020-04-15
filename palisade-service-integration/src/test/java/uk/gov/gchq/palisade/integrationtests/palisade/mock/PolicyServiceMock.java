@@ -35,6 +35,7 @@ import uk.gov.gchq.palisade.service.ConnectionDetail;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -61,11 +62,11 @@ public class PolicyServiceMock {
     }
 
     public static Map<LeafResource, Rules> getPolicies() {
-        Map<LeafResource, ConnectionDetail> resources = ResourceServiceMock.getResources();
+        Set<LeafResource> resources = ResourceServiceMock.getResources();
         Rules rules = new Rules().addRules(Collections.singletonMap("stub-rule", new StubRule()));
 
-        return resources.entrySet().stream()
-                .map(entry -> new SimpleEntry<>(entry.getKey(), rules))
+        return resources.stream()
+                .map(resource -> new SimpleEntry<>(resource, rules))
                 .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
     }
 
@@ -76,7 +77,7 @@ public class PolicyServiceMock {
                 ));
     }
 
-    public static void stubHealthRule(final WireMockRule serviceMock, final ObjectMapper serializer) throws JsonProcessingException {
+    public static void stubHealthRule(final WireMockRule serviceMock, final ObjectMapper serializer) {
         serviceMock.stubFor(get(urlEqualTo("/actuator/health"))
                 .willReturn(
                         aResponse()
