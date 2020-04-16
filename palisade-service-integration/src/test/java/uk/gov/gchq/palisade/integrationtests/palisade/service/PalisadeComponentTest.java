@@ -38,10 +38,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.gchq.palisade.Context;
 import uk.gov.gchq.palisade.RequestId;
 import uk.gov.gchq.palisade.UserId;
+import uk.gov.gchq.palisade.data.serialise.AvroSerialiser;
 import uk.gov.gchq.palisade.integrationtests.palisade.mock.AuditServiceMock;
 import uk.gov.gchq.palisade.integrationtests.palisade.mock.PolicyServiceMock;
 import uk.gov.gchq.palisade.integrationtests.palisade.mock.ResourceServiceMock;
+import uk.gov.gchq.palisade.integrationtests.palisade.mock.StreamingResourceControllerMock;
 import uk.gov.gchq.palisade.integrationtests.palisade.mock.UserServiceMock;
+import uk.gov.gchq.palisade.resource.LeafResource;
 import uk.gov.gchq.palisade.resource.Resource;
 import uk.gov.gchq.palisade.service.palisade.PalisadeApplication;
 import uk.gov.gchq.palisade.service.palisade.repository.PersistenceLayer;
@@ -51,7 +54,9 @@ import uk.gov.gchq.palisade.service.palisade.service.PalisadeService;
 import uk.gov.gchq.palisade.service.request.DataRequestConfig;
 import uk.gov.gchq.palisade.service.request.DataRequestResponse;
 
+import java.io.IOException;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -60,8 +65,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeTrue;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = PalisadeApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
-@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD) //reset db after each test
+@SpringBootTest(classes = {PalisadeApplication.class, StreamingResourceControllerMock.class}, webEnvironment = WebEnvironment.DEFINED_PORT)
 @EnableJpaRepositories(basePackages = {"uk.gov.gchq.palisade.service.palisade.repository"})
 public class PalisadeComponentTest {
 
@@ -71,8 +75,6 @@ public class PalisadeComponentTest {
     private ObjectMapper serializer;
     @Autowired
     private PalisadeService palisadeService;
-    @Autowired
-    private PersistenceLayer persistenceLayer;
 
     @Rule
     public WireMockRule auditMock = AuditServiceMock.getRule();
@@ -84,12 +86,12 @@ public class PalisadeComponentTest {
     public WireMockRule userMock = UserServiceMock.getRule();
 
     @Before
-    public void setUp() throws JsonProcessingException {
+    public void setUp() throws IOException {
         AuditServiceMock.stubRule(auditMock, serializer);
         AuditServiceMock.stubHealthRule(auditMock, serializer);
         PolicyServiceMock.stubRule(policyMock, serializer);
         PolicyServiceMock.stubHealthRule(policyMock, serializer);
-        ResourceServiceMock.stubRule(resourceMock, serializer);
+        ResourceServiceMock.stubRule(resourceMock);
         ResourceServiceMock.stubHealthRule(resourceMock, serializer);
         UserServiceMock.stubRule(userMock, serializer);
         UserServiceMock.stubHealthRule(userMock, serializer);
@@ -107,7 +109,6 @@ public class PalisadeComponentTest {
         assertThat(health, is(equalTo("{\"status\":\"UP\"}")));
     }
 
-    @Ignore
     @Test
     public void allServicesDown() {
         //Given all services are down
@@ -157,7 +158,7 @@ public class PalisadeComponentTest {
         DataRequestResponse response = restTemplate.postForObject("/registerDataRequest", request, DataRequestResponse.class);
 
         // Then
-        assertThat(response.getResources(), is(ResourceServiceMock.getResources()));
+        assertThat(response.getResources(), is(StreamingResourceControllerMock.getResources().collect(Collectors.toSet())));
     }
 
     @Test
@@ -172,7 +173,7 @@ public class PalisadeComponentTest {
         DataRequestResponse dataResponse = restTemplate.postForObject("/registerDataRequest", dataRequest, DataRequestResponse.class);
 
         // When the data service requests the request config
-        for (Resource resource : ResourceServiceMock.getResources()) {
+        for (Resource resource : StreamingResourceControllerMock.getResources().collect(Collectors.toSet())) {
             GetDataRequestConfig configRequest = (GetDataRequestConfig) new GetDataRequestConfig()
                     .token(new RequestId().id(dataResponse.getToken()))
                     .resource(resource)

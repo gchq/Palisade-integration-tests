@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.palisade.integrationtests.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Response;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,11 +30,14 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import uk.gov.gchq.palisade.integrationtests.resource.client.ResourceFeignClient;
+import uk.gov.gchq.palisade.integrationtests.resource.client.ResourceClient;
 import uk.gov.gchq.palisade.service.ResourceService;
 import uk.gov.gchq.palisade.service.resource.ResourceApplication;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNotEquals;
@@ -52,7 +56,11 @@ public class ResourceComponentTest {
     Map<String, ResourceService> serviceMap;
 
     @Autowired
-    ResourceClient resourceClient;
+    ResourceFeignClient feign;
+    @Autowired
+    ObjectMapper objectMapper;
+
+    ResourceClient client = new ResourceClient(feign, objectMapper);
 
     @Test
     public void contextLoads() {
@@ -62,7 +70,7 @@ public class ResourceComponentTest {
 
     @Test
     public void isUp() {
-        Response health = resourceClient.getActuatorHealth();
+        Response health = client.getHealth();
 
         assertThat(health.status(), equalTo(200));
     }

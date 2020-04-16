@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.palisade.integrationtests.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,18 +27,21 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import uk.gov.gchq.palisade.integrationtests.resource.client.ResourceClient;
+import uk.gov.gchq.palisade.integrationtests.resource.client.ResourceFeignClient;
 import uk.gov.gchq.palisade.resource.LeafResource;
 import uk.gov.gchq.palisade.resource.impl.DirectoryResource;
 import uk.gov.gchq.palisade.resource.impl.FileResource;
 import uk.gov.gchq.palisade.resource.impl.SystemResource;
 import uk.gov.gchq.palisade.service.SimpleConnectionDetail;
 import uk.gov.gchq.palisade.service.resource.ResourceApplication;
-import uk.gov.gchq.palisade.service.resource.service.ResourceServiceProxy;
+import uk.gov.gchq.palisade.service.resource.service.StreamingResourceServiceProxy;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,7 +55,14 @@ import static org.junit.Assert.assertThat;
 public class ResourcePersistenceTest {
 
     @Autowired
-    private ResourceServiceProxy persistenceProxy;
+    private StreamingResourceServiceProxy persistenceProxy;
+
+    @Autowired
+    ResourceFeignClient feign;
+    @Autowired
+    ObjectMapper objectMapper;
+
+    ResourceClient client = new ResourceClient(feign, objectMapper);
 
     private static final SystemResource SYSTEM_ROOT = new SystemResource().id("/");
     private static final DirectoryResource TEST_DIRECTORY = new DirectoryResource().id("/test").parent(SYSTEM_ROOT);
@@ -91,14 +102,14 @@ public class ResourcePersistenceTest {
         // Given - setup
 
         // When
-        Stream<LeafResource> resourcesByResource = persistenceProxy.getResourcesByResource(TEST_DIRECTORY);
+        Stream<LeafResource> resourcesByResource = client.getResourcesByResource(TEST_DIRECTORY);
 
         // Then
         Set<LeafResource> expected = new HashSet<>(Arrays.asList(EMPLOYEE_AVRO_FILE, EMPLOYEE_CSV_FILE, CLIENT_AVRO_FILE));
         assertThat(resourcesByResource.collect(Collectors.toSet()), equalTo(expected));
 
         // When
-        resourcesByResource = persistenceProxy.getResourcesByResource(EMPLOYEE_AVRO_FILE);
+        resourcesByResource = client.getResourcesByResource(EMPLOYEE_AVRO_FILE);
 
         // Then
         expected = Collections.singleton(EMPLOYEE_AVRO_FILE);
@@ -110,14 +121,14 @@ public class ResourcePersistenceTest {
         // Given - setup
 
         // When
-        Stream<LeafResource> resourcesByResource = persistenceProxy.getResourcesById(TEST_DIRECTORY.getId());
+        Stream<LeafResource> resourcesByResource = client.getResourcesById(TEST_DIRECTORY.getId());
 
         // Then
         Set<LeafResource> expected = new HashSet<>(Arrays.asList(EMPLOYEE_AVRO_FILE, EMPLOYEE_CSV_FILE, CLIENT_AVRO_FILE));
         assertThat(resourcesByResource.collect(Collectors.toSet()), equalTo(expected));
 
         // When
-        resourcesByResource = persistenceProxy.getResourcesById(EMPLOYEE_AVRO_FILE.getId());
+        resourcesByResource = client.getResourcesById(EMPLOYEE_AVRO_FILE.getId());
 
         // Then
         expected = Collections.singleton(EMPLOYEE_AVRO_FILE);
@@ -129,14 +140,14 @@ public class ResourcePersistenceTest {
         // Given - setup
 
         // When
-        Stream<LeafResource> resourcesByType = persistenceProxy.getResourcesByType(AVRO_TYPE);
+        Stream<LeafResource> resourcesByType = client.getResourcesByType(AVRO_TYPE);
 
         // Then
         Set<LeafResource> expected = new HashSet<>(Arrays.asList(EMPLOYEE_AVRO_FILE, CLIENT_AVRO_FILE));
         assertThat(resourcesByType.collect(Collectors.toSet()), equalTo(expected));
 
         // When
-        resourcesByType = persistenceProxy.getResourcesByType(CSV_TYPE);
+        resourcesByType = client.getResourcesByType(CSV_TYPE);
 
         // Then
         expected = Collections.singleton(EMPLOYEE_CSV_FILE);
@@ -149,14 +160,14 @@ public class ResourcePersistenceTest {
         // Given - setup
 
         // When
-        Stream<LeafResource> resourcesByType = persistenceProxy.getResourcesByType(AVRO_TYPE);
+        Stream<LeafResource> resourcesByType = client.getResourcesByType(AVRO_TYPE);
 
         // Then
         Set<LeafResource> expected = new HashSet<>(Arrays.asList(EMPLOYEE_AVRO_FILE, CLIENT_AVRO_FILE));
         assertThat(resourcesByType.collect(Collectors.toSet()), equalTo(expected));
 
         // When
-        resourcesByType = persistenceProxy.getResourcesByType(CSV_TYPE);
+        resourcesByType = client.getResourcesByType(CSV_TYPE);
 
         // Then
         expected = Collections.singleton(EMPLOYEE_CSV_FILE);

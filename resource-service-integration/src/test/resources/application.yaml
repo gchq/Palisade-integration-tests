@@ -54,3 +54,7 @@ management:
         - loggers
     loggers:
       enabled: true
+
+web:
+  client:
+    resource-service: http://localhost:${server.port}

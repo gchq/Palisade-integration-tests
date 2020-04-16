@@ -57,7 +57,7 @@ management:
 
 web:
   client:
-    audit-service: http://localhost:8081
+    audit-service: http://localhost:8088
     policy-service: http://localhost:8085
     resource-service: http://localhost:8086
     user-service: http://localhost:8087

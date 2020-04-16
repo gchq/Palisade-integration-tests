@@ -20,19 +20,26 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import uk.gov.gchq.palisade.data.serialise.Serialiser;
 import uk.gov.gchq.palisade.resource.LeafResource;
 import uk.gov.gchq.palisade.resource.impl.FileResource;
 import uk.gov.gchq.palisade.resource.impl.SystemResource;
 import uk.gov.gchq.palisade.service.ConnectionDetail;
 import uk.gov.gchq.palisade.service.SimpleConnectionDetail;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.okForContentType;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -41,33 +48,20 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 
 public class ResourceServiceMock {
 
+    private static int port = 8084;
+
     public static WireMockRule getRule() {
         return new WireMockRule(options().port(8086).notifier(new ConsoleNotifier(true)));
     }
 
-    public static Set<LeafResource> getResources() {
-        ConnectionDetail connectionDetail = new SimpleConnectionDetail().uri("data-service-mock");
-        LeafResource resource = new FileResource()
-                .id("root/resource-id")
-                .type("type")
-                .serialisedFormat("format")
-                .connectionDetail(connectionDetail)
-                .parent(new SystemResource().id("root"));
-        return Collections.singleton(resource);
-    }
-
-    public static void stubRule(final WireMockRule serviceMock, final ObjectMapper serializer) throws JsonProcessingException {
+    public static void stubRule(final WireMockRule serviceMock) throws IOException {
         serviceMock.stubFor(post(urlMatching("/getResourcesBy(Id|Resource|Type|SerialisedFormat)"))
-                .willReturn(
-                        okJson(serializer.writeValueAsString(getResources()))
-                ));
+                .willReturn(aResponse().proxiedFrom("http://localhost:" + port + "/resource-service-mock")));
     }
 
     public static void stubHealthRule(final WireMockRule serviceMock, final ObjectMapper serializer) throws JsonProcessingException {
         serviceMock.stubFor(get(urlEqualTo("/actuator/health"))
-                .willReturn(
-                        aResponse()
-                ));
+                .willReturn(aResponse()));
     }
 
 }

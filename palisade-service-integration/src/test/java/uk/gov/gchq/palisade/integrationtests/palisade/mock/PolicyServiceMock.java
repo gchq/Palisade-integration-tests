@@ -62,7 +62,7 @@ public class PolicyServiceMock {
     }
 
     public static Map<LeafResource, Rules> getPolicies() {
-        Set<LeafResource> resources = ResourceServiceMock.getResources();
+        Set<LeafResource> resources = StreamingResourceControllerMock.getResources().collect(Collectors.toSet());
         Rules rules = new Rules().addRules(Collections.singletonMap("stub-rule", new StubRule()));
 
         return resources.stream()

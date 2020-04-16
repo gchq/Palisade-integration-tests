@@ -31,7 +31,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 public class AuditServiceMock {
 
     public static WireMockRule getRule() {
-        return new WireMockRule(options().port(8081).notifier(new ConsoleNotifier(true)));
+        return new WireMockRule(options().port(8088).notifier(new ConsoleNotifier(true)));
     }
 
     public static Boolean getAuditResult() {
