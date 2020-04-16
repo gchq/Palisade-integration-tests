@@ -51,7 +51,7 @@ import static org.junit.Assert.assertThat;
 @EnableFeignClients
 @RunWith(SpringRunner.class)
 @Import(ResourceTestConfiguration.class)
-@SpringBootTest(classes = ResourceApplication.class, webEnvironment = WebEnvironment.NONE)
+@SpringBootTest(classes = ResourceApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @EnableJpaRepositories(basePackages = {"uk.gov.gchq.palisade.service.resource.repository"})
 public class ResourcePersistenceTest {
