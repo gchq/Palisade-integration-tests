@@ -74,6 +74,7 @@ spec:
             echo sh(script: 'env|sort', returnStdout: true)
         }
         stage('Build Palisade Services') {
+            dir ('Palisade-services') {
             git url: 'https://github.com/gchq/Palisade-services.git'
             sh "git fetch origin develop"
             sh "git checkout ${env.CHANGE_BRANCH} || git checkout ${env.BRANCH_NAME} || git checkout develop"
@@ -82,8 +83,10 @@ spec:
                     sh 'mvn -s $MAVEN_SETTINGS install'
                 }
             }
+            }
         }
         stage('Install a Maven project') {
+            dir ('Palisade-integration-tests') {
             git url: 'https://github.com/gchq/Palisade-integration-tests.git'
             sh "git fetch origin develop"
             sh "git checkout ${env.CHANGE_BRANCH} || git checkout ${env.BRANCH_NAME} || git checkout develop"
@@ -91,6 +94,7 @@ spec:
                 configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                     sh 'mvn -s $MAVEN_SETTINGS install'
                 }
+            }
             }
         }
         stage('Hadolinting') {
