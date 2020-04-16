@@ -54,8 +54,6 @@ import static org.junit.Assert.assertThat;
 public class ResourceComponentTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceComponentTest.class);
 
-    ObjectMapper voodoo = JsonMapper.builder().build();
-
     @Autowired
     private Map<String, ResourceService> serviceMap;
 

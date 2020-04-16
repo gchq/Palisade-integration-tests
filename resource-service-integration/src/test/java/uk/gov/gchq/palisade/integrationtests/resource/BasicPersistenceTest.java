@@ -19,14 +19,16 @@ package uk.gov.gchq.palisade.integrationtests.resource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import uk.gov.gchq.palisade.integrationtests.resource.config.ResourceTestConfiguration;
 import uk.gov.gchq.palisade.integrationtests.resource.web.ResourceClientWrapper;
@@ -36,6 +38,7 @@ import uk.gov.gchq.palisade.resource.impl.FileResource;
 import uk.gov.gchq.palisade.resource.impl.SystemResource;
 import uk.gov.gchq.palisade.service.SimpleConnectionDetail;
 import uk.gov.gchq.palisade.service.resource.ResourceApplication;
+import uk.gov.gchq.palisade.service.resource.repository.JpaPersistenceLayer;
 import uk.gov.gchq.palisade.service.resource.service.StreamingResourceServiceProxy;
 
 import java.util.Arrays;
@@ -52,15 +55,24 @@ import static org.junit.Assert.assertThat;
 @RunWith(SpringRunner.class)
 @Import(ResourceTestConfiguration.class)
 @SpringBootTest(classes = ResourceApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @EnableJpaRepositories(basePackages = {"uk.gov.gchq.palisade.service.resource.repository"})
-public class ResourcePersistenceTest {
+public class BasicPersistenceTest {
 
     @Autowired
-    private StreamingResourceServiceProxy persistenceProxy;
+    private JpaPersistenceLayer persistenceLayer;
 
     @Autowired
     private ResourceClientWrapper client;
+
+    /**
+     * Scenario as follows, where (F)iles, (D)irectories and (S)ystems are annotated respectively
+     *
+     *     S
+     *     |
+     *     D
+     *   / | \
+     * F   F  F
+     */
 
     private static final SystemResource SYSTEM_ROOT = new SystemResource().id("/");
     private static final DirectoryResource TEST_DIRECTORY = new DirectoryResource().id("/test").parent(SYSTEM_ROOT);
@@ -89,10 +101,13 @@ public class ResourcePersistenceTest {
             .parent(TEST_DIRECTORY);
 
     @Before
+    @Transactional
     public void setup() {
-        persistenceProxy.addResource(EMPLOYEE_AVRO_FILE);
-        persistenceProxy.addResource(EMPLOYEE_CSV_FILE);
-        persistenceProxy.addResource(CLIENT_AVRO_FILE);
+        for (FileResource file: Arrays.asList(EMPLOYEE_CSV_FILE, EMPLOYEE_AVRO_FILE, CLIENT_AVRO_FILE)) {
+            persistenceLayer.putResourcesById(SYSTEM_ROOT.getId(), file);
+            persistenceLayer.putResourcesByType(file.getType(), file);
+            persistenceLayer.putResourcesBySerialisedFormat(file.getSerialisedFormat(), file);
+        }
     }
 
     @Test

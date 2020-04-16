@@ -35,6 +35,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import uk.gov.gchq.palisade.integrationtests.policy.config.PolicyTestConfiguration;
 import uk.gov.gchq.palisade.service.policy.PolicyApplication;
 import uk.gov.gchq.palisade.service.policy.web.ServiceInstanceRestController;
 

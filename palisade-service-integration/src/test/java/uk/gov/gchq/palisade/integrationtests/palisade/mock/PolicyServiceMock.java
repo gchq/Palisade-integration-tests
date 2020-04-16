@@ -30,7 +30,6 @@ import uk.gov.gchq.palisade.User;
 import uk.gov.gchq.palisade.resource.LeafResource;
 import uk.gov.gchq.palisade.rule.Rule;
 import uk.gov.gchq.palisade.rule.Rules;
-import uk.gov.gchq.palisade.service.ConnectionDetail;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;

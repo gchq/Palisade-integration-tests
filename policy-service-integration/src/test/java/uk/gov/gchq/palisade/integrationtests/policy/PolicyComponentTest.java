@@ -28,6 +28,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import uk.gov.gchq.palisade.integrationtests.policy.config.PolicyTestConfiguration;
+import uk.gov.gchq.palisade.integrationtests.policy.web.PolicyClient;
 import uk.gov.gchq.palisade.resource.LeafResource;
 import uk.gov.gchq.palisade.rule.Rules;
 import uk.gov.gchq.palisade.service.PolicyConfiguration;

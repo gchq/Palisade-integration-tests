@@ -32,6 +32,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import uk.gov.gchq.palisade.integrationtests.policy.config.PolicyTestConfiguration;
 import uk.gov.gchq.palisade.service.policy.PolicyApplication;
 import uk.gov.gchq.palisade.service.policy.request.CanAccessRequest;
 import uk.gov.gchq.palisade.service.policy.request.GetPolicyRequest;
@@ -100,7 +101,6 @@ public class PolicyControllerWebTest {
 
     @Test
     public void shouldReturnCanAccess() throws Exception {
-
         CanAccessRequest canAccessRequest = (new CanAccessRequest())
                 .context(mockContext())
                 .user(mockUser())
@@ -130,7 +130,6 @@ public class PolicyControllerWebTest {
      */
     @Test
     public void shouldReturnPolicySync() throws Exception {
-
         GetPolicyRequest getPolicyRequest = (new GetPolicyRequest())
                 .context(mockContext())
                 .user(mockUser())
@@ -158,7 +157,6 @@ public class PolicyControllerWebTest {
      */
     @Test
     public void shouldSetResourcePolicyAsync() throws Exception {
-
         SetResourcePolicyRequest getSetResourcePolicyRequest = (new SetResourcePolicyRequest())
                 .policy(mockPolicy())
                 .resource(mockResource());
@@ -183,7 +181,6 @@ public class PolicyControllerWebTest {
      */
     @Test
     public void shouldSetTypePolicyAsync() throws Exception {
-
         SetTypePolicyRequest setTypePolicyRequest = (new SetTypePolicyRequest())
                 .policy(mockPolicy())
                 .type("Test type");
