@@ -85,6 +85,7 @@ spec:
                 }
             }
         }
+
         stage('Install a Maven project') {
             dir ('Palisade-integration-tests') {
                 git url: 'https://github.com/gchq/Palisade-integration-tests.git'
