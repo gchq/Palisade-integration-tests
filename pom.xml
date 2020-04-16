@@ -21,7 +21,7 @@
     <parent>
         <artifactId>spring-boot-starter-parent</artifactId>
         <groupId>org.springframework.boot</groupId>
-        <version>2.1.8.RELEASE</version>
+        <version>2.2.0.RELEASE</version>
     </parent>
 
     <groupId>uk.gov.gchq.palisade</groupId>
@@ -56,8 +56,6 @@
         <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <jetcd.version>0.3.0</jetcd.version>
-        <protobuf.version>3.5.1</protobuf.version>
         <checkstyle.plugin.version>3.1.0</checkstyle.plugin.version>
         <checkstyle.phase>verify</checkstyle.phase>
         <depends.phase>validate</depends.phase>
@@ -86,7 +84,7 @@
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
-                <version>Greenwich.SR3</version>
+                <version>Hoxton.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

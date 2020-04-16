@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.palisade.integrationtests.resource.client;
+
+package uk.gov.gchq.palisade.integrationtests.resource.web;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,13 +36,12 @@ import uk.gov.gchq.palisade.service.resource.request.GetResourcesByTypeRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ResourceClient implements Service {
+public class ResourceClientWrapper implements Service {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceClient.class);
-    private final ResourceFeignClient client;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceClientWrapper.class);
+    private final ResourceClient client;
     private final ObjectMapper objectMapper;
 
     private final Serialiser<LeafResource> serialiser = new LineSerialiser<>() {
@@ -68,8 +68,8 @@ public class ResourceClient implements Service {
     };
 
 
-    public ResourceClient(final ResourceFeignClient resourceFeignClient, final ObjectMapper objectMapper) {
-        this.client = resourceFeignClient;
+    public ResourceClientWrapper(final ResourceClient resourceClient, final ObjectMapper objectMapper) {
+        this.client = resourceClient;
         this.objectMapper = objectMapper;
     }
 
@@ -77,6 +77,7 @@ public class ResourceClient implements Service {
         LOGGER.debug("Getting resources by id from resource service: {}", request);
         return getResourcesFromFeignResponse(() -> client.getResourcesById(request));
     }
+
     public Stream<LeafResource> getResourcesById(final String resourceId) {
         return getResourcesById(new GetResourcesByIdRequest().resourceId(resourceId));
     }
@@ -85,6 +86,7 @@ public class ResourceClient implements Service {
         LOGGER.debug("Getting resources by resource from resource service: {}", request);
         return getResourcesFromFeignResponse(() -> client.getResourcesByResource(request));
     }
+
     public Stream<LeafResource> getResourcesByResource(final Resource resource) {
         return getResourcesByResource(new GetResourcesByResourceRequest().resource(resource));
     }
@@ -93,6 +95,7 @@ public class ResourceClient implements Service {
         LOGGER.debug("Getting resources by type from resource service: {}", request);
         return getResourcesFromFeignResponse(() -> client.getResourcesByType(request));
     }
+
     public Stream<LeafResource> getResourcesByType(final String type) {
         return getResourcesByType(new GetResourcesByTypeRequest().type(type));
     }
@@ -101,6 +104,7 @@ public class ResourceClient implements Service {
         LOGGER.debug("Getting resources by serialised format from resource service: {}", request);
         return getResourcesFromFeignResponse(() -> client.getResourcesBySerialisedFormat(request));
     }
+
     public Stream<LeafResource> getResourcesBySerialisedFormat(final String serialisedFormat) {
         return getResourcesBySerialisedFormat(new GetResourcesBySerialisedFormatRequest().serialisedFormat(serialisedFormat));
     }

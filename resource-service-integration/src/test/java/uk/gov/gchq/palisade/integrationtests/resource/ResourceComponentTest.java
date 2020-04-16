@@ -17,6 +17,7 @@
 package uk.gov.gchq.palisade.integrationtests.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import feign.Response;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,41 +27,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import uk.gov.gchq.palisade.integrationtests.resource.client.ResourceFeignClient;
-import uk.gov.gchq.palisade.integrationtests.resource.client.ResourceClient;
+import uk.gov.gchq.palisade.integrationtests.resource.config.ResourceTestConfiguration;
+import uk.gov.gchq.palisade.integrationtests.resource.web.ResourceClientWrapper;
 import uk.gov.gchq.palisade.service.ResourceService;
 import uk.gov.gchq.palisade.service.resource.ResourceApplication;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-@RunWith(SpringRunner.class)
 @EnableFeignClients
+@RunWith(SpringRunner.class)
+@Import(ResourceTestConfiguration.class)
 @SpringBootTest(classes = ResourceApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @EnableJpaRepositories(basePackages = {"uk.gov.gchq.palisade.service.resource.repository"})
 public class ResourceComponentTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceComponentTest.class);
 
-    @Autowired
-    Map<String, ResourceService> serviceMap;
+    ObjectMapper voodoo = JsonMapper.builder().build();
 
     @Autowired
-    ResourceFeignClient feign;
-    @Autowired
-    ObjectMapper objectMapper;
+    private Map<String, ResourceService> serviceMap;
 
-    ResourceClient client = new ResourceClient(feign, objectMapper);
+    @Autowired
+    private ResourceClientWrapper client;
 
     @Test
     public void contextLoads() {

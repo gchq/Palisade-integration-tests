@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.palisade.integrationtests.resource.client;
+
+package uk.gov.gchq.palisade.integrationtests.resource.web;
 
 import feign.Response;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -28,7 +29,7 @@ import uk.gov.gchq.palisade.service.resource.request.GetResourcesBySerialisedFor
 import uk.gov.gchq.palisade.service.resource.request.GetResourcesByTypeRequest;
 
 @FeignClient(name = "resource-service", url = "${web.client.resource-service}")
-public interface ResourceFeignClient {
+public interface ResourceClient {
 
     @PostMapping(path = "/getResourcesById", consumes = "application/json", produces = "application/octet-stream")
     Response getResourcesById(@RequestBody final GetResourcesByIdRequest request);

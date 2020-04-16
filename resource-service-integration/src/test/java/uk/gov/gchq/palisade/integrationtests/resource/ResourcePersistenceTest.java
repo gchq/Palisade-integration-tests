@@ -16,19 +16,20 @@
 
 package uk.gov.gchq.palisade.integrationtests.resource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import uk.gov.gchq.palisade.integrationtests.resource.client.ResourceClient;
-import uk.gov.gchq.palisade.integrationtests.resource.client.ResourceFeignClient;
+import uk.gov.gchq.palisade.integrationtests.resource.config.ResourceTestConfiguration;
+import uk.gov.gchq.palisade.integrationtests.resource.web.ResourceClientWrapper;
 import uk.gov.gchq.palisade.resource.LeafResource;
 import uk.gov.gchq.palisade.resource.impl.DirectoryResource;
 import uk.gov.gchq.palisade.resource.impl.FileResource;
@@ -41,14 +42,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
+@EnableFeignClients
 @RunWith(SpringRunner.class)
+@Import(ResourceTestConfiguration.class)
 @SpringBootTest(classes = ResourceApplication.class, webEnvironment = WebEnvironment.NONE)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @EnableJpaRepositories(basePackages = {"uk.gov.gchq.palisade.service.resource.repository"})
@@ -58,11 +60,7 @@ public class ResourcePersistenceTest {
     private StreamingResourceServiceProxy persistenceProxy;
 
     @Autowired
-    ResourceFeignClient feign;
-    @Autowired
-    ObjectMapper objectMapper;
-
-    ResourceClient client = new ResourceClient(feign, objectMapper);
+    private ResourceClientWrapper client;
 
     private static final SystemResource SYSTEM_ROOT = new SystemResource().id("/");
     private static final DirectoryResource TEST_DIRECTORY = new DirectoryResource().id("/test").parent(SYSTEM_ROOT);

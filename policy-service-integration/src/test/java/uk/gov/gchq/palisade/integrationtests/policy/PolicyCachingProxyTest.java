@@ -32,6 +32,7 @@ import uk.gov.gchq.palisade.resource.Resource;
 import uk.gov.gchq.palisade.resource.StubResource;
 import uk.gov.gchq.palisade.resource.impl.FileResource;
 import uk.gov.gchq.palisade.resource.impl.SystemResource;
+import uk.gov.gchq.palisade.service.SimpleConnectionDetail;
 import uk.gov.gchq.palisade.service.policy.PolicyApplication;
 import uk.gov.gchq.palisade.service.policy.service.PolicyService;
 import uk.gov.gchq.palisade.service.policy.service.PolicyServiceCachingProxy;
@@ -107,7 +108,7 @@ public class PolicyCachingProxyTest extends PolicyTestCommon {
     @Test
     public void cacheMaxSizeTest() {
         /// Given - the cache is overfilled
-        Function<Integer, Resource> makeResource = i -> new StubResource(i.toString(), i.toString(), i.toString());
+        Function<Integer, Resource> makeResource = i -> new StubResource(i.toString(), i.toString(), i.toString(), new SimpleConnectionDetail().uri(i.toString()));
         Function<Integer, Policy> makePolicy = i -> new Policy<>().resourceLevelRule(i.toString(), new PassThroughRule<>());
         for (int count = 0; count <= 100; ++count) {
             cacheProxy.setResourcePolicy(makeResource.apply(count), makePolicy.apply(count));
