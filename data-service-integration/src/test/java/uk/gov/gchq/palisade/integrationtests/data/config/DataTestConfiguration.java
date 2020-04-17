@@ -18,6 +18,7 @@ package uk.gov.gchq.palisade.integrationtests.data.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import uk.gov.gchq.palisade.integrationtests.data.web.DataClient;
@@ -27,6 +28,7 @@ import uk.gov.gchq.palisade.integrationtests.data.web.DataClientWrapper;
 @EnableAutoConfiguration
 public class DataTestConfiguration {
 
+    @Bean
     public DataClientWrapper dataClientWrapper(final DataClient client, final ObjectMapper objectMapper) {
         return new DataClientWrapper(client, objectMapper);
     }

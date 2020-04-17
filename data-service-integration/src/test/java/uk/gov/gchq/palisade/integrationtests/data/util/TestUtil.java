@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.palisade.integrationtests.data.util;
 
+import org.apache.commons.io.FilenameUtils;
+
 import uk.gov.gchq.palisade.resource.ChildResource;
 import uk.gov.gchq.palisade.resource.impl.DirectoryResource;
 import uk.gov.gchq.palisade.resource.impl.FileResource;
@@ -42,7 +44,9 @@ public class TestUtil {
     }
 
     public static FileResource createFileResource(final Path path, final String type) {
-        FileResource file = fileResource(path).serialisedFormat("avro").type(type);
+        FileResource file = fileResource(path)
+                .serialisedFormat(FilenameUtils.getExtension(path.toString()))
+                .type(type);
         resolveParents(path, file);
 
         return file;
