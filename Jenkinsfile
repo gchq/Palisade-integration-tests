@@ -152,7 +152,7 @@ spec:
                             sh '''
                                 mvn -s $MAVEN_SETTINGS install -Dmaven.test.skip=true
                                 cd ../Palisade-services
-                                java -jar -Dspring.profiles.active=eureka,debug services-manager/target/services-manager-*-exec.jar --manager.mode=run && java -jar -Dspring.profiles.active=example,debug services-manager/target/services-manager-*-exec.jar --manager.mode=run
+                                java -jar -Dspring.profiles.active=discovery,debug services-manager/target/services-manager-*-exec.jar --manager.mode=run && java -jar -Dspring.profiles.active=example,debug services-manager/target/services-manager-*-exec.jar --manager.mode=run
                                 cd ../Palisade-examples
                                 ./deployment/local-jvm/bash-scripts/configureExamples.sh
                                 ./deployment/local-jvm/bash-scripts/runFormattedLocalJVMExample.sh > deployment/local-jvm/bash-scripts/exampleOutput.txt
