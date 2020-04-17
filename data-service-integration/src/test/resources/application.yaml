@@ -46,11 +46,6 @@ management:
     loggers:
       enabled: true
 
-web:
-  client:
-    audit-service: http://localhost:8081
-    palisade-service: http://localhost:8084
-
 feign:
   client:
     config:
@@ -65,3 +60,7 @@ cache:
   props: "cache.properties"
   etcd:
   - http://localhost:2379
+
+web:
+  client:
+    data-service: http://localchost:${server.port}
