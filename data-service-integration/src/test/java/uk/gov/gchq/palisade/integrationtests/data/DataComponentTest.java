@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.palisade.integrationtests.data.service;
+package uk.gov.gchq.palisade.integrationtests.data;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -43,13 +43,20 @@ import uk.gov.gchq.palisade.integrationtests.data.web.DataClientWrapper;
 import uk.gov.gchq.palisade.service.data.DataApplication;
 import uk.gov.gchq.palisade.service.data.service.DataService;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @EnableFeignClients
 @RunWith(SpringRunner.class)
@@ -62,7 +69,7 @@ public class DataComponentTest {
 
     @Autowired
     private Map<String, DataService> serviceMap;
-
+    @Autowired
     private DataClientWrapper client;
 
     @Rule
@@ -90,33 +97,36 @@ public class DataComponentTest {
 
     @Test
     public void isUp() {
+        assertTrue(palisadeMock.isRunning());
+        assertTrue(auditMock.isRunning());
+
         Response health = client.getHealth();
         assertThat(health.status(), equalTo(200));
     }
 
-    /*@Test
+    @Test
     public void allServicesDown() {
         // Given audit and palisade services are down
         auditMock.stop();
         palisadeMock.stop();
         // Then the Data Service also reports down.
-        final String downHealth = this.restTemplate.getForObject("/actuator/health", String.class);
-        assertThat(downHealth, is(equalTo("{\"status\":\"DOWN\"}")));
+        final Response downHealth = client.getHealth();
+        assertThat(downHealth.status(), equalTo(503));
 
         // When only the palisade-service is started
         palisadeMock.start();
         // Then Data service still shows as down
-        final String auditDownHealth = this.restTemplate.getForObject("/actuator/health", String.class);
-        assertThat(auditDownHealth, is(equalTo("{\"status\":\"DOWN\"}")));
+        final Response auditDownHealth = client.getHealth();
+        assertThat(auditDownHealth.status(), equalTo(503));
 
         // When the audit-service is started as well
         auditMock.start();
         // Then Data service shows as up
-        final String allUpHealth = this.restTemplate.getForObject("/actuator/health", String.class);
-        assertThat(allUpHealth, is(equalTo("{\"status\":\"UP\"}")));
+        final Response allUpHealth = client.getHealth();
+        assertThat(allUpHealth.status(), equalTo(200));
     }
 
-    @Test
+    /*@Test
     public void readChunkedTest() throws Exception {
         // Given all the services are mocked
         assertTrue(auditMock.isRunning());

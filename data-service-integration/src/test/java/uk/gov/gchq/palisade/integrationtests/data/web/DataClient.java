@@ -34,6 +34,6 @@ public interface DataClient {
     @PostMapping(value = "/addSerialiser", consumes = "application/json", produces = "application/json")
     Boolean addSerialiser(@RequestBody final AddSerialiserRequest request);
 
-    @GetMapping(params = "/actuator/health", produces = "application/json")
+    @GetMapping(path = "/actuator/health", produces = "application/json")
     Response getHealth();
 }

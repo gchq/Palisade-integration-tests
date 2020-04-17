@@ -63,4 +63,6 @@ cache:
 
 web:
   client:
-    data-service: http://localchost:${server.port}
+    audit-service: http://localhost:8081
+    data-service: http://localhost:${server.port}
+    palisade-service: http://localhost:8084
