@@ -51,8 +51,8 @@ public class PalisadeServiceMock {
 
     public static DataRequestConfig getDataRequestConfig() throws JsonProcessingException {
         Map<LeafResource, Rules> leafResourceToRules = new HashMap<>();
-        Path path = Paths.get("./resources/data/test_file.avro").toAbsolutePath().normalize();
-        FileResource resource = TestUtil.createFileResource(path, "test");
+        Path path = Paths.get("./resources/data/employee_file0.avro").toAbsolutePath().normalize();
+        FileResource resource = TestUtil.createFileResource(path, "employee");
         Rules rules = new Rules().rule("Test Rule", new PassThroughRule<>());
         leafResourceToRules.put(resource, rules);
 
