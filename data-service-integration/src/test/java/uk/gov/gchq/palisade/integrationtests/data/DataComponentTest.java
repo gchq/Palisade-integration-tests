@@ -57,7 +57,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -99,7 +98,6 @@ public class DataComponentTest {
         PalisadeServiceMock.stubHealthRule(palisadeMock, objectMapper);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         avroSerialiser = new AvroSerialiser<>(Employee.class);
-        CreateData.main("./resources/data", "5", "1");
     }
 
     @Test
@@ -159,7 +157,6 @@ public class DataComponentTest {
 
         // When
         Set<Employee> readResult = client.readChunked(readRequest).collect(Collectors.toSet());
-        LOGGER.info(EMPLOYEE.toString());
 
         // Then
         for (Employee result : readResult) {
@@ -169,6 +166,8 @@ public class DataComponentTest {
                 assertThat(result.getBankDetails().getAccountNumber(), equalTo(EMPLOYEE.getBankDetails().getAccountNumber()));
                 assertThat(result.getNationality(), equalTo(EMPLOYEE.getNationality()));
                 assertThat(result.getSex(), equalTo(EMPLOYEE.getSex()));
+            } else {
+                fail();
             }
         }
     }
