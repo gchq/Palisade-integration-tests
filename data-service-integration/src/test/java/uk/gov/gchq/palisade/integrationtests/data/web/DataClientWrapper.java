@@ -26,6 +26,7 @@ import uk.gov.gchq.palisade.data.serialise.AvroSerialiser;
 import uk.gov.gchq.palisade.data.serialise.Serialiser;
 import uk.gov.gchq.palisade.example.hrdatagenerator.types.Employee;
 import uk.gov.gchq.palisade.service.Service;
+import uk.gov.gchq.palisade.service.data.request.AddSerialiserRequest;
 import uk.gov.gchq.palisade.service.data.request.ReadRequest;
 
 import java.io.IOException;
@@ -60,6 +61,10 @@ public class DataClientWrapper implements Service {
             LOGGER.error("Error encountered getting body Input Stream. Exception: {}", ex.getMessage());
             throw new RuntimeException(ex);
         }
+    }
+
+    public Boolean addSerialiser(final AddSerialiserRequest request) {
+        return client.addSerialiser(request);
     }
 
     public Response getHealth() {

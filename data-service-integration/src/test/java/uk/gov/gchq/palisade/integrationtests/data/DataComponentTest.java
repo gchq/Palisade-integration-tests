@@ -28,31 +28,38 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import uk.gov.gchq.palisade.RequestId;
 import uk.gov.gchq.palisade.data.serialise.AvroSerialiser;
 import uk.gov.gchq.palisade.example.hrdatagenerator.types.Employee;
 import uk.gov.gchq.palisade.integrationtests.data.config.DataTestConfiguration;
 import uk.gov.gchq.palisade.integrationtests.data.mock.AuditServiceMock;
+import uk.gov.gchq.palisade.integrationtests.data.mock.DataServiceMock;
 import uk.gov.gchq.palisade.integrationtests.data.mock.PalisadeServiceMock;
+import uk.gov.gchq.palisade.integrationtests.data.util.TestUtil;
 import uk.gov.gchq.palisade.integrationtests.data.web.DataClientWrapper;
+import uk.gov.gchq.palisade.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.palisade.reader.common.DataFlavour;
+import uk.gov.gchq.palisade.resource.impl.FileResource;
 import uk.gov.gchq.palisade.service.data.DataApplication;
+import uk.gov.gchq.palisade.service.data.request.AddSerialiserRequest;
+import uk.gov.gchq.palisade.service.data.request.ReadRequest;
 import uk.gov.gchq.palisade.service.data.service.DataService;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
-import java.util.stream.Stream;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -62,10 +69,12 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringRunner.class)
 @Import(DataTestConfiguration.class)
 @SpringBootTest(classes = DataApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
+@AutoConfigureMockMvc
 public class DataComponentTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataComponentTest.class);
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final Employee EMPLOYEE = DataServiceMock.testEmployee();
+    private final ObjectMapper objectMapper = JSONSerialiser.createDefaultMapper();
 
     @Autowired
     private Map<String, DataService> serviceMap;
@@ -126,35 +135,42 @@ public class DataComponentTest {
         assertThat(allUpHealth.status(), equalTo(200));
     }
 
-    /*@Test
+    @Test
     public void readChunkedTest() throws Exception {
-        // Given all the services are mocked
+        // Given - all the required services are running
         assertTrue(auditMock.isRunning());
         assertTrue(palisadeMock.isRunning());
 
-        // Given
+        // Given - ReadRequest created
         Path currentPath = Paths.get("./resources/data/employee_file0.avro").toAbsolutePath().normalize();
         FileResource resource = TestUtil.createFileResource(currentPath, "employee");
         ReadRequest readRequest = new ReadRequest().token("token").resource(resource);
         readRequest.setOriginalRequestId(new RequestId().id("original"));
 
-        Stream<Employee> stream = Stream.of(DataServiceMock.testEmployee());
+        // Given - AvroSerialiser added to Data-service
+        AddSerialiserRequest serialiserRequest = new AddSerialiserRequest()
+                .dataFlavour(DataFlavour.of("employee", "avro"))
+                .serialiser(avroSerialiser);
+        client.addSerialiser(serialiserRequest);
 
-        byte[] fileBytes = Files.readAllBytes(currentPath);
-
-        // When - using MockMvc
-        MvcResult result = mockMvc.perform(post("/read/chunked")
-                .accept(APPLICATION_OCTET_STREAM_VALUE)
-                .contentType(APPLICATION_JSON_VALUE)
-                .content(mapper.writeValueAsString(readRequest)))
-                .andExpect(request().asyncStarted())
-                .andReturn();
+        // When
+        Set<Employee> readResult = client.readChunked(readRequest).collect(Collectors.toSet());
 
         // Then
-        mockMvc.perform(MockMvcRequestBuilders.asyncDispatch(result))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andExpect();
+        for (Employee result : readResult) {
+            assertNotNull(result.getUid());
+            assertNotNull(result.getContactNumbers());
+            assertNotNull(result.getEmergencyContacts());
+            assertNotNull(result.getManager());
+            assertNotNull(result.getBankDetails());
 
-    }*/
+            if (EMPLOYEE.getUid().getId().equals(result.getUid().getId())) {
+                assertThat(result.getName(), equalTo(EMPLOYEE.getName()));
+                assertThat(result.getAddress().getCity(), equalTo(EMPLOYEE.getAddress().getCity()));
+                assertThat(result.getBankDetails().getAccountNumber(), equalTo(EMPLOYEE.getBankDetails().getAccountNumber()));
+                assertThat(result.getNationality(), equalTo(EMPLOYEE.getNationality()));
+                assertThat(result.getSex(), equalTo(EMPLOYEE.getSex()));
+            }
+        }
+    }
 }
