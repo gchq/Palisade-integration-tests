@@ -98,6 +98,7 @@ public class DataComponentTest {
         PalisadeServiceMock.stubHealthRule(palisadeMock, objectMapper);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         avroSerialiser = new AvroSerialiser<>(Employee.class);
+        CreateData.main("./resources/data", "5", "1");
     }
 
     @Test
