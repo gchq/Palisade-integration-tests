@@ -16,22 +16,11 @@
 
 package uk.gov.gchq.palisade.integrationtests.data.mock;
 
-import com.github.javafaker.Faker;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 
-import uk.gov.gchq.palisade.UserId;
 import uk.gov.gchq.palisade.example.hrdatagenerator.types.Address;
-import uk.gov.gchq.palisade.example.hrdatagenerator.types.BankDetails;
-import uk.gov.gchq.palisade.example.hrdatagenerator.types.Department;
-import uk.gov.gchq.palisade.example.hrdatagenerator.types.EmergencyContact;
 import uk.gov.gchq.palisade.example.hrdatagenerator.types.Employee;
-import uk.gov.gchq.palisade.example.hrdatagenerator.types.Grade;
-import uk.gov.gchq.palisade.example.hrdatagenerator.types.Manager;
-import uk.gov.gchq.palisade.example.hrdatagenerator.types.Nationality;
-import uk.gov.gchq.palisade.example.hrdatagenerator.types.PhoneNumber;
-import uk.gov.gchq.palisade.example.hrdatagenerator.types.Sex;
-import uk.gov.gchq.palisade.example.hrdatagenerator.types.WorkLocation;
 
 import java.util.Random;
 
@@ -44,28 +33,9 @@ public class DataServiceMock {
     }
 
     public static Employee testEmployee() {
-        Employee employee = new Employee();
-        BankDetails bankDetails = new BankDetails();
-        bankDetails.setAccountNumber("85346502");
-        bankDetails.setSortCode("421122");
 
-        employee.setUid(new UserId().id("1292567335"));
-        employee.setName("Delia Carter");
-        employee.setAddress(createAddress());
-        employee.setBankDetails(bankDetails);
-        employee.setContactNumbers(PhoneNumber.generateMany(new Random(1)));
-        employee.setDateOfBirth("19/2/1803");
-        employee.setDepartment(Department.Chief_Data_Office);
-        employee.setEmergencyContacts(EmergencyContact.generateMany(new Faker(), new Random(1)));
-        employee.setGrade(Grade.Grade6);
-        employee.setHireDate("19/2/1852");
-        employee.setManager(Manager.generateMany(new Random(1), 3));
-        employee.setNationality(Nationality.Salvadorean);
-        employee.setSalaryAmount(259820);
-        employee.setSalaryBonus(6971);
-        employee.setSex(Sex.Not_Specified);
-        employee.setTaxCode("");
-        employee.setWorkLocation(WorkLocation.generate(new Faker(), new Random(1)));
+        Random random = new Random(1);
+        Employee employee = Employee.generate(random);
 
         return employee;
     }
