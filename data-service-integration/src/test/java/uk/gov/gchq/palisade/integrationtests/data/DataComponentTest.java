@@ -37,6 +37,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import uk.gov.gchq.palisade.RequestId;
 import uk.gov.gchq.palisade.data.serialise.AvroSerialiser;
+import uk.gov.gchq.palisade.example.hrdatagenerator.CreateData;
 import uk.gov.gchq.palisade.example.hrdatagenerator.types.Employee;
 import uk.gov.gchq.palisade.integrationtests.data.config.DataTestConfiguration;
 import uk.gov.gchq.palisade.integrationtests.data.mock.AuditServiceMock;
@@ -56,6 +57,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -64,6 +66,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @EnableFeignClients
 @RunWith(SpringRunner.class)
@@ -96,6 +99,7 @@ public class DataComponentTest {
         PalisadeServiceMock.stubHealthRule(palisadeMock, objectMapper);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         avroSerialiser = new AvroSerialiser<>(Employee.class);
+        CreateData.main("./resources/data", "5", "1");
     }
 
     @Test
@@ -155,15 +159,10 @@ public class DataComponentTest {
 
         // When
         Set<Employee> readResult = client.readChunked(readRequest).collect(Collectors.toSet());
+        LOGGER.info(EMPLOYEE.toString());
 
         // Then
         for (Employee result : readResult) {
-            assertNotNull(result.getUid());
-            assertNotNull(result.getContactNumbers());
-            assertNotNull(result.getEmergencyContacts());
-            assertNotNull(result.getManager());
-            assertNotNull(result.getBankDetails());
-
             if (EMPLOYEE.getUid().getId().equals(result.getUid().getId())) {
                 assertThat(result.getName(), equalTo(EMPLOYEE.getName()));
                 assertThat(result.getAddress().getCity(), equalTo(EMPLOYEE.getAddress().getCity()));

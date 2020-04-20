@@ -19,7 +19,6 @@ package uk.gov.gchq.palisade.integrationtests.data.mock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 
-import uk.gov.gchq.palisade.example.hrdatagenerator.types.Address;
 import uk.gov.gchq.palisade.example.hrdatagenerator.types.Employee;
 
 import java.util.Random;
@@ -33,21 +32,7 @@ public class DataServiceMock {
     }
 
     public static Employee testEmployee() {
-
-        Random random = new Random(1);
-        Employee employee = Employee.generate(random);
-
-        return employee;
-    }
-
-    private static Address createAddress() {
-        Address address = new Address();
-        address.setCity("New Ray");
-        address.setState("Oregon");
-        address.setStreetAddressNumber("602");
-        address.setStreetName("Hilll Burgs");
-        address.setZipCode("CF0H 8LY");
-
-        return address;
+        Random random = new Random(0);
+        return Employee.generate(random);
     }
 }
