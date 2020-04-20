@@ -18,7 +18,6 @@ package uk.gov.gchq.palisade.integrationtests.data.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Response;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
