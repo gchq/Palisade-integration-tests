@@ -37,7 +37,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import uk.gov.gchq.palisade.RequestId;
 import uk.gov.gchq.palisade.data.serialise.AvroSerialiser;
-import uk.gov.gchq.palisade.example.hrdatagenerator.CreateData;
 import uk.gov.gchq.palisade.example.hrdatagenerator.types.Employee;
 import uk.gov.gchq.palisade.integrationtests.data.config.DataTestConfiguration;
 import uk.gov.gchq.palisade.integrationtests.data.mock.AuditServiceMock;
@@ -98,7 +97,6 @@ public class DataComponentTest {
         PalisadeServiceMock.stubHealthRule(palisadeMock, objectMapper);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         avroSerialiser = new AvroSerialiser<>(Employee.class);
-        CreateData.main("./resources/data", "5", "1");
     }
 
     @Test
