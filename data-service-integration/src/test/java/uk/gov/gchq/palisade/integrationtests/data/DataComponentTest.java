@@ -159,15 +159,11 @@ public class DataComponentTest {
 
         // Then
         for (Employee result : readResult) {
-            if (EMPLOYEE.getUid().getId().equals(result.getUid().getId())) {
-                assertThat(result.getName(), equalTo(EMPLOYEE.getName()));
-                assertThat(result.getAddress().getCity(), equalTo(EMPLOYEE.getAddress().getCity()));
-                assertThat(result.getBankDetails().getAccountNumber(), equalTo(EMPLOYEE.getBankDetails().getAccountNumber()));
-                assertThat(result.getNationality(), equalTo(EMPLOYEE.getNationality()));
-                assertThat(result.getSex(), equalTo(EMPLOYEE.getSex()));
-            } else {
-                fail();
-            }
+            assertThat(result.getName(), equalTo(EMPLOYEE.getName()));
+            assertThat(result.getAddress().getCity(), equalTo(EMPLOYEE.getAddress().getCity()));
+            assertThat(result.getBankDetails().getAccountNumber(), equalTo(EMPLOYEE.getBankDetails().getAccountNumber()));
+            assertThat(result.getNationality(), equalTo(EMPLOYEE.getNationality()));
+            assertThat(result.getSex(), equalTo(EMPLOYEE.getSex()));
         }
     }
 }
