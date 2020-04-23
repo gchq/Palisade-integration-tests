@@ -74,26 +74,32 @@ spec:
             echo sh(script: 'env|sort', returnStdout: true)
         }
         stage('Build Palisade Services') {
+            dir("Palisade-services") {
                 git url: 'https://github.com/gchq/Palisade-services.git'
                 sh "git fetch origin develop"
                 sh "git checkout ${env.BRANCH_NAME} || git checkout develop"
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install'
-                        }
+                container('docker-cmds') {
+                    configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                        sh 'mvn -s $MAVEN_SETTINGS install'
                     }
                 }
+            }
+        }
         stage('Install a Maven project') {
-            git branch: "${env.BRANCH_NAME}", url: 'https://github.com/gchq/Palisade-integration-tests.git'
-            container('docker-cmds') {
-                configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                    sh 'mvn -s $MAVEN_SETTINGS install'
+            dir("Palisade-integration-tests") {
+                git branch: "${env.BRANCH_NAME}", url: 'https://github.com/gchq/Palisade-integration-tests.git'
+                container('docker-cmds') {
+                    configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                        sh 'mvn -s $MAVEN_SETTINGS install'
+                    }
                 }
             }
         }
         stage('Hadolinting') {
-            container('hadolint') {
-                sh 'hadolint */Dockerfile'
+            dir("Palisade-integration-tests") {
+                container('hadolint') {
+                    sh 'hadolint */Dockerfile'
+                }
             }
         }
     }
