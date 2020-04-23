@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestClientException;
 
@@ -48,7 +47,6 @@ import static org.junit.Assume.assumeTrue;
 
 // When registering data the Audit service must return 200 STATUS else test fails and return STATUS
 @RunWith(SpringRunner.class)
-@Import(UserCachingTestConfiguration.class)
 @SpringBootTest(classes = UserApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class UserCachingTest {
 
