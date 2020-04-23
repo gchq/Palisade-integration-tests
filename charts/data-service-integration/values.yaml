@@ -15,7 +15,7 @@
 replicaCount: 1
 
 service:
-  port: 8012
+  port: 8014
 
 image:
   repository: palisade/data-service-test
@@ -24,11 +24,11 @@ image:
 
 resources:
   limits:
-    cpu: 750m
-    memory: 2.5Gi
+    cpu: 500m
+    memory: 1Gi
   requests:
     cpu: 250m
-    memory: 1Gi
+    memory: 500m
 
 nodeSelector: {}
 tolerations: []
