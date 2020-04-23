@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.palisade.integrationtests.policy;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,8 +39,13 @@ import uk.gov.gchq.palisade.service.policy.PolicyApplication;
 import uk.gov.gchq.palisade.service.policy.web.ServiceInstanceRestController;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -50,7 +54,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.gchq.palisade.integrationtests.policy.PolicyTestUtil.listTestServiceInstance;
-
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {PolicyApplication.class})
@@ -93,8 +96,10 @@ public class ServiceInstanceRestControllerWebTest {
      */
     @Test
     public void shouldReturnServiceInstance() throws Exception {
-
+        // Given
         String[] services = {"A Service", "Another Service"};
+
+        // When
         when(discoveryClient.getInstances(anyString())).thenReturn(listTestServiceInstance(services));
 
         MvcResult mvcResult = mockMvc.perform(get(SERVICE_INSTANCES_URL, APPLICATION_NAME)
@@ -106,10 +111,10 @@ public class ServiceInstanceRestControllerWebTest {
 
         String jsonResponseString = mvcResult.getResponse().getContentAsString();
         List<ServiceInstance> responseList = Arrays.asList(mapper.readValue(jsonResponseString, PolicyTestUtil.TestServiceInstance[].class));
+
+        // Then - should only get two services: "A Service" and "Another Service"
         assertTrue(responseList.size() == 2);
-        PolicyTestUtil.TestServiceInstance firstInstance = (PolicyTestUtil.TestServiceInstance) responseList.get(0);
-        PolicyTestUtil.TestServiceInstance secondInstance = (PolicyTestUtil.TestServiceInstance) responseList.get(1);
-        //don't know the order, but should only get two services: "A Service" and "Another Service"
-        assertTrue((firstInstance.getServiceId().equals("A Service") && secondInstance.getServiceId().equals("Another Service")) || (secondInstance.getServiceId().equals("A Service") && firstInstance.getServiceId().equals("Another Service")));
+        Set<String> serviceIdSet = responseList.stream().map(ServiceInstance::getServiceId).collect(Collectors.toSet());
+        assertThat(serviceIdSet, equalTo(new HashSet<>(Arrays.asList("A Service", "Another Service"))));
     }
 }

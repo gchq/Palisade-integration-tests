@@ -37,9 +37,9 @@ import uk.gov.gchq.palisade.integrationtests.palisade.request.GetResourcesBySeri
 import uk.gov.gchq.palisade.integrationtests.palisade.request.GetResourcesByTypeRequest;
 import uk.gov.gchq.palisade.resource.LeafResource;
 import uk.gov.gchq.palisade.resource.impl.FileResource;
-import uk.gov.gchq.palisade.resource.impl.SystemResource;
 import uk.gov.gchq.palisade.service.ConnectionDetail;
 import uk.gov.gchq.palisade.service.SimpleConnectionDetail;
+import uk.gov.gchq.palisade.util.ResourceBuilder;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -71,12 +71,10 @@ public class StreamingResourceControllerMock {
 
     public static Stream<LeafResource> getResources() {
         ConnectionDetail connectionDetail = new SimpleConnectionDetail().uri("data-service-mock");
-        LeafResource resource = new FileResource()
-                .id("root/resource-id")
+        LeafResource resource = ((FileResource) ResourceBuilder.create("file:/root/resource-id"))
                 .type("type")
                 .serialisedFormat("format")
-                .connectionDetail(connectionDetail)
-                .parent(new SystemResource().id("root"));
+                .connectionDetail(connectionDetail);
         return Stream.of(resource);
     }
 

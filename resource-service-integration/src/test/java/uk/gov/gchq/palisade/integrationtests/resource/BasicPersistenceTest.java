@@ -19,14 +19,14 @@ package uk.gov.gchq.palisade.integrationtests.resource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +39,7 @@ import uk.gov.gchq.palisade.resource.impl.SystemResource;
 import uk.gov.gchq.palisade.service.SimpleConnectionDetail;
 import uk.gov.gchq.palisade.service.resource.ResourceApplication;
 import uk.gov.gchq.palisade.service.resource.repository.JpaPersistenceLayer;
-import uk.gov.gchq.palisade.service.resource.service.StreamingResourceServiceProxy;
+import uk.gov.gchq.palisade.util.ResourceBuilder;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,6 +56,7 @@ import static org.junit.Assert.assertThat;
 @Import(ResourceTestConfiguration.class)
 @SpringBootTest(classes = ResourceApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
 @EnableJpaRepositories(basePackages = {"uk.gov.gchq.palisade.service.resource.repository"})
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class BasicPersistenceTest {
 
     @Autowired
@@ -74,39 +75,35 @@ public class BasicPersistenceTest {
      * F   F  F
      */
 
-    private static final SystemResource SYSTEM_ROOT = new SystemResource().id("/");
-    private static final DirectoryResource TEST_DIRECTORY = new DirectoryResource().id("/test").parent(SYSTEM_ROOT);
     private static final SimpleConnectionDetail DETAIL = new SimpleConnectionDetail().uri("test-data-service");
     private static final String EMPLOYEE_FORMAT = "employee";
     private static final String CLIENT_FORMAT = "client";
     private static final String AVRO_TYPE = "avro";
     private static final String CSV_TYPE = "csv";
-    private static final FileResource EMPLOYEE_AVRO_FILE = new FileResource()
-            .id("/test/employee.avro")
+    private static final SystemResource SYSTEM_ROOT = (SystemResource) ResourceBuilder.create("file:/");
+    private static final DirectoryResource TEST_DIRECTORY = (DirectoryResource) ResourceBuilder.create("file:/test/");
+    private static final FileResource EMPLOYEE_AVRO_FILE = ((FileResource) ResourceBuilder.create("file:/test/employee.avro"))
             .type(AVRO_TYPE)
             .serialisedFormat(EMPLOYEE_FORMAT)
-            .connectionDetail(DETAIL)
-            .parent(TEST_DIRECTORY);
-    private static final FileResource EMPLOYEE_CSV_FILE = new FileResource()
-            .id("/test/employee.csv")
+            .connectionDetail(DETAIL);
+    private static final FileResource EMPLOYEE_CSV_FILE = ((FileResource) ResourceBuilder.create("file:/test/employee.csv"))
             .type(CSV_TYPE)
             .serialisedFormat(EMPLOYEE_FORMAT)
-            .connectionDetail(DETAIL)
-            .parent(TEST_DIRECTORY);
-    private static final FileResource CLIENT_AVRO_FILE = new FileResource()
-            .id("/test/client.avro")
+            .connectionDetail(DETAIL);
+    private static final FileResource CLIENT_AVRO_FILE = ((FileResource) ResourceBuilder.create("file:/test/client.avro"))
             .type(AVRO_TYPE)
             .serialisedFormat(CLIENT_FORMAT)
-            .connectionDetail(DETAIL)
-            .parent(TEST_DIRECTORY);
+            .connectionDetail(DETAIL);
 
     @Before
     @Transactional
     public void setup() {
         for (FileResource file: Arrays.asList(EMPLOYEE_CSV_FILE, EMPLOYEE_AVRO_FILE, CLIENT_AVRO_FILE)) {
-            persistenceLayer.putResourcesById(SYSTEM_ROOT.getId(), file);
-            persistenceLayer.putResourcesByType(file.getType(), file);
-            persistenceLayer.putResourcesBySerialisedFormat(file.getSerialisedFormat(), file);
+            Stream<LeafResource> fileStream = Stream.of(file);
+            fileStream = persistenceLayer.withPersistenceById(SYSTEM_ROOT.getId(), fileStream);
+            fileStream = persistenceLayer.withPersistenceByType(file.getType(), fileStream);
+            fileStream = persistenceLayer.withPersistenceBySerialisedFormat(file.getSerialisedFormat(), fileStream);
+            fileStream.forEach(x -> { });
         }
     }
 

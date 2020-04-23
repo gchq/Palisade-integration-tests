@@ -36,11 +36,11 @@ import uk.gov.gchq.palisade.service.user.service.UserServiceProxy;
 import java.util.Collections;
 import java.util.function.Function;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
-
 
 // When registering data the Audit service must return 200 STATUS else test fails and return STATUS
 @Ignore
