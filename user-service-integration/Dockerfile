@@ -17,8 +17,8 @@ VOLUME /tmp
 
 ARG JAR_FILE
 
-COPY $JAR_FILE /usr/share/audit-service/user-service-test.jar
+COPY $JAR_FILE /usr/share/user-service/user-service-test.jar
 
 LABEL service="user-test" project="integration-tests"
 
-ENTRYPOINT ["java", "-jar", "/usr/share/audit-service/user-service-test.jar"]
+ENTRYPOINT ["java", "-jar", "/usr/share/user-service/user-service-test.jar"]
