@@ -30,15 +30,15 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 import uk.gov.gchq.palisade.data.serialise.LineSerialiser;
 import uk.gov.gchq.palisade.data.serialise.Serialiser;
-import uk.gov.gchq.palisade.integrationtests.palisade.request.AddResourceRequest;
-import uk.gov.gchq.palisade.integrationtests.palisade.request.GetResourcesByIdRequest;
-import uk.gov.gchq.palisade.integrationtests.palisade.request.GetResourcesByResourceRequest;
-import uk.gov.gchq.palisade.integrationtests.palisade.request.GetResourcesBySerialisedFormatRequest;
-import uk.gov.gchq.palisade.integrationtests.palisade.request.GetResourcesByTypeRequest;
 import uk.gov.gchq.palisade.resource.LeafResource;
 import uk.gov.gchq.palisade.resource.impl.FileResource;
 import uk.gov.gchq.palisade.service.ConnectionDetail;
 import uk.gov.gchq.palisade.service.SimpleConnectionDetail;
+import uk.gov.gchq.palisade.service.palisade.request.AddResourceRequest;
+import uk.gov.gchq.palisade.service.palisade.request.GetResourcesByIdRequest;
+import uk.gov.gchq.palisade.service.palisade.request.GetResourcesByResourceRequest;
+import uk.gov.gchq.palisade.service.palisade.request.GetResourcesBySerialisedFormatRequest;
+import uk.gov.gchq.palisade.service.palisade.request.GetResourcesByTypeRequest;
 import uk.gov.gchq.palisade.util.ResourceBuilder;
 
 import java.io.IOException;
