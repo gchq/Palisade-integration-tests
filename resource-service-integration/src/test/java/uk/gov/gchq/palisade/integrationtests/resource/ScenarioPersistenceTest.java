@@ -103,25 +103,29 @@ public class ScenarioPersistenceTest {
 
     private static final DirectoryResource ROOT_DIR = (DirectoryResource) ResourceBuilder.create(new File(ROOT_PATH).toURI());
 
-    private static final DirectoryResource TOP_LEVEL_DIR = (DirectoryResource) ResourceBuilder.create(new File(ROOT_PATH + "/top-level-dir/").toURI());
-    private static final DirectoryResource EMPTY_DIR = (DirectoryResource) ResourceBuilder.create(new File(ROOT_PATH + "/empty-dir/").toURI());
+    private static final DirectoryResource TOP_LEVEL_DIR = (DirectoryResource) ResourceBuilder.create(new File(ROOT_PATH + "top-level-dir/").toURI());
+    private static final DirectoryResource EMPTY_DIR = (DirectoryResource) ResourceBuilder.create(new File(ROOT_PATH + "empty-dir/").toURI());
 
-    private static final DirectoryResource MULTI_FILE_DIR = (DirectoryResource) ResourceBuilder.create(new File(ROOT_PATH + "/top-level-dir/multi-file-dir/").toURI());
-    private static final DirectoryResource SINGLE_FILE_DIR = (DirectoryResource) ResourceBuilder.create(new File(ROOT_PATH + "/top-level-dir/single-file-dir/").toURI());
+    private static final DirectoryResource MULTI_FILE_DIR = (DirectoryResource) ResourceBuilder.create(new File(ROOT_PATH + "top-level-dir/multi-file-dir/").toURI());
+    private static final DirectoryResource SINGLE_FILE_DIR = (DirectoryResource) ResourceBuilder.create(new File(ROOT_PATH + "top-level-dir/single-file-dir/").toURI());
 
-    private static final FileResource MULTI_FILE_ONE = ((FileResource) ResourceBuilder.create(new File(ROOT_PATH + "/top-level-dir/multi-file-dir/multiFileOne.txt").toURI()))
+    private static final FileResource MULTI_FILE_ONE = ((FileResource) ResourceBuilder.create(new File(ROOT_PATH + "top-level-dir/multi-file-dir/multiFileOne.txt").toURI()))
             .type("txt")
             .serialisedFormat("txt")
             .connectionDetail(DETAIL);
-    private static final FileResource MULTI_FILE_TWO = ((FileResource) ResourceBuilder.create(new File(ROOT_PATH + "/top-level-dir/multi-file-dir/multiFileTwo.txt").toURI()))
+    private static final FileResource MULTI_FILE_TWO = ((FileResource) ResourceBuilder.create(new File(ROOT_PATH + "top-level-dir/multi-file-dir/multiFileTwo.txt").toURI()))
             .type("txt")
             .serialisedFormat("txt")
             .connectionDetail(DETAIL);
 
-    private static final FileResource SINGLE_FILE = ((FileResource) ResourceBuilder.create(new File(ROOT_PATH + "/top-level-dir/single-file-dir/singleFile.txt").toURI()))
+    private static final FileResource SINGLE_FILE = ((FileResource) ResourceBuilder.create(new File(ROOT_PATH + "top-level-dir/single-file-dir/singleFile.txt").toURI()))
             .type("txt")
             .serialisedFormat("txt")
             .connectionDetail(DETAIL);
+
+    static {
+        new File(ROOT_PATH + "empty-dir/").mkdir();
+    }
 
     // We want to test the StreamingResourceServiceProxy class, but consuming using a Supplier<OutputStream> is complicated
     // Instead, send everything through the REST interface
