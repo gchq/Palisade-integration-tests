@@ -74,9 +74,12 @@ spec:
             echo sh(script: 'env|sort', returnStdout: true)
         }
         stage('Build Palisade Services') {
+            //Repositories must get built in their own directory, they can be 'cd' back into later on
             dir("Palisade-services") {
                 git url: 'https://github.com/gchq/Palisade-services.git'
                 sh "git fetch origin develop"
+                // CHANGE_BRANCH will be null unless you are building a PR, in which case it'll become your original branch name, i.e pal-xxx
+                // If CHANGE_BRANCH is null, git will then try to build BRANCH_NAME which is pal-xxx, and if the branch doesnt exist it will default back to develop
                 sh "git checkout ${env.CHANGE_BRANCH} || git checkout ${env.BRANCH_NAME} || git checkout develop"
                 container('docker-cmds') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
@@ -89,6 +92,8 @@ spec:
             dir("Palisade-integration-tests") {
                 git url: 'https://github.com/gchq/Palisade-integration-tests.git'
                 sh "git fetch origin develop"
+                // CHANGE_BRANCH will be null unless you are building a PR, in which case it'll become your original branch name, i.e pal-xxx
+                // If CHANGE_BRANCH is null, git will then try to build BRANCH_NAME which is pal-xxx, and if the branch doesnt exist it will default back to develop
                 sh "git checkout ${env.CHANGE_BRANCH} || git checkout ${env.BRANCH_NAME} || git checkout develop"
                 container('docker-cmds') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
