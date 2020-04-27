@@ -62,6 +62,11 @@
         <checkstyle.phase>verify</checkstyle.phase>
         <depends.phase>validate</depends.phase>
         <depends.maven.version>3.1.1</depends.maven.version>
+        <!-- Sonar -->
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+        <sonar.jacoco.reportPath>../../Palisade-services/target/jacoco.xml</sonar.jacoco.reportPath>
+        <sonar.language>java</sonar.language>
     </properties>
 
     <modules>
@@ -153,6 +158,23 @@
                         <phase>${checkstyle.phase}</phase>
                         <goals>
                             <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.5</version>
+                <configuration>
+                    <destFile>${sonar.jacoco.reportPath}</destFile>
+                    <append>true</append>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
                         </goals>
                     </execution>
                 </executions>
