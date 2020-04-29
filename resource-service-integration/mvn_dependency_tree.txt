@@ -24,6 +24,7 @@ uk.gov.gchq.palisade:resource-service-integration:jar:0.4.0-SNAPSHOT
 |  |     +- javax.inject:javax.inject:jar:1:compile
 |  |     \- aopalliance:aopalliance:jar:1.0:compile
 |  +- com.fasterxml.jackson.core:jackson-databind:jar:2.10.0:compile
+|  +- com.h2database:h2:jar:1.4.199:runtime
 |  +- org.springframework.cloud:spring-cloud-config-client:jar:2.2.0.RELEASE:compile
 |  |  \- org.springframework.cloud:spring-cloud-context:jar:2.2.0.RELEASE:compile
 |  +- org.springframework.boot:spring-boot-starter-actuator:jar:2.2.0.RELEASE:compile
@@ -59,7 +60,6 @@ uk.gov.gchq.palisade:resource-service-integration:jar:0.4.0-SNAPSHOT
 |  |  |  +- org.springframework:spring-orm:jar:5.2.0.RELEASE:compile
 |  |  |  \- org.springframework:spring-tx:jar:5.2.0.RELEASE:compile
 |  |  \- org.springframework:spring-aspects:jar:5.2.0.RELEASE:compile
-|  +- com.h2database:h2:jar:1.4.199:runtime
 |  +- org.springframework.cloud:spring-cloud-commons:jar:2.2.0.RELEASE:compile
 |  |  \- org.springframework.security:spring-security-crypto:jar:5.2.0.RELEASE:compile
 |  +- org.springframework.cloud:spring-cloud-netflix-eureka-client:jar:2.2.0.RELEASE:compile

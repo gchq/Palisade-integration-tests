@@ -87,6 +87,13 @@ public class ScenarioPersistenceTest {
     @Autowired
     private ResourceClientWrapper client;
 
+    private static final ConnectionDetail DETAIL = new SimpleConnectionDetail().uri("localhost");
+    private static final String ROOT_PATH =  System.getProperty("user.dir") + "/src/test/resources/root/";
+
+    static {
+        new File(ROOT_PATH + "empty-dir/").mkdir();
+    }
+
     /**
      * Scenario as follows, where (F)iles, (D)irectories and (S)ystems are annotated respectively and numbered in query order
      *
@@ -98,8 +105,6 @@ public class ScenarioPersistenceTest {
      *       / \   \
      * 1 -> F   F   F
      */
-    private static final ConnectionDetail DETAIL = new SimpleConnectionDetail().uri("localhost");
-    private static final String ROOT_PATH =  System.getProperty("user.dir") + "/src/test/resources/root/";
 
     private static final DirectoryResource ROOT_DIR = (DirectoryResource) ResourceBuilder.create(new File(ROOT_PATH).toURI());
 
@@ -122,10 +127,6 @@ public class ScenarioPersistenceTest {
             .type("txt")
             .serialisedFormat("txt")
             .connectionDetail(DETAIL);
-
-    static {
-        new File(ROOT_PATH + "empty-dir/").mkdir();
-    }
 
     // We want to test the StreamingResourceServiceProxy class, but consuming using a Supplier<OutputStream> is complicated
     // Instead, send everything through the REST interface
