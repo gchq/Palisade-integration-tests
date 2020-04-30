@@ -109,7 +109,7 @@ spec:
         }
         stage('Do a Palisade') {
             x = env.BRANCH_NAME
-            if (x.substring(0, 2) == "PR") {
+            if (x.substring(0, 2) != "PR") {
                 dir ('Palisade-common') {
                 git url: 'https://github.com/gchq/Palisade-common.git'
                 sh "git fetch origin develop"
