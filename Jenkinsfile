@@ -161,6 +161,8 @@ spec:
                                 cd ../Palisade-services
                                 java -jar -Dspring.profiles.active=discovery,debug services-manager/target/services-manager-*-exec.jar --manager.mode=run && java -jar -Dspring.profiles.active=example,debug services-manager/target/services-manager-*-exec.jar --manager.mode=run
                                 cd ../Palisade-examples
+                                chmod +x deployment/local-jvm/bash-scripts/configureExamples.sh
+                                chmod +x deployment/local-jvm/bash-scripts/runFormattedLocalJVMExample.sh
                                 ./deployment/local-jvm/bash-scripts/configureExamples.sh
                                 ./deployment/local-jvm/bash-scripts/runFormattedLocalJVMExample.sh > deployment/local-jvm/bash-scripts/exampleOutput.txt
                                 chmod +x deployment/local-jvm/bash-scripts/verify.sh
