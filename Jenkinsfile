@@ -41,7 +41,7 @@ spec:
     resources: 
       requests: 
         cpu: 20m 
-        memory: 512Mi 
+        memory: 1GiB
     volumeMounts: 
       - name: docker-graph-storage 
         mountPath: /var/lib/docker 
