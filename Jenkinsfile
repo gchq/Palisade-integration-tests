@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 podTemplate(yaml: '''
 apiVersion: v1
 kind: Pod
@@ -82,35 +83,35 @@ spec:
         }
 
         stage('Prerequisites') {
-            dir ('Palisade-common') {
+            dir('Palisade-common') {
                 git url: 'https://github.com/gchq/Palisade-common.git'
                 sh "git fetch origin develop"
                 if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install'
+                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
                         }
                     }
                 }
             }
-            dir ('Palisade-readers') {
+            dir('Palisade-readers') {
                 git url: 'https://github.com/gchq/Palisade-readers.git'
                 sh "git fetch origin develop"
                 if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install'
+                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
                         }
                     }
                 }
             }
-            dir ('Palisade-services') {
+            dir('Palisade-services') {
                 git url: 'https://github.com/gchq/Palisade-services.git'
                 sh "git fetch origin develop"
                 if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install'
+                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
                         }
                     }
                 }
@@ -118,7 +119,7 @@ spec:
         }
 
         stage('Integration Tests, Checkstyle') {
-            dir ('Palisade-integration-tests') {
+            dir('Palisade-integration-tests') {
                 git url: 'https://github.com/gchq/Palisade-integration-tests.git'
                 sh "git fetch origin develop"
                 sh "git checkout ${GIT_BRANCH_NAME} || git checkout develop"
