@@ -21,7 +21,7 @@
     <parent>
         <artifactId>spring-boot-starter-parent</artifactId>
         <groupId>org.springframework.boot</groupId>
-        <version>2.1.8.RELEASE</version>
+        <version>2.2.0.RELEASE</version>
     </parent>
 
     <groupId>uk.gov.gchq.palisade</groupId>
@@ -62,6 +62,11 @@
         <checkstyle.phase>verify</checkstyle.phase>
         <depends.phase>validate</depends.phase>
         <depends.maven.version>3.1.1</depends.maven.version>
+        <!-- Sonar -->
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+        <sonar.jacoco.reportPath>../../Palisade-services/target/jacoco.xml</sonar.jacoco.reportPath>
+        <sonar.language>java</sonar.language>
     </properties>
 
     <modules>
@@ -86,7 +91,7 @@
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
-                <version>Greenwich.SR3</version>
+                <version>Hoxton.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -153,6 +158,23 @@
                         <phase>${checkstyle.phase}</phase>
                         <goals>
                             <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.5</version>
+                <configuration>
+                    <destFile>${sonar.jacoco.reportPath}</destFile>
+                    <append>true</append>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
                         </goals>
                     </execution>
                 </executions>

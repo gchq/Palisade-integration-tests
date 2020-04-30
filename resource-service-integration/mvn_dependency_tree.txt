@@ -6,7 +6,7 @@ uk.gov.gchq.palisade:resource-service-integration:jar:0.4.0-SNAPSHOT
 |  |  +- com.netflix.netflix-commons:netflix-eventbus:jar:0.3.0:test
 |  |  |  +- com.netflix.netflix-commons:netflix-infix:jar:0.3.0:test
 |  |  |  |  +- commons-jxpath:commons-jxpath:jar:1.3:test
-|  |  |  |  +- joda-time:joda-time:jar:2.10.3:test
+|  |  |  |  +- joda-time:joda-time:jar:2.10.4:test
 |  |  |  |  \- org.antlr:antlr-runtime:jar:3.4:test
 |  |  |  |     +- org.antlr:stringtemplate:jar:3.2.1:test
 |  |  |  |     \- antlr:antlr:jar:2.7.7:test
@@ -24,77 +24,45 @@ uk.gov.gchq.palisade:resource-service-integration:jar:0.4.0-SNAPSHOT
 |  |  \- com.google.inject:guice:jar:4.1.0:test
 |  |     +- javax.inject:javax.inject:jar:1:test
 |  |     \- aopalliance:aopalliance:jar:1.0:test
-|  +- io.etcd:jetcd-core:jar:0.3.0:test
-|  |  +- io.etcd:jetcd-common:jar:0.3.0:test
-|  |  +- io.etcd:jetcd-resolver:jar:0.3.0:test
-|  |  +- io.grpc:grpc-core:jar:1.17.1:test
-|  |  |  +- io.grpc:grpc-context:jar:1.17.1:test
-|  |  |  +- io.opencensus:opencensus-api:jar:0.17.0:test
-|  |  |  \- io.opencensus:opencensus-contrib-grpc-metrics:jar:0.17.0:test
-|  |  +- io.grpc:grpc-netty:jar:1.17.1:test
-|  |  |  +- io.netty:netty-codec-http2:jar:4.1.39.Final:test
-|  |  |  |  +- io.netty:netty-common:jar:4.1.39.Final:test
-|  |  |  |  +- io.netty:netty-buffer:jar:4.1.39.Final:test
-|  |  |  |  +- io.netty:netty-transport:jar:4.1.39.Final:test
-|  |  |  |  |  \- io.netty:netty-resolver:jar:4.1.39.Final:test
-|  |  |  |  +- io.netty:netty-codec:jar:4.1.39.Final:test
-|  |  |  |  +- io.netty:netty-handler:jar:4.1.39.Final:test
-|  |  |  |  \- io.netty:netty-codec-http:jar:4.1.39.Final:test
-|  |  |  \- io.netty:netty-handler-proxy:jar:4.1.39.Final:test
-|  |  |     \- io.netty:netty-codec-socks:jar:4.1.39.Final:test
-|  |  +- io.grpc:grpc-protobuf:jar:1.17.1:test
-|  |  |  +- com.google.api.grpc:proto-google-common-protos:jar:1.16.0:test
-|  |  |  \- io.grpc:grpc-protobuf-lite:jar:1.17.1:test
-|  |  +- io.grpc:grpc-stub:jar:1.17.1:test
-|  |  \- io.grpc:grpc-grpclb:jar:1.17.1:test
-|  |     \- com.google.protobuf:protobuf-java-util:jar:3.5.1:test
-|  +- io.fabric8:kubernetes-client:jar:4.1.0:test
-|  |  +- com.squareup.okhttp3:okhttp:jar:3.8.1:test
-|  |  |  \- com.squareup.okio:okio:jar:1.13.0:test
-|  |  +- com.squareup.okhttp3:logging-interceptor:jar:3.8.1:test
-|  |  +- org.slf4j:jul-to-slf4j:jar:1.7.28:test
-|  |  +- com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:jar:2.9.9:test
-|  |  +- io.fabric8:zjsonpatch:jar:0.3.0:test
-|  |  \- com.github.mifmif:generex:jar:1.0.1:test
-|  |     \- dk.brics.automaton:automaton:jar:1.11-8:test
-|  +- io.fabric8:kubernetes-model:jar:4.1.0:test
-|  |  +- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:jar:2.9.9:test
-|  |  \- javax.validation:validation-api:jar:2.0.1.Final:test
-|  +- com.google.protobuf:protobuf-java:jar:3.5.1:compile
-|  +- org.springframework.boot:spring-boot-starter:jar:2.1.8.RELEASE:test
-|  |  +- org.springframework.boot:spring-boot-starter-logging:jar:2.1.8.RELEASE:test
-|  |  |  \- org.apache.logging.log4j:log4j-to-slf4j:jar:2.11.2:test
-|  |  |     \- org.apache.logging.log4j:log4j-api:jar:2.11.2:test
-|  |  +- javax.annotation:javax.annotation-api:jar:1.3.2:test
-|  |  +- org.springframework:spring-core:jar:5.1.9.RELEASE:compile
-|  |  |  \- org.springframework:spring-jcl:jar:5.1.9.RELEASE:compile
-|  |  \- org.yaml:snakeyaml:jar:1.23:test
-|  +- org.springframework.boot:spring-boot-starter-actuator:jar:2.1.8.RELEASE:test
-|  |  +- org.springframework.boot:spring-boot-actuator-autoconfigure:jar:2.1.8.RELEASE:test
-|  |  |  \- org.springframework.boot:spring-boot-actuator:jar:2.1.8.RELEASE:test
-|  |  \- io.micrometer:micrometer-core:jar:1.1.6:test
-|  |     +- org.hdrhistogram:HdrHistogram:jar:2.1.9:test
+|  +- org.springframework.cloud:spring-cloud-config-client:jar:2.2.0.RELEASE:test
+|  |  +- org.springframework.cloud:spring-cloud-context:jar:2.2.0.RELEASE:test
+|  |  \- org.springframework:spring-web:jar:5.2.0.RELEASE:test
+|  |     \- org.springframework:spring-beans:jar:5.2.0.RELEASE:compile
+|  +- org.springframework.boot:spring-boot-starter:jar:2.2.0.RELEASE:test
+|  |  +- org.springframework.boot:spring-boot-starter-logging:jar:2.2.0.RELEASE:test
+|  |  |  +- org.apache.logging.log4j:log4j-to-slf4j:jar:2.12.1:test
+|  |  |  |  \- org.apache.logging.log4j:log4j-api:jar:2.12.1:test
+|  |  |  \- org.slf4j:jul-to-slf4j:jar:1.7.28:test
+|  |  +- jakarta.annotation:jakarta.annotation-api:jar:1.3.5:test
+|  |  +- org.springframework:spring-core:jar:5.2.0.RELEASE:compile
+|  |  |  \- org.springframework:spring-jcl:jar:5.2.0.RELEASE:compile
+|  |  \- org.yaml:snakeyaml:jar:1.25:test
+|  +- org.springframework.boot:spring-boot-starter-actuator:jar:2.2.0.RELEASE:test
+|  |  +- org.springframework.boot:spring-boot-actuator-autoconfigure:jar:2.2.0.RELEASE:test
+|  |  |  \- org.springframework.boot:spring-boot-actuator:jar:2.2.0.RELEASE:test
+|  |  \- io.micrometer:micrometer-core:jar:1.3.0:test
+|  |     +- org.hdrhistogram:HdrHistogram:jar:2.1.11:test
 |  |     \- org.latencyutils:LatencyUtils:jar:2.0.3:test
-|  +- org.springframework.boot:spring-boot-starter-web:jar:2.1.8.RELEASE:test
-|  |  +- org.springframework.boot:spring-boot-starter-json:jar:2.1.8.RELEASE:test
-|  |  |  \- com.fasterxml.jackson.module:jackson-module-parameter-names:jar:2.9.9:test
-|  |  +- org.springframework.boot:spring-boot-starter-tomcat:jar:2.1.8.RELEASE:test
-|  |  |  +- org.apache.tomcat.embed:tomcat-embed-core:jar:9.0.24:test
-|  |  |  +- org.apache.tomcat.embed:tomcat-embed-el:jar:9.0.24:test
-|  |  |  \- org.apache.tomcat.embed:tomcat-embed-websocket:jar:9.0.24:test
-|  |  +- org.hibernate.validator:hibernate-validator:jar:6.0.17.Final:test
-|  |  |  +- org.jboss.logging:jboss-logging:jar:3.3.3.Final:test
-|  |  |  \- com.fasterxml:classmate:jar:1.4.0:test
-|  |  +- org.springframework:spring-web:jar:5.1.9.RELEASE:test
-|  |  |  \- org.springframework:spring-beans:jar:5.1.9.RELEASE:compile
-|  |  \- org.springframework:spring-webmvc:jar:5.1.9.RELEASE:test
-|  |     +- org.springframework:spring-aop:jar:5.1.9.RELEASE:compile
-|  |     \- org.springframework:spring-expression:jar:5.1.9.RELEASE:compile
-|  +- org.springframework.cloud:spring-cloud-commons:jar:2.1.3.RELEASE:test
-|  |  \- org.springframework.security:spring-security-crypto:jar:5.1.6.RELEASE:test
-|  +- org.springframework.cloud:spring-cloud-netflix-eureka-client:jar:2.1.3.RELEASE:test
-|  |  \- org.springframework.cloud:spring-cloud-netflix-hystrix:jar:2.1.3.RELEASE:test
-|  |     \- org.springframework.boot:spring-boot-starter-aop:jar:2.1.8.RELEASE:test
+|  +- org.springframework.boot:spring-boot-starter-web:jar:2.2.0.RELEASE:test
+|  |  +- org.springframework.boot:spring-boot-starter-json:jar:2.2.0.RELEASE:test
+|  |  |  \- com.fasterxml.jackson.module:jackson-module-parameter-names:jar:2.10.0:test
+|  |  +- org.springframework.boot:spring-boot-starter-tomcat:jar:2.2.0.RELEASE:test
+|  |  |  +- org.apache.tomcat.embed:tomcat-embed-core:jar:9.0.27:test
+|  |  |  +- org.apache.tomcat.embed:tomcat-embed-el:jar:9.0.27:test
+|  |  |  \- org.apache.tomcat.embed:tomcat-embed-websocket:jar:9.0.27:test
+|  |  +- org.springframework.boot:spring-boot-starter-validation:jar:2.2.0.RELEASE:test
+|  |  |  +- jakarta.validation:jakarta.validation-api:jar:2.0.1:test
+|  |  |  \- org.hibernate.validator:hibernate-validator:jar:6.0.17.Final:test
+|  |  |     +- org.jboss.logging:jboss-logging:jar:3.4.1.Final:test
+|  |  |     \- com.fasterxml:classmate:jar:1.5.0:test
+|  |  \- org.springframework:spring-webmvc:jar:5.2.0.RELEASE:test
+|  |     +- org.springframework:spring-aop:jar:5.2.0.RELEASE:compile
+|  |     \- org.springframework:spring-expression:jar:5.2.0.RELEASE:compile
+|  +- org.springframework.cloud:spring-cloud-commons:jar:2.2.0.RELEASE:test
+|  |  \- org.springframework.security:spring-security-crypto:jar:5.2.0.RELEASE:test
+|  +- org.springframework.cloud:spring-cloud-netflix-eureka-client:jar:2.2.0.RELEASE:test
+|  |  \- org.springframework.cloud:spring-cloud-netflix-hystrix:jar:2.2.0.RELEASE:test
+|  |     \- org.springframework.boot:spring-boot-starter-aop:jar:2.2.0.RELEASE:test
 |  |        \- org.aspectj:aspectjweaver:jar:1.9.4:test
 |  \- uk.gov.gchq.palisade:hadoop-resource:jar:0.4.0-SNAPSHOT:test
 |     +- ch.qos.logback:logback-core:jar:1.2.3:test
@@ -107,26 +75,26 @@ uk.gov.gchq.palisade:resource-service-integration:jar:0.4.0-SNAPSHOT
 |  +- com.google.errorprone:error_prone_annotations:jar:2.3.2:test
 |  +- com.google.j2objc:j2objc-annotations:jar:1.3:test
 |  \- org.codehaus.mojo:animal-sniffer-annotations:jar:1.18:test
-+- org.apache.commons:commons-lang3:jar:3.8.1:test
++- org.apache.commons:commons-lang3:jar:3.9:test
 +- org.apache.hadoop:hadoop-common:jar:3.2.0:compile
 |  +- org.apache.hadoop:hadoop-annotations:jar:3.2.0:compile
 |  +- commons-cli:commons-cli:jar:1.2:compile
 |  +- org.apache.commons:commons-math3:jar:3.1.1:compile
-|  +- org.apache.httpcomponents:httpclient:jar:4.5.9:compile
+|  +- org.apache.httpcomponents:httpclient:jar:4.5.10:compile
 |  |  \- org.apache.httpcomponents:httpcore:jar:4.4.12:compile
-|  +- commons-codec:commons-codec:jar:1.11:compile
+|  +- commons-codec:commons-codec:jar:1.13:compile
 |  +- commons-io:commons-io:jar:2.5:compile
 |  +- commons-net:commons-net:jar:3.6:compile
 |  +- commons-collections:commons-collections:jar:3.2.2:compile
 |  +- javax.servlet:javax.servlet-api:jar:4.0.1:compile
-|  +- org.eclipse.jetty:jetty-server:jar:9.4.19.v20190610:compile
-|  |  +- org.eclipse.jetty:jetty-http:jar:9.4.19.v20190610:compile
-|  |  \- org.eclipse.jetty:jetty-io:jar:9.4.19.v20190610:compile
-|  +- org.eclipse.jetty:jetty-util:jar:9.4.19.v20190610:compile
-|  +- org.eclipse.jetty:jetty-servlet:jar:9.4.19.v20190610:compile
-|  |  \- org.eclipse.jetty:jetty-security:jar:9.4.19.v20190610:compile
-|  +- org.eclipse.jetty:jetty-webapp:jar:9.4.19.v20190610:compile
-|  |  \- org.eclipse.jetty:jetty-xml:jar:9.4.19.v20190610:compile
+|  +- org.eclipse.jetty:jetty-server:jar:9.4.20.v20190813:compile
+|  |  +- org.eclipse.jetty:jetty-http:jar:9.4.20.v20190813:compile
+|  |  \- org.eclipse.jetty:jetty-io:jar:9.4.20.v20190813:compile
+|  +- org.eclipse.jetty:jetty-util:jar:9.4.20.v20190813:compile
+|  +- org.eclipse.jetty:jetty-servlet:jar:9.4.20.v20190813:compile
+|  |  \- org.eclipse.jetty:jetty-security:jar:9.4.20.v20190813:compile
+|  +- org.eclipse.jetty:jetty-webapp:jar:9.4.20.v20190813:compile
+|  |  \- org.eclipse.jetty:jetty-xml:jar:9.4.20.v20190813:compile
 |  +- javax.servlet.jsp:jsp-api:jar:2.1:runtime
 |  +- com.sun.jersey:jersey-core:jar:1.19:compile
 |  +- com.sun.jersey:jersey-servlet:jar:1.19:compile
@@ -147,7 +115,8 @@ uk.gov.gchq.palisade:resource-service-integration:jar:0.4.0-SNAPSHOT
 |  |  +- com.thoughtworks.paranamer:paranamer:jar:2.3:compile
 |  |  \- org.xerial.snappy:snappy-java:jar:1.0.5:compile
 |  +- com.google.re2j:re2j:jar:1.1:compile
-|  +- com.google.code.gson:gson:jar:2.8.5:compile
+|  +- com.google.protobuf:protobuf-java:jar:2.5.0:compile
+|  +- com.google.code.gson:gson:jar:2.8.6:compile
 |  +- org.apache.hadoop:hadoop-auth:jar:3.2.0:compile
 |  |  +- com.nimbusds:nimbus-jose-jwt:jar:4.41.1:compile
 |  |  |  \- com.github.stephenc.jcip:jcip-annotations:jar:1.0-1:compile
@@ -180,26 +149,31 @@ uk.gov.gchq.palisade:resource-service-integration:jar:0.4.0-SNAPSHOT
 |  |     +- org.apache.kerby:kerb-server:jar:1.0.1:compile
 |  |     |  \- org.apache.kerby:kerb-identity:jar:1.0.1:compile
 |  |     \- org.apache.kerby:kerby-xdr:jar:1.0.1:compile
-|  +- com.fasterxml.jackson.core:jackson-databind:jar:2.9.9.3:compile
+|  +- com.fasterxml.jackson.core:jackson-databind:jar:2.10.0:compile
 |  +- org.codehaus.woodstox:stax2-api:jar:3.1.4:compile
 |  +- com.fasterxml.woodstox:woodstox-core:jar:5.0.3:compile
 |  \- dnsjava:dnsjava:jar:2.1.7:compile
 +- org.apache.hadoop:hadoop-minicluster:jar:3.2.0:test
 |  +- org.apache.hadoop:hadoop-common:test-jar:tests:3.2.0:test
 |  +- org.apache.hadoop:hadoop-hdfs:test-jar:tests:3.2.0:test
-|  |  +- org.eclipse.jetty:jetty-util-ajax:jar:9.4.19.v20190610:test
+|  |  +- org.eclipse.jetty:jetty-util-ajax:jar:9.4.20.v20190813:test
 |  |  +- commons-daemon:commons-daemon:jar:1.0.13:test
-|  |  +- io.netty:netty-all:jar:4.1.39.Final:test
+|  |  +- io.netty:netty-all:jar:4.1.42.Final:test
 |  |  \- org.fusesource.leveldbjni:leveldbjni-all:jar:1.8:test
 |  +- org.apache.hadoop:hadoop-yarn-server-tests:test-jar:tests:3.2.0:test
 |  |  +- org.apache.hadoop:hadoop-yarn-server-common:jar:3.2.0:test
 |  |  |  +- org.apache.hadoop:hadoop-yarn-registry:jar:3.2.0:test
 |  |  |  +- org.apache.geronimo.specs:geronimo-jcache_1.0_spec:jar:1.0-alpha-1:test
-|  |  |  +- org.ehcache:ehcache:jar:3.6.3:test
+|  |  |  +- org.ehcache:ehcache:jar:3.8.1:test
+|  |  |  |  \- org.glassfish.jaxb:jaxb-runtime:jar:2.3.2:test
+|  |  |  |     +- org.glassfish.jaxb:txw2:jar:2.3.2:test
+|  |  |  |     +- com.sun.istack:istack-commons-runtime:jar:3.0.8:test
+|  |  |  |     +- org.jvnet.staxex:stax-ex:jar:1.8.1:test
+|  |  |  |     \- com.sun.xml.fastinfoset:FastInfoset:jar:1.2.16:test
 |  |  |  +- com.zaxxer:HikariCP-java7:jar:2.4.12:test
-|  |  |  \- com.microsoft.sqlserver:mssql-jdbc:jar:6.4.0.jre8:test
+|  |  |  \- com.microsoft.sqlserver:mssql-jdbc:jar:7.4.1.jre8:test
 |  |  +- org.apache.hadoop:hadoop-yarn-server-nodemanager:jar:3.2.0:test
-|  |  |  +- io.dropwizard.metrics:metrics-core:jar:4.0.6:test
+|  |  |  +- io.dropwizard.metrics:metrics-core:jar:4.1.0:test
 |  |  |  \- com.sun.jersey.contribs:jersey-guice:jar:1.19:test
 |  |  +- org.apache.hadoop:hadoop-yarn-server-resourcemanager:jar:3.2.0:test
 |  |  |  \- org.apache.hadoop:hadoop-yarn-server-applicationhistoryservice:jar:3.2.0:test
@@ -209,8 +183,11 @@ uk.gov.gchq.palisade:resource-service-integration:jar:0.4.0-SNAPSHOT
 |  |  +- org.apache.hadoop:hadoop-yarn-server-timelineservice:jar:3.2.0:test
 |  |  |  \- org.apache.commons:commons-csv:jar:1.0:test
 |  |  \- org.apache.hadoop:hadoop-yarn-common:jar:3.2.0:test
-|  |     \- com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:jar:2.9.9:test
-|  |        \- com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:jar:2.9.9:test
+|  |     +- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:jar:2.10.0:test
+|  |     |  +- jakarta.xml.bind:jakarta.xml.bind-api:jar:2.3.2:test
+|  |     |  \- jakarta.activation:jakarta.activation-api:jar:1.2.1:test
+|  |     \- com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:jar:2.10.0:test
+|  |        \- com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:jar:2.10.0:test
 |  +- org.apache.hadoop:hadoop-mapreduce-client-jobclient:test-jar:tests:3.2.0:test
 |  |  +- org.apache.hadoop:hadoop-mapreduce-client-common:jar:3.2.0:test
 |  |  \- com.google.inject.extensions:guice-servlet:jar:4.0:test
@@ -225,20 +202,22 @@ uk.gov.gchq.palisade:resource-service-integration:jar:0.4.0-SNAPSHOT
 |  |  +- org.apache.hadoop:hadoop-yarn-client:jar:3.2.0:test
 |  |  \- org.apache.hadoop:hadoop-hdfs-client:jar:3.2.0:test
 |  |     \- com.squareup.okhttp:okhttp:jar:2.7.5:test
+|  |        \- com.squareup.okio:okio:jar:1.6.0:test
 |  +- org.apache.hadoop:hadoop-mapreduce-client-jobclient:jar:3.2.0:test
 |  \- org.apache.hadoop:hadoop-mapreduce-client-hs:jar:3.2.0:test
 +- junit:junit:jar:4.12:test
-|  \- org.hamcrest:hamcrest-core:jar:1.3:test
-+- org.mockito:mockito-core:jar:2.23.4:test
-|  +- net.bytebuddy:byte-buddy:jar:1.9.16:test
-|  +- net.bytebuddy:byte-buddy-agent:jar:1.9.16:test
+|  \- org.hamcrest:hamcrest-core:jar:2.1:test
+|     \- org.hamcrest:hamcrest:jar:2.1:test
++- org.mockito:mockito-core:jar:3.1.0:test
+|  +- net.bytebuddy:byte-buddy:jar:1.10.1:test
+|  +- net.bytebuddy:byte-buddy-agent:jar:1.10.1:test
 |  \- org.objenesis:objenesis:jar:2.6:test
 +- org.slf4j:slf4j-api:jar:1.7.28:test
 +- uk.gov.gchq.palisade:common:jar:0.4.0-SNAPSHOT:test
-|  +- com.fasterxml.jackson.core:jackson-core:jar:2.9.9:compile
-|  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.9.0:compile
-|  +- com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.9.9:test
-|  \- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.9.9:test
-\- org.springframework.boot:spring-boot-autoconfigure:jar:2.1.8.RELEASE:compile
-   \- org.springframework.boot:spring-boot:jar:2.1.8.RELEASE:compile
-      \- org.springframework:spring-context:jar:5.1.9.RELEASE:compile
+|  +- com.fasterxml.jackson.core:jackson-core:jar:2.10.0:compile
+|  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.10.0:compile
+|  +- com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.10.0:test
+|  \- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.10.0:test
+\- org.springframework.boot:spring-boot-autoconfigure:jar:2.2.0.RELEASE:compile
+   \- org.springframework.boot:spring-boot:jar:2.2.0.RELEASE:compile
+      \- org.springframework:spring-context:jar:5.2.0.RELEASE:compile
