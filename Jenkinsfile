@@ -40,7 +40,7 @@ spec:
       privileged: true
     resources: 
       requests: 
-        cpu: 40m
+        cpu: 500m
         memory: 2Gi
     volumeMounts: 
       - name: docker-graph-storage 
