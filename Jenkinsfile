@@ -166,6 +166,17 @@ spec:
                                 ./deployment/local-jvm/bash-scripts/configureExamples.sh
                                 ./deployment/local-jvm/bash-scripts/runFormattedLocalJVMExample.sh > deployment/local-jvm/bash-scripts/exampleOutput.txt
                                 chmod +x deployment/local-jvm/bash-scripts/verify.sh
+
+                                cd ../Palisade-services
+                                ls
+                                cat rest-example.log
+                                cat rest-example.err
+                                cat palisade-service.log
+                                cat palisade-service.err
+                                cat data-service.log
+                                cat data-service.err
+                                cat policy-service.log
+                                cat policy-service.err
                             '''
                             sh './deployment/local-jvm/bash-scripts/verify.sh | tail -1 > numOfLines.txt'
                             String numOfLines = readFile 'numOfLines.txt'
