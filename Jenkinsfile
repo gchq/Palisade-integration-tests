@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 podTemplate(yaml: '''
 apiVersion: v1
 kind: Pod
@@ -70,30 +71,67 @@ spec:
          path: /var/run
 ''') {
     node(POD_LABEL) {
+        def GIT_BRANCH_NAME
+
         stage('Bootstrap') {
-            echo sh(script: 'env|sort', returnStdout: true)
+            if (env.CHANGE_BRANCH) {
+                GIT_BRANCH_NAME=env.CHANGE_BRANCH
+            } else {
+                GIT_BRANCH_NAME=env.BRANCH_NAME
+            }
+            echo sh(script: 'env | sort', returnStdout: true)
         }
-        stage('Build Palisade Services') {
-                git url: 'https://github.com/gchq/Palisade-services.git'
-                sh "git fetch origin develop"
-                sh "git checkout ${env.BRANCH_NAME} || git checkout develop"
+
+        stage('Prerequisites') {
+            dir('Palisade-common') {
+                git url: 'https://github.com/gchq/Palisade-common.git'
+                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install'
+                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
                         }
                     }
                 }
-        stage('Install a Maven project') {
-            git branch: "${env.BRANCH_NAME}", url: 'https://github.com/gchq/Palisade-integration-tests.git'
-            container('docker-cmds') {
-                configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                    sh 'mvn -s $MAVEN_SETTINGS install'
+            }
+            dir('Palisade-readers') {
+                git url: 'https://github.com/gchq/Palisade-readers.git'
+                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                    container('docker-cmds') {
+                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
+                        }
+                    }
+                }
+            }
+            dir('Palisade-services') {
+                git url: 'https://github.com/gchq/Palisade-services.git'
+                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                    container('docker-cmds') {
+                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
+                        }
+                    }
                 }
             }
         }
+
+        stage('Integration Tests, Checkstyle') {
+            dir('Palisade-integration-tests') {
+                git url: 'https://github.com/gchq/Palisade-integration-tests.git'
+                sh "git checkout ${GIT_BRANCH_NAME}"
+                container('docker-cmds') {
+                    configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                        sh 'mvn -s $MAVEN_SETTINGS install'
+                    }
+                }
+            }
+        }
+
         stage('Hadolinting') {
-            container('hadolint') {
-                sh 'hadolint */Dockerfile'
+            dir("Palisade-integration-tests") {
+                container('hadolint') {
+                    sh 'hadolint */Dockerfile'
+                }
             }
         }
     }

@@ -15,11 +15,12 @@
  */
 package uk.gov.gchq.palisade.integrationtests.user;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestClientException;
@@ -27,6 +28,7 @@ import org.springframework.web.client.RestClientException;
 import uk.gov.gchq.palisade.RequestId;
 import uk.gov.gchq.palisade.User;
 import uk.gov.gchq.palisade.UserId;
+import uk.gov.gchq.palisade.service.UserConfiguration;
 import uk.gov.gchq.palisade.service.user.UserApplication;
 import uk.gov.gchq.palisade.service.user.exception.NoSuchUserIdException;
 import uk.gov.gchq.palisade.service.user.request.AddUserRequest;
@@ -43,7 +45,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 
 // When registering data the Audit service must return 200 STATUS else test fails and return STATUS
-@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = UserApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class UserCachingTest {
@@ -53,6 +54,11 @@ public class UserCachingTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
+
+    @MockBean
+    @Qualifier("userConfiguration")
+    private UserConfiguration userConfiguration;
+
 
     @Test
     public void contextLoads() {
