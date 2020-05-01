@@ -14,45 +14,50 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.palisade.integrationtests.audit.service;
+package uk.gov.gchq.palisade.integrationtests.resource;
 
+import feign.Response;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import uk.gov.gchq.palisade.service.audit.AuditApplication;
-import uk.gov.gchq.palisade.service.audit.request.AuditRequest;
-import uk.gov.gchq.palisade.service.audit.service.AuditService;
+import uk.gov.gchq.palisade.integrationtests.resource.config.ResourceTestConfiguration;
+import uk.gov.gchq.palisade.integrationtests.resource.web.ResourceClientWrapper;
+import uk.gov.gchq.palisade.service.ResourceService;
+import uk.gov.gchq.palisade.service.resource.ResourceApplication;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+@EnableFeignClients
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = AuditApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
-public class AuditServiceComponentTest extends AuditTestCommon {
+@Import(ResourceTestConfiguration.class)
+@SpringBootTest(classes = ResourceApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
+@EnableJpaRepositories(basePackages = {"uk.gov.gchq.palisade.service.resource.repository"})
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
+public class ResourceComponentTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceComponentTest.class);
 
     @Autowired
-    private TestRestTemplate restTemplate;
-    @Autowired
-    private Map<String, AuditService> serviceMap;
+    private Map<String, ResourceService> serviceMap;
 
-    List<AuditRequest> requests = List.of(
-            readRequestCompleteAuditRequest(),
-            readRequestExceptionAuditRequest(),
-            registerRequestCompleteAuditRequest(),
-            registerRequestExceptionAuditRequest()
-    );
+    @Autowired
+    private ResourceClientWrapper client;
 
     @Test
     public void contextLoads() {
@@ -62,18 +67,9 @@ public class AuditServiceComponentTest extends AuditTestCommon {
 
     @Test
     public void isUp() {
-        final String health = restTemplate.getForObject("/actuator/health", String.class);
+        Response health = client.getHealth();
 
-        assertThat(health, is(equalTo("{\"status\":\"UP\"}")));
-    }
-
-    @Test
-    public void componentTest() {
-        requests.forEach(request -> {
-            Boolean response = restTemplate.postForObject("/audit", request, Boolean.class);
-
-            assertThat(response, is(equalTo(true)));
-        });
+        assertThat(health.status(), equalTo(200));
     }
 
 }

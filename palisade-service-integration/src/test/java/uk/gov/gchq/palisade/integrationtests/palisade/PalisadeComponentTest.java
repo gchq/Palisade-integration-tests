@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.palisade.integrationtests.palisade.service;
+package uk.gov.gchq.palisade.integrationtests.palisade;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +29,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import uk.gov.gchq.palisade.Context;
@@ -39,28 +38,30 @@ import uk.gov.gchq.palisade.UserId;
 import uk.gov.gchq.palisade.integrationtests.palisade.mock.AuditServiceMock;
 import uk.gov.gchq.palisade.integrationtests.palisade.mock.PolicyServiceMock;
 import uk.gov.gchq.palisade.integrationtests.palisade.mock.ResourceServiceMock;
+import uk.gov.gchq.palisade.integrationtests.palisade.mock.StreamingResourceControllerMock;
 import uk.gov.gchq.palisade.integrationtests.palisade.mock.UserServiceMock;
 import uk.gov.gchq.palisade.resource.Resource;
 import uk.gov.gchq.palisade.service.palisade.PalisadeApplication;
-import uk.gov.gchq.palisade.service.palisade.repository.PersistenceLayer;
 import uk.gov.gchq.palisade.service.palisade.request.GetDataRequestConfig;
 import uk.gov.gchq.palisade.service.palisade.request.RegisterDataRequest;
 import uk.gov.gchq.palisade.service.palisade.service.PalisadeService;
 import uk.gov.gchq.palisade.service.request.DataRequestConfig;
 import uk.gov.gchq.palisade.service.request.DataRequestResponse;
 
+import java.io.IOException;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeTrue;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = PalisadeApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD) //reset db after each test
+@SpringBootTest(classes = {PalisadeApplication.class, StreamingResourceControllerMock.class}, webEnvironment = WebEnvironment.DEFINED_PORT)
 @EnableJpaRepositories(basePackages = {"uk.gov.gchq.palisade.service.palisade.repository"})
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class PalisadeComponentTest {
 
     @Autowired
@@ -69,8 +70,6 @@ public class PalisadeComponentTest {
     private ObjectMapper serializer;
     @Autowired
     private PalisadeService palisadeService;
-    @Autowired
-    private PersistenceLayer persistenceLayer;
 
     @Rule
     public WireMockRule auditMock = AuditServiceMock.getRule();
@@ -82,12 +81,12 @@ public class PalisadeComponentTest {
     public WireMockRule userMock = UserServiceMock.getRule();
 
     @Before
-    public void setUp() throws JsonProcessingException {
+    public void setUp() throws IOException {
         AuditServiceMock.stubRule(auditMock, serializer);
         AuditServiceMock.stubHealthRule(auditMock, serializer);
         PolicyServiceMock.stubRule(policyMock, serializer);
         PolicyServiceMock.stubHealthRule(policyMock, serializer);
-        ResourceServiceMock.stubRule(resourceMock, serializer);
+        ResourceServiceMock.stubRule(resourceMock);
         ResourceServiceMock.stubHealthRule(resourceMock, serializer);
         UserServiceMock.stubRule(userMock, serializer);
         UserServiceMock.stubHealthRule(userMock, serializer);
@@ -105,7 +104,6 @@ public class PalisadeComponentTest {
         assertThat(health, is(equalTo("{\"status\":\"UP\"}")));
     }
 
-    @Ignore
     @Test
     public void allServicesDown() {
         //Given all services are down
@@ -142,7 +140,6 @@ public class PalisadeComponentTest {
         assertThat(allUpHealth, is(equalTo("{\"status\":\"UP\"}")));
     }
 
-
     @Test
     public void registerDataRequestTest() {
         // Given all other services are mocked
@@ -156,7 +153,7 @@ public class PalisadeComponentTest {
         DataRequestResponse response = restTemplate.postForObject("/registerDataRequest", request, DataRequestResponse.class);
 
         // Then
-        assertThat(response.getResources(), is(ResourceServiceMock.getResources()));
+        assertThat(response.getResources(), is(StreamingResourceControllerMock.getResources().collect(Collectors.toSet())));
     }
 
     @Test
@@ -171,7 +168,7 @@ public class PalisadeComponentTest {
         DataRequestResponse dataResponse = restTemplate.postForObject("/registerDataRequest", dataRequest, DataRequestResponse.class);
 
         // When the data service requests the request config
-        for (Resource resource : ResourceServiceMock.getResources().keySet()) {
+        for (Resource resource : StreamingResourceControllerMock.getResources().collect(Collectors.toSet())) {
             GetDataRequestConfig configRequest = (GetDataRequestConfig) new GetDataRequestConfig()
                     .token(new RequestId().id(dataResponse.getToken()))
                     .resource(resource)

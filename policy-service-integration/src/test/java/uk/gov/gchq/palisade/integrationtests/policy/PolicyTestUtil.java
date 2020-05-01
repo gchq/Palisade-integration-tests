@@ -25,6 +25,7 @@ import uk.gov.gchq.palisade.resource.impl.DirectoryResource;
 import uk.gov.gchq.palisade.resource.impl.FileResource;
 import uk.gov.gchq.palisade.resource.impl.SystemResource;
 import uk.gov.gchq.palisade.rule.Rules;
+import uk.gov.gchq.palisade.service.SimpleConnectionDetail;
 import uk.gov.gchq.palisade.service.request.Policy;
 
 import java.net.URI;
@@ -53,6 +54,7 @@ public class PolicyTestUtil {
 
         private String serviceId = "Empty string";
 
+        // Empty constructor for JSON instantiation
         TestServiceInstance() {
         }
 
@@ -113,10 +115,11 @@ public class PolicyTestUtil {
     }
 
     static LeafResource mockResource() {
-        return (new FileResource())
+        return new FileResource()
                 .id("TEST_RESOURCE_ID")
                 .type("data type of the resource, e.g. Employee")
                 .serialisedFormat("none")
+                .connectionDetail(new SimpleConnectionDetail().uri("connection-detail-uri"))
                 .parent((new DirectoryResource())
                         .id("resource")
                         .parent((new SystemResource())
@@ -130,7 +133,7 @@ public class PolicyTestUtil {
     }
 
     static Policy mockPolicy() {
-        return (new Policy())
+        return new Policy()
                 .owner(mockUser())
                 .resourceRules(new Rules<>())
                 .recordRules(new Rules<>());

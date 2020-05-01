@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.palisade.integrationtests.policy;
+package uk.gov.gchq.palisade.integrationtests.policy.web;
 
 import feign.Response;
 import org.springframework.cloud.openfeign.FeignClient;
