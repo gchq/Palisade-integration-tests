@@ -60,4 +60,5 @@ resource:
 
 web:
   client:
+    data-service: http://localhost:8082
     resource-service: http://localhost:${server.port}
