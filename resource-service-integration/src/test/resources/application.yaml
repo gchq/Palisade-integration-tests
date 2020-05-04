@@ -21,7 +21,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
   datasource:
-    url: jdbc:h2:file:./cache-h2
+    url: jdbc:h2:mem:./resource-cache-h2
     username:
     password:
     initialization-mode: always
@@ -34,13 +34,7 @@ server:
   port: 8086
 
 eureka:
-  instance:
-    hostname: localhost
-    port: 8083
-    preferIpAddress: false
   client:
-    serviceUrl:
-      defaultZone: http://${eureka.instance.hostname}:${eureka.instance.port}/eureka/
     enabled: false
 
 management:
