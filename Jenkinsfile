@@ -195,7 +195,7 @@ spec:
                             if (numOfLines.trim().equals("780")){
                                 currentBuild.result = 'SUCCESS'
                             } else {
-                                error("Number of lines was not 148, but was: ${numOfLines.trim()}")
+                                error("Number of lines was not 183, but was: ${numOfLines.trim()}")
                             }
                         }
                     }
