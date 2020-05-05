@@ -186,8 +186,9 @@ spec:
                                 cd ../Palisade-examples
                                 chmod +x deployment/local-jvm/bash-scripts/configureExamples.sh
                                 chmod +x deployment/local-jvm/bash-scripts/runFormattedLocalJVMExample.sh
+                                chmod +x deployment/bash-scripts/formatOutput.sh
                                 ./deployment/local-jvm/bash-scripts/configureExamples.sh
-                                ./deployment/local-jvm/bash-scripts/runFormattedLocalJVMExample.sh > deployment/local-jvm/bash-scripts/exampleOutput.txt
+                                ./deployment/local-jvm/bash-scripts/runFormattedLocalJVMExample.sh | tee deployment/local-jvm/bash-scripts/exampleOutput.txt
                                 chmod +x deployment/local-jvm/bash-scripts/verify.sh
                                 cat deployment/local-jvm/bash-scripts/exampleOutput.txt
                             '''
