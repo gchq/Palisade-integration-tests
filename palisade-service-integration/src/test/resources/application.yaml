@@ -21,7 +21,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
   datasource:
-    url: jdbc:h2:mem:./cache-h2
+    url: jdbc:h2:mem:./palisade-cache-h2
     username:
     password:
     initialization-mode: always
@@ -34,24 +34,14 @@ server:
   port: 8084
 
 eureka:
-  instance:
-    hostname: localhost
-    port: 8083
-    preferIpAddress: false
   client:
-    serviceUrl:
-      defaultZone: http://${eureka.instance.hostname}:${eureka.instance.port}/eureka/
     enabled: false
 
 management:
   endpoints:
     web:
       exposure:
-        include:
-        - health
-        - info
-        - metrics
-        - loggers
+        include: "*"
     loggers:
       enabled: true
 

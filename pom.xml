@@ -77,6 +77,17 @@
         <module>user-service-integration</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>quick</id>
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
+                <checkstyle.skip>true</checkstyle.skip>
+                <dockerfile.skip>true</dockerfile.skip>
+            </properties>
+        </profile>
+    </profiles>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

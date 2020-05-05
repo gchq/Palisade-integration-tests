@@ -76,29 +76,29 @@ public class BasicPersistenceTest {
      */
 
     private static final SimpleConnectionDetail DETAIL = new SimpleConnectionDetail().uri("test-data-service");
-    private static final String EMPLOYEE_FORMAT = "employee";
-    private static final String CLIENT_FORMAT = "client";
-    private static final String AVRO_TYPE = "avro";
-    private static final String CSV_TYPE = "csv";
+    private static final String EMPLOYEE_TYPE = "employee";
+    private static final String CLIENT_TYPE = "client";
+    private static final String AVRO_FORMAT = "avro";
+    private static final String JSON_FORMAT = "json";
     private static final SystemResource SYSTEM_ROOT = (SystemResource) ResourceBuilder.create("file:/");
     private static final DirectoryResource TEST_DIRECTORY = (DirectoryResource) ResourceBuilder.create("file:/test/");
     private static final FileResource EMPLOYEE_AVRO_FILE = ((FileResource) ResourceBuilder.create("file:/test/employee.avro"))
-            .type(AVRO_TYPE)
-            .serialisedFormat(EMPLOYEE_FORMAT)
+            .type(EMPLOYEE_TYPE)
+            .serialisedFormat(AVRO_FORMAT)
             .connectionDetail(DETAIL);
-    private static final FileResource EMPLOYEE_CSV_FILE = ((FileResource) ResourceBuilder.create("file:/test/employee.csv"))
-            .type(CSV_TYPE)
-            .serialisedFormat(EMPLOYEE_FORMAT)
+    private static final FileResource EMPLOYEE_JSON_FILE = ((FileResource) ResourceBuilder.create("file:/test/employee.json"))
+            .type(EMPLOYEE_TYPE)
+            .serialisedFormat(JSON_FORMAT)
             .connectionDetail(DETAIL);
     private static final FileResource CLIENT_AVRO_FILE = ((FileResource) ResourceBuilder.create("file:/test/client.avro"))
-            .type(AVRO_TYPE)
-            .serialisedFormat(CLIENT_FORMAT)
+            .type(CLIENT_TYPE)
+            .serialisedFormat(AVRO_FORMAT)
             .connectionDetail(DETAIL);
 
     @Before
     @Transactional
     public void setup() {
-        for (FileResource file: Arrays.asList(EMPLOYEE_CSV_FILE, EMPLOYEE_AVRO_FILE, CLIENT_AVRO_FILE)) {
+        for (FileResource file: Arrays.asList(EMPLOYEE_JSON_FILE, EMPLOYEE_AVRO_FILE, CLIENT_AVRO_FILE)) {
             Stream<LeafResource> fileStream = Stream.of(file);
             fileStream = persistenceLayer.withPersistenceById(SYSTEM_ROOT.getId(), fileStream);
             fileStream = persistenceLayer.withPersistenceByType(file.getType(), fileStream);
@@ -115,7 +115,7 @@ public class BasicPersistenceTest {
         Stream<LeafResource> resourcesByResource = client.getResourcesByResource(TEST_DIRECTORY);
 
         // Then
-        Set<LeafResource> expected = new HashSet<>(Arrays.asList(EMPLOYEE_AVRO_FILE, EMPLOYEE_CSV_FILE, CLIENT_AVRO_FILE));
+        Set<LeafResource> expected = new HashSet<>(Arrays.asList(EMPLOYEE_AVRO_FILE, EMPLOYEE_JSON_FILE, CLIENT_AVRO_FILE));
         assertThat(resourcesByResource.collect(Collectors.toSet()), equalTo(expected));
 
         // When
@@ -134,7 +134,7 @@ public class BasicPersistenceTest {
         Stream<LeafResource> resourcesByResource = client.getResourcesById(TEST_DIRECTORY.getId());
 
         // Then
-        Set<LeafResource> expected = new HashSet<>(Arrays.asList(EMPLOYEE_AVRO_FILE, EMPLOYEE_CSV_FILE, CLIENT_AVRO_FILE));
+        Set<LeafResource> expected = new HashSet<>(Arrays.asList(EMPLOYEE_AVRO_FILE, EMPLOYEE_JSON_FILE, CLIENT_AVRO_FILE));
         assertThat(resourcesByResource.collect(Collectors.toSet()), equalTo(expected));
 
         // When
@@ -150,17 +150,17 @@ public class BasicPersistenceTest {
         // Given - setup
 
         // When
-        Stream<LeafResource> resourcesByType = client.getResourcesByType(AVRO_TYPE);
+        Stream<LeafResource> resourcesByType = client.getResourcesByType(EMPLOYEE_TYPE);
 
         // Then
-        Set<LeafResource> expected = new HashSet<>(Arrays.asList(EMPLOYEE_AVRO_FILE, CLIENT_AVRO_FILE));
+        Set<LeafResource> expected = new HashSet<>(Arrays.asList(EMPLOYEE_AVRO_FILE, EMPLOYEE_JSON_FILE));
         assertThat(resourcesByType.collect(Collectors.toSet()), equalTo(expected));
 
         // When
-        resourcesByType = client.getResourcesByType(CSV_TYPE);
+        resourcesByType = client.getResourcesByType(CLIENT_TYPE);
 
         // Then
-        expected = Collections.singleton(EMPLOYEE_CSV_FILE);
+        expected = Collections.singleton(CLIENT_AVRO_FILE);
         assertThat(resourcesByType.collect(Collectors.toSet()), equalTo(expected));
 
     }
@@ -170,18 +170,18 @@ public class BasicPersistenceTest {
         // Given - setup
 
         // When
-        Stream<LeafResource> resourcesByType = client.getResourcesByType(AVRO_TYPE);
+        Stream<LeafResource> resourcesBySerialisedFormat = client.getResourcesBySerialisedFormat(AVRO_FORMAT);
 
         // Then
         Set<LeafResource> expected = new HashSet<>(Arrays.asList(EMPLOYEE_AVRO_FILE, CLIENT_AVRO_FILE));
-        assertThat(resourcesByType.collect(Collectors.toSet()), equalTo(expected));
+        assertThat(resourcesBySerialisedFormat.collect(Collectors.toSet()), equalTo(expected));
 
         // When
-        resourcesByType = client.getResourcesByType(CSV_TYPE);
+        resourcesBySerialisedFormat = client.getResourcesBySerialisedFormat(JSON_FORMAT);
 
         // Then
-        expected = Collections.singleton(EMPLOYEE_CSV_FILE);
-        assertThat(resourcesByType.collect(Collectors.toSet()), equalTo(expected));
+        expected = Collections.singleton(EMPLOYEE_JSON_FILE);
+        assertThat(resourcesBySerialisedFormat.collect(Collectors.toSet()), equalTo(expected));
 
     }
 }
