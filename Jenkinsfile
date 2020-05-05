@@ -189,21 +189,6 @@ spec:
                                 ./deployment/local-jvm/bash-scripts/configureExamples.sh
                                 ./deployment/local-jvm/bash-scripts/runFormattedLocalJVMExample.sh > deployment/local-jvm/bash-scripts/exampleOutput.txt
                                 chmod +x deployment/local-jvm/bash-scripts/verify.sh
-
-                                cd ../Palisade-services
-                                ls
-                                cat rest-example.log
-                                cat rest-example.err
-                                cat palisade-service-example.err
-                                cat palisade-service-example.log
-                                cat data-service-example.err
-                                cat data-service-example.log
-                                cat policy-service-example.err
-                                cat policy-service-example.log
-                                cat resource-service-example.err
-                                cat resource-service-example.log
-                                cat user-service-example.err
-                                cat user-service-example.log
                             '''
                             sh './deployment/local-jvm/bash-scripts/verify.sh | tail -1 > numOfLines.txt'
                             String numOfLines = readFile 'numOfLines.txt'
