@@ -88,6 +88,7 @@ spec:
                 if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
                         }
                     }
                 }
@@ -97,6 +98,7 @@ spec:
                 if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
                         }
                     }
                 }
@@ -106,6 +108,7 @@ spec:
                 if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
                         }
                     }
                 }
@@ -118,6 +121,7 @@ spec:
                 sh "git checkout ${GIT_BRANCH_NAME}"
                 container('docker-cmds') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                        sh 'mvn -s $MAVEN_SETTINGS install'
                     }
                 }
             }
@@ -133,46 +137,6 @@ spec:
         stage('Do a Palisade') {
             x = env.BRANCH_NAME
             if (x.substring(0, 2) != "PR") {
-                dir ('Palisade-common') {
-                git url: 'https://github.com/gchq/Palisade-common.git'
-                sh "git fetch origin develop"
-                sh "git checkout ${GIT_BRANCH_NAME}"
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
-                        }
-                    }
-                }
-                dir ('Palisade-readers') {
-                git url: 'https://github.com/gchq/Palisade-readers.git'
-                sh "git fetch origin develop"
-                sh "git checkout PAL-390-resource-service-persistence || git checkout ${GIT_BRANCH_NAME}"
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
-                        }
-                    }
-                }
-                dir ('Palisade-clients') {
-                git url: 'https://github.com/gchq/Palisade-clients.git'
-                sh "git fetch origin develop"
-                sh "git checkout PAL-390-resource-service-persistence || git checkout ${GIT_BRANCH_NAME}"
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
-                        }
-                    }
-                }
-                dir ('Palisade-services') {
-                git url: 'https://github.com/gchq/Palisade-services.git'
-                sh "git fetch origin develop"
-                sh "git checkout ${GIT_BRANCH_NAME}"
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
-                        }
-                    }
-                }
                 dir ('Palisade-examples') {
                     git url: 'https://github.com/gchq/Palisade-Examples.git'
                     sh "git fetch origin develop"
@@ -181,7 +145,6 @@ spec:
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                             sh '''
                                 mvn -s $MAVEN_SETTINGS install -P quick
-                                cd ../Palisade-examples
                                 chmod +x deployment/local-jvm/bash-scripts/startServices.sh
                                 chmod +x deployment/local-jvm/bash-scripts/configureExamples.sh
                                 chmod +x deployment/local-jvm/bash-scripts/runLocalJVMExample.sh
