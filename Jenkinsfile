@@ -181,14 +181,15 @@ spec:
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                             sh '''
                                 mvn -s $MAVEN_SETTINGS install -P quick
-                                cd ../Palisade-services
-                                java -jar -Dspring.profiles.active=discovery,debug services-manager/target/services-manager-*-exec.jar --manager.mode=run && java -jar -Dspring.profiles.active=example,debug services-manager/target/services-manager-*-exec.jar --manager.mode=run
                                 cd ../Palisade-examples
+                                chmod +x deployment/local-jvm/bash-scripts/startServices.sh
                                 chmod +x deployment/local-jvm/bash-scripts/configureExamples.sh
                                 chmod +x deployment/local-jvm/bash-scripts/runLocalJVMExample.sh
+                                chmod +x deployment/local-jvm/bash-scripts/verify.sh
+
+                                ./deployment/local-jvm/bash-scripts/startServices.sh
                                 ./deployment/local-jvm/bash-scripts/configureExamples.sh
                                 ./deployment/local-jvm/bash-scripts/runLocalJVMExample.sh | tee deployment/local-jvm/bash-scripts/exampleOutput.txt
-                                chmod +x deployment/local-jvm/bash-scripts/verify.sh
                             '''
                             sh './deployment/local-jvm/bash-scripts/verify.sh | tail -1 > numOfLines.txt'
                             String numOfLines = readFile 'numOfLines.txt'
