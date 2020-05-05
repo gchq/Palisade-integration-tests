@@ -136,7 +136,7 @@ spec:
                 dir ('Palisade-common') {
                 git url: 'https://github.com/gchq/Palisade-common.git'
                 sh "git fetch origin develop"
-                sh "git checkout PAL-639-resource-prepopulation || git checkout ${GIT_BRANCH_NAME}"
+                sh "git checkout PAL-390-resource-service-persistence && git merge PAL-639-resource-prepopulation"
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                             sh 'mvn -s $MAVEN_SETTINGS install -P quick'
