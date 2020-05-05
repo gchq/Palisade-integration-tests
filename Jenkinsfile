@@ -193,10 +193,10 @@ spec:
                             '''
                             sh './deployment/local-jvm/bash-scripts/verify.sh | tail -1 > numOfLines.txt'
                             String numOfLines = readFile 'numOfLines.txt'
-                            if (numOfLines.trim().equals("183")){
+                            if (numOfLines.trim().equals("944")){
                                 currentBuild.result = 'SUCCESS'
                             } else {
-                                error("Number of lines was not 183, but was: ${numOfLines.trim()}")
+                                error("Number of lines was not 944, but was: ${numOfLines.trim()}")
                             }
                         }
                     }
