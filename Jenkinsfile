@@ -185,19 +185,17 @@ spec:
                                 java -jar -Dspring.profiles.active=discovery,debug services-manager/target/services-manager-*-exec.jar --manager.mode=run && java -jar -Dspring.profiles.active=example,debug services-manager/target/services-manager-*-exec.jar --manager.mode=run
                                 cd ../Palisade-examples
                                 chmod +x deployment/local-jvm/bash-scripts/configureExamples.sh
-                                chmod +x deployment/local-jvm/bash-scripts/runFormattedLocalJVMExample.sh
-                                chmod +x deployment/bash-scripts/formatOutput.sh
+                                chmod +x deployment/local-jvm/bash-scripts/runLocalJVMExample.sh
                                 ./deployment/local-jvm/bash-scripts/configureExamples.sh
-                                ./deployment/local-jvm/bash-scripts/runFormattedLocalJVMExample.sh | tee deployment/local-jvm/bash-scripts/exampleOutput.txt
+                                ./deployment/local-jvm/bash-scripts/runLocalJVMExample.sh | tee deployment/local-jvm/bash-scripts/exampleOutput.txt
                                 chmod +x deployment/local-jvm/bash-scripts/verify.sh
-                                cat deployment/local-jvm/bash-scripts/exampleOutput.txt
                             '''
                             sh './deployment/local-jvm/bash-scripts/verify.sh | tail -1 > numOfLines.txt'
                             String numOfLines = readFile 'numOfLines.txt'
                             if (numOfLines.trim().equals("780")){
                                 currentBuild.result = 'SUCCESS'
                             } else {
-                                error("Number of lines was not 780, but was: ${numOfLines.trim()}")
+                                error("Number of lines was not 148, but was: ${numOfLines.trim()}")
                             }
                         }
                     }
