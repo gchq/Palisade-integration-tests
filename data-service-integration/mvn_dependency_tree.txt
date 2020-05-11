@@ -59,6 +59,21 @@ uk.gov.gchq.palisade:data-service-integration:jar:0.4.0-SNAPSHOT
 |     +- ch.qos.logback:logback-classic:jar:1.2.3:compile
 |     +- uk.gov.gchq.palisade:readers-common:jar:0.4.0-SNAPSHOT:compile
 |     +- uk.gov.gchq.palisade:shade-hadoop-client:jar:0.4.0-SNAPSHOT:compile
+|     |  \- org.apache.hadoop:hadoop-client:jar:2.8.5:compile
+|     |     +- org.apache.hadoop:hadoop-hdfs-client:jar:2.8.5:compile
+|     |     |  \- com.squareup.okhttp:okhttp:jar:2.4.0:compile
+|     |     |     \- com.squareup.okio:okio:jar:1.4.0:compile
+|     |     +- org.apache.hadoop:hadoop-mapreduce-client-app:jar:2.8.5:compile
+|     |     |  +- org.apache.hadoop:hadoop-mapreduce-client-common:jar:2.8.5:compile
+|     |     |  |  +- org.apache.hadoop:hadoop-yarn-client:jar:2.8.5:compile
+|     |     |  |  \- org.apache.hadoop:hadoop-yarn-server-common:jar:2.8.5:compile
+|     |     |  \- org.apache.hadoop:hadoop-mapreduce-client-shuffle:jar:2.8.5:compile
+|     |     |     \- org.fusesource.leveldbjni:leveldbjni-all:jar:1.8:compile
+|     |     +- org.apache.hadoop:hadoop-yarn-api:jar:2.8.5:compile
+|     |     +- org.apache.hadoop:hadoop-mapreduce-client-core:jar:2.8.5:compile
+|     |     |  \- org.apache.hadoop:hadoop-yarn-common:jar:2.8.5:compile
+|     |     |     \- log4j:log4j:jar:1.2.17:compile
+|     |     \- org.apache.hadoop:hadoop-mapreduce-client-jobclient:jar:2.8.5:compile
 |     \- org.apache.hadoop:hadoop-common:jar:3.2.0:compile
 |        +- org.apache.hadoop:hadoop-annotations:jar:3.2.0:compile
 |        +- commons-cli:commons-cli:jar:1.2:compile

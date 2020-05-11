@@ -35,6 +35,7 @@ import uk.gov.gchq.palisade.service.policy.service.PolicyService;
 
 @TestConfiguration
 public class PolicyTestConfiguration {
+
     @Bean
     public PolicyConfiguration policyConfiguration() {
         return new StdPolicyConfiguration();
@@ -54,4 +55,5 @@ public class PolicyTestConfiguration {
     public PolicyService policyService() {
         return new NullPolicyService();
     }
+
 }

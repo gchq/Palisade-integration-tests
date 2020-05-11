@@ -131,7 +131,7 @@ public class ScenarioPersistenceTest {
     // We want to test the StreamingResourceServiceProxy class, but consuming using a Supplier<OutputStream> is complicated
     // Instead, send everything through the REST interface
     // Test is still marked as transactional as we poke and prod the persistence layer directly to see what is persisted and what isn't
-    // For spring reasons, we can;t just mark the extractResourceCompleteness method as transactional
+    // For spring reasons, we can't just mark the extractResourceCompleteness method as transactional
     @Test
     @Transactional(readOnly = true)
     public void runThroughTestScenario() {
