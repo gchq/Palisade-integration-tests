@@ -39,14 +39,17 @@ public class PolicyTestConfiguration {
     public PolicyConfiguration policyConfiguration() {
         return new StdPolicyConfiguration();
     }
+
     @Bean
     public UserConfiguration userConfiguration() {
         return new StdUserConfiguration();
     }
+
     @Bean
     public ResourceConfiguration resourceConfiguration() {
         return new StdResourceConfiguration();
     }
+
     @Bean
     public PolicyService policyService() {
         return new NullPolicyService();
