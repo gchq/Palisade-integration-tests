@@ -153,7 +153,6 @@ spec:
                                 ./deployment/local-jvm/bash-scripts/startServices.sh
                                 ./deployment/local-jvm/bash-scripts/configureExamples.sh
                                 ./deployment/local-jvm/bash-scripts/runFormattedLocalJVMExample.sh | tee deployment/local-jvm/bash-scripts/exampleOutput.txt
-
                             '''
                             sh './deployment/local-jvm/bash-scripts/verify.sh | tail -1 > numOfLines.txt'
                             String numOfLines = readFile 'numOfLines.txt'
