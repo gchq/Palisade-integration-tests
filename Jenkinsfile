@@ -154,15 +154,11 @@ spec:
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                             sh '''
                                 mvn -s $MAVEN_SETTINGS install -P quick
-                                chmod +x deployment/local-jvm/bash-scripts/startServices.sh
-                                chmod +x deployment/local-jvm/bash-scripts/configureExamples.sh
-                                chmod +x deployment/local-jvm/bash-scripts/runLocalJVMExample.sh
-                                chmod +x deployment/local-jvm/bash-scripts/verify.sh
 
-                                ./deployment/local-jvm/bash-scripts/startServices.sh
-                                ./deployment/local-jvm/bash-scripts/configureExamples.sh
-                                ./deployment/local-jvm/bash-scripts/runFormattedLocalJVMExample.sh | tee deployment/local-jvm/bash-scripts/exampleOutput.txt
-                                ./deployment/local-jvm/bash-scripts/verify.sh
+                                bash /deployment/local-jvm/bash-scripts/startServices.sh
+                                bash /deployment/local-jvm/bash-scripts/configureExamples.sh
+                                bash /deployment/local-jvm/bash-scripts/runFormattedLocalJVMExample.sh | tee deployment/local-jvm/bash-scripts/exampleOutput.txt
+                                bash /deployment/local-jvm/bash-scripts/verify.sh
                             '''
                         }
                     }
