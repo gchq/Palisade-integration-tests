@@ -105,7 +105,15 @@ spec:
             }
             dir('Palisade-services') {
                 git url: 'https://github.com/gchq/Palisade-services.git'
-                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                if (env.BRANCH_NAME.substring(0, 2) == "PR") {
+                    sh "git checkout ${GIT_BRANCH_NAME} || git checkout develop"
+                    container('docker-cmds') {
+                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
+                        }
+                    }
+                }
+                else if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                             sh 'mvn -s $MAVEN_SETTINGS install -P quick'
@@ -135,21 +143,13 @@ spec:
             }
         }
         stage('Run the JVM Example') {
-            x = env.BRANCH_NAME
-            if (x.substring(0, 2) == "PR") {
-                dir ('Palisade-services') {
-                    git url: 'https://github.com/gchq/Palisade-services.git'
-                    sh "git checkout ${GIT_BRANCH_NAME} || git checkout develop"
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
-                        }
-                    }
-                }
-                dir ('Palisade-examples') {
-                    git url: 'https://github.com/gchq/Palisade-Examples.git'
-                    sh "git fetch origin develop"
-                    sh "git checkout ${GIT_BRANCH_NAME}"
+                // Always run some sort of smoke test if this is a Pull Request
+                if (env.BRANCH_NAME.substring(0, 2) == "PR") {
+                    // If this branch name exists in examples, use that
+                    // Otherwise, default to examples/develop
+                    dir ('Palisade-examples') {
+                        git url: 'https://github.com/gchq/Palisade-examples.git'
+                        sh "git checkout ${GIT_BRANCH_NAME} || git checkout develop"
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                             sh '''
