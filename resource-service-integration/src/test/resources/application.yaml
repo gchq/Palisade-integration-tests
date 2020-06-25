@@ -47,6 +47,7 @@ management:
 
 resource:
   implementation: simple
+  defaultType: "java.lang.String"
 
 web:
   client:
