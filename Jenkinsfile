@@ -118,6 +118,7 @@ spec:
         def GIT_BRANCH_NAME
 
         stage('Bootstrap') {
+            // Normalise PR branches and regular branches to the same variable
             if (env.CHANGE_BRANCH) {
                 GIT_BRANCH_NAME=env.CHANGE_BRANCH
             } else {
@@ -159,21 +160,34 @@ spec:
             }
             dir('Palisade-services') {
                 git url: 'https://github.com/gchq/Palisade-services.git'
-                if (env.BRANCH_NAME.substring(0, 2) == "PR") {
-                    sh "git checkout ${GIT_BRANCH_NAME} || git checkout develop"
+                // If this is a PR, a example smoke-test will be run, requiring the services jars to be available
+                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0 || env.BRANCH_NAME.substring(0, 2) == "PR") {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                             sh 'mvn -s $MAVEN_SETTINGS install -P quick'
                         }
                     }
                 }
-                else if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
-                        }
+            }
+        }
+
+        stage('Performance test JVM Example') {
+            dir ('Palisade-examples') {
+                git url: 'https://github.com/gchq/Palisade-examples.git'
+                sh "git checkout ${GIT_BRANCH_NAME} || git checkout develop"
+                container('docker-cmds') {
+                    configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                        sh "mvn -s $MAVEN_SETTINGS install -P quick"
                     }
                 }
+            }
+            dir ('Palisade-services') {
+                echo "Farewell, sweet prince..."
+                sh """
+                java -Dspring.profiles.active=discovery -jar services-manager/target/services-manager-*-exec.jar
+                java -jar -Dspring.profiles.active=exampleperf services-maanger/target/services-manager-*-exec.jar --manager.schedule=palisade-task,performance-create-task,performance-test-task
+                """
+                sh "cat performance-test.log"
             }
         }
 
@@ -196,25 +210,26 @@ spec:
                 }
             }
         }
+
         stage('Run the JVM Example') {
-                // Always run some sort of smoke test if this is a Pull Request
-                if (env.BRANCH_NAME.substring(0, 2) == "PR") {
-                    // If this branch name exists in examples, use that
-                    // Otherwise, default to examples/develop
-                    dir ('Palisade-examples') {
-                        git url: 'https://github.com/gchq/Palisade-examples.git'
-                        sh "git checkout ${GIT_BRANCH_NAME} || git checkout develop"
+            // Always run some sort of smoke test if this is a Pull Request
+            if (env.BRANCH_NAME.substring(0, 2) == "PR") {
+                // If this branch name exists in examples, use that
+                // Otherwise, default to examples/develop
+                dir ('Palisade-examples') {
+                    git url: 'https://github.com/gchq/Palisade-examples.git'
+                    sh "git checkout ${GIT_BRANCH_NAME} || git checkout develop"
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh '''
-                                mvn -s $MAVEN_SETTINGS install -P quick
-
-                                bash deployment/local-jvm/bash-scripts/startServices.sh
-                                bash deployment/local-jvm/bash-scripts/runFormattedLocalJVMExample.sh | tee deployment/local-jvm/bash-scripts/exampleOutput.txt
-                                bash deployment/local-jvm/bash-scripts/verify.sh
-                            '''
+                            sh "mvn -s $MAVEN_SETTINGS install -P quick"
                         }
                     }
+                }
+                dir ('Palisade-services') {
+                    sh """
+                    java -Dspring.profiles.active=discovery -jar services-manager/target/services-manager-*-exec.jar
+                    java -Dspring.profiles.active=examplemodel -jar services-manager/target/services-manager-*-exec.jar
+                    """
                 }
             }
         }
