@@ -186,7 +186,7 @@ spec:
                     echo "Farewell, sweet prince..."
                     sh "java -Dspring.profiles.active=discovery -jar services-manager/target/services-manager-*-exec.jar"
                     sh "cat create-perf-data.log"
-                    sh "java -Dspring.profiles.active=exampleperf -jar services-manager/target/services-manager-*-exec.jar --manager.schedule=palisade-task,performance-create-task,performance-test-task"
+                    sh "java -Dspring.profiles.active=exampleperf -jar services-manager/target/services-manager-*-exec.jar --manager.schedule=performance-create-task,palisade-task,performance-test-task"
                     sh "cat performance-test.log"
                 }
             }
