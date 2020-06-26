@@ -186,7 +186,7 @@ spec:
                     echo "Farewell, sweet prince..."
                     sh """
                     java -Dspring.profiles.active=discovery -jar services-manager/target/services-manager-*-exec.jar
-                    java -jar -Dspring.profiles.active=exampleperf services-maanger/target/services-manager-*-exec.jar --manager.schedule=palisade-task,performance-create-task,performance-test-task
+                    java -Dspring.profiles.active=exampleperf -jar services-manager/target/services-manager-*-exec.jar --manager.schedule=palisade-task,performance-create-task,performance-test-task
                     """
                     sh "cat performance-test.log"
                 }
@@ -228,10 +228,12 @@ spec:
                     }
                 }
                 dir ('Palisade-services') {
-                    sh """
-                    java -Dspring.profiles.active=discovery -jar services-manager/target/services-manager-*-exec.jar
-                    java -Dspring.profiles.active=examplemodel -jar services-manager/target/services-manager-*-exec.jar
-                    """
+                    container('docker-cmds') {
+                        sh """
+                        java -Dspring.profiles.active=discovery -jar services-manager/target/services-manager-*-exec.jar
+                        java -Dspring.profiles.active=examplemodel -jar services-manager/target/services-manager-*-exec.jar
+                        """
+                    }
                 }
             }
         }
