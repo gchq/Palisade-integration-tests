@@ -2,14 +2,10 @@ List of third-party dependencies grouped by their license type
 
 ### [Apache Software License 2.0](./licenses/apache_software_license_2.0.txt):
 * WireMock ([com.github.tomakehurst:wiremock-standalone:2.20.0](http://wiremock.org))
-* Gson ([com.google.code.gson:gson:2.8.5](https://github.com/google/gson/gson))
-* Apache Hadoop Common ([org.apache.hadoop:hadoop-common:3.2.0](no url defined))
-* Apache Hadoop Mini-Cluster ([org.apache.hadoop:hadoop-minicluster:3.2.0](no url defined))
+* Apache Hadoop Common ([org.apache.hadoop:hadoop-common:3.2.1](no url defined))
+* Apache Hadoop Mini-Cluster ([org.apache.hadoop:hadoop-minicluster:3.2.1](no url defined))
 * Spring Boot AutoConfigure ([org.springframework.boot:spring-boot-autoconfigure:2.2.0.RELEASE](https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-autoconfigure))
-* Spring Boot Starter ([org.springframework.boot:spring-boot-starter:2.2.0.RELEASE](https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter))
-* Spring Boot Actuator Starter ([org.springframework.boot:spring-boot-starter-actuator:2.2.0.RELEASE](https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter-actuator))
 * Spring Boot Test Starter ([org.springframework.boot:spring-boot-starter-test:2.2.0.RELEASE](https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter-test))
-* Spring Boot Web Starter ([org.springframework.boot:spring-boot-starter-web:2.2.0.RELEASE](https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter-web))
 * Spring Cloud Starter OpenFeign ([org.springframework.cloud:spring-cloud-starter-openfeign:2.2.0.RELEASE](https://projects.spring.io/spring-cloud))
 * audit-service ([uk.gov.gchq.palisade:audit-service:0.4.0-SNAPSHOT](https://github.com/gchq/Palisade-services/tree/develop/audit-service))
 * common ([uk.gov.gchq.palisade:common:0.4.0-SNAPSHOT](https://github.com/gchq/Palisade-common))

@@ -118,7 +118,6 @@ spec:
         def GIT_BRANCH_NAME
 
         stage('Bootstrap') {
-            // Normalise PR branches and regular branches to the same variable
             if (env.CHANGE_BRANCH) {
                 GIT_BRANCH_NAME=env.CHANGE_BRANCH
             } else {
@@ -211,8 +210,8 @@ spec:
         }
 
         stage('Run the JVM Example') {
-            // Always run some sort of smoke test if this is a Pull Request
-            if (env.BRANCH_NAME.substring(0, 2) == "PR") {
+            // Always run some sort of smoke test if this is a Pull Request or from develop or main
+            if (env.BRANCH_NAME.substring(0, 2) == "PR" || env.BRANCH_NAME == "develop" || env.BRANCH_NAME == "main") {
                 // If this branch name exists in examples, use that
                 // Otherwise, default to examples/develop
                 dir ('Palisade-examples') {
