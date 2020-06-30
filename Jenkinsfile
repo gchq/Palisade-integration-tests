@@ -177,7 +177,7 @@ spec:
                 git url: 'https://github.com/gchq/Palisade-integration-tests.git'
                 echo GIT_BRANCH_NAME
                 sh 'git checkout ${GIT_BRANCH_NAME}'
-                sh 'git branch --show-current'
+                sh 'git branch --all'
                 container('docker-cmds') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                         sh 'mvn -s $MAVEN_SETTINGS install'
