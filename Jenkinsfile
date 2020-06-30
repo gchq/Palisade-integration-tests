@@ -124,6 +124,7 @@ spec:
                 GIT_BRANCH_NAME=env.BRANCH_NAME
             }
             echo sh(script: 'env | sort', returnStdout: true)
+            echo GIT_BRANCH_NAME
         }
 
         stage('Prerequisites') {
@@ -174,7 +175,7 @@ spec:
 
         stage('Integration Tests, Checkstyle') {
             dir('Palisade-integration-tests') {
-                git branch: 'develop', url: 'https://github.com/gchq/Palisade-integration-tests.git'
+                git url: 'https://github.com/gchq/Palisade-integration-tests.git'
                 sh 'git checkout ${GIT_BRANCH_NAME}'
                 container('docker-cmds') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
