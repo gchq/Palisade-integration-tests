@@ -168,7 +168,7 @@ spec:
                             sh 'mvn -s $MAVEN_SETTINGS install -P quick'
                         }
                     }
-                } else if ((env.BRANCH_NAME.substring(0, 2) == "PR") {
+                } else if (env.BRANCH_NAME.substring(0, 2) == "PR") {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                             sh 'git checkout develop'
