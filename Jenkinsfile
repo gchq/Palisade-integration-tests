@@ -162,7 +162,8 @@ spec:
                 // Checkout services if a similarly-named branch exists
                 // If this is a PR, a example smoke-test will be run, so checkout services develop if no similarly-named branch was found
                 // This will be needed to build the jars
-                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0 || (env.BRANCH_NAME.substring(0, 2) == "PR" && sh(script: "git checkout develop", returnStatus: true)) {
+                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0
+                || (env.BRANCH_NAME.substring(0, 2) == "PR" && sh(script: "git checkout develop", returnStatus: true))) {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                             sh 'mvn -s $MAVEN_SETTINGS install -P quick'
@@ -175,18 +176,18 @@ spec:
         stage('Performance test JVM Example') {
             dir ('Palisade-examples') {
                 git url: 'https://github.com/gchq/Palisade-examples.git'
-                sh "git checkout ${GIT_BRANCH_NAME} || git checkout develop"
+                sh 'git checkout ${GIT_BRANCH_NAME} || git checkout develop'
                 container('docker-cmds') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                        sh "mvn -s $MAVEN_SETTINGS install -P quick"
+                        sh 'mvn -s $MAVEN_SETTINGS install -P quick'
                     }
                 }
             }
             dir ('Palisade-services') {
                 container('docker-cmds') {
-                    sh "java -Dspring.profiles.active=discovery -jar services-manager/target/services-manager-*-exec.jar"
-                    sh "java -Dspring.profiles.active=exampleperf -jar services-manager/target/services-manager-*-exec.jar --manager.schedule=performance-create-task,palisade-task,performance-test-task"
-                    sh "cat *.log"
+                    sh 'java -Dspring.profiles.active=discovery -jar services-manager/target/services-manager-*-exec.jar'
+                    sh 'java -Dspring.profiles.active=exampleperf -jar services-manager/target/services-manager-*-exec.jar --manager.schedule=performance-create-task,palisade-task,performance-test-task'
+                    sh 'cat *.log'
                 }
             }
         }
@@ -194,7 +195,7 @@ spec:
         stage('Integration Tests, Checkstyle') {
             dir('Palisade-integration-tests') {
                 git url: 'https://github.com/gchq/Palisade-integration-tests.git'
-                sh "git checkout ${GIT_BRANCH_NAME}"
+                sh 'git checkout ${GIT_BRANCH_NAME}'
                 container('docker-cmds') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                         sh 'mvn -s $MAVEN_SETTINGS install'
@@ -218,19 +219,19 @@ spec:
                 // Otherwise, default to examples/develop
                 dir ('Palisade-examples') {
                     git url: 'https://github.com/gchq/Palisade-examples.git'
-                    sh "git checkout ${GIT_BRANCH_NAME} || git checkout develop"
+                    sh 'git checkout ${GIT_BRANCH_NAME} || git checkout develop'
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh "mvn -s $MAVEN_SETTINGS install -P quick"
+                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
                         }
                     }
                 }
                 dir ('Palisade-services') {
                     container('docker-cmds') {
-                        sh """
+                        sh '''
                         java -Dspring.profiles.active=discovery -jar services-manager/target/services-manager-*-exec.jar
                         java -Dspring.profiles.active=examplemodel -jar services-manager/target/services-manager-*-exec.jar
-                        """
+                        '''
                     }
                 }
             }
