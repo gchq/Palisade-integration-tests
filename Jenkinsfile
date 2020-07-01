@@ -209,7 +209,9 @@ spec:
                     container('docker-cmds') {
                         sh 'java -Dspring.profiles.active=discovery -jar services-manager/target/services-manager-*-exec.jar'
                         sh 'java -Dspring.profiles.active=example-perf -jar services-manager/target/services-manager-*-exec.jar --manager.schedule=performance-create-task,palisade-task,performance-test-task'
-                        sh 'java -Dspring.profiles.active=example-model -jar services-manager/target/services-manager-*-exec.jar --manager.schedule=example-task'
+                        sh 'pkill java'
+                        sh 'java -Dspring.profiles.active=discovery -jar services-manager/target/services-manager-*-exec.jar'
+                        sh 'java -Dspring.profiles.active=example-model -jar services-manager/target/services-manager-*-exec.jar'
                         sh 'cat *.log'
                     }
                 }
