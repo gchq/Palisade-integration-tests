@@ -202,6 +202,12 @@ spec:
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                             sh 'mvn -s $MAVEN_SETTINGS install -P quick'
+                            sh '''
+                                bash deployment/local-jvm/bash-scripts/startServices.sh
+                                bash deployment/local-jvm/bash-scripts/runFormattedLocalJVMExample.sh | tee deployment/local-jvm/bash-scripts/exampleOutput.txt
+                                bash deployment/local-jvm/bash-scripts/verify.sh
+                            '''
+                            sh 'pkill java'
                         }
                     }
                 }
@@ -209,10 +215,8 @@ spec:
                     container('docker-cmds') {
                         sh 'java -Dspring.profiles.active=discovery -jar services-manager/target/services-manager-*-exec.jar'
                         sh 'java -Dspring.profiles.active=example-perf -jar services-manager/target/services-manager-*-exec.jar --manager.schedule=performance-create-task,palisade-task,performance-test-task'
-                        sh 'pkill java'
-                        sh 'java -Dspring.profiles.active=discovery -jar services-manager/target/services-manager-*-exec.jar'
-                        sh 'java -Dspring.profiles.active=example-model -jar services-manager/target/services-manager-*-exec.jar'
                         sh 'cat *.log'
+                        sh 'pkill java'
                     }
                 }
             }
