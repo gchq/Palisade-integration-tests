@@ -12,41 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 spring:
   cache:
+    type: caffeine
     caffeine:
-      spec: expireAfterWrite=2s, maximumSize=100
-  application:
-    name: user-service
-  output:
-    ansi:
-      enabled: always
-  main:
-    allow-bean-definition-overriding: true
-
-server:
-  port: 8087
-
-eureka:
-  client:
-    enabled: false
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-    loggers:
-      enabled: true
-
-feign:
-  client:
-    config:
-      default:
-        connectTimeout: 5000
-        readTimeout: 5000
-        loggerLevel: basic
-    default-config: default
-
-user-service:
-  implementation: null-user-service
+      spec: expireAfterWrite=1s, maximumSize=100
