@@ -128,7 +128,7 @@ spec:
 
         stage('Prerequisites') {
             dir('Palisade-common') {
-                git url: 'https://github.com/gchq/Palisade-common.git'
+                git branch: 'develop', url: 'https://github.com/gchq/Palisade-common.git'
                 if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
@@ -138,7 +138,7 @@ spec:
                 }
             }
             dir('Palisade-clients') {
-                git url: 'https://github.com/gchq/Palisade-clients.git'
+                git branch: 'develop', url: 'https://github.com/gchq/Palisade-clients.git'
                 if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
@@ -148,7 +148,7 @@ spec:
                 }
             }
             dir('Palisade-readers') {
-                git url: 'https://github.com/gchq/Palisade-readers.git'
+                git branch: 'develop', url: 'https://github.com/gchq/Palisade-readers.git'
                 if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
@@ -158,7 +158,7 @@ spec:
                 }
             }
             dir('Palisade-services') {
-                git url: 'https://github.com/gchq/Palisade-services.git'
+                git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
                 // Checkout services if a similarly-named branch exists
                 // If this is a PR, a example smoke-test will be run, so checkout services develop if no similarly-named branch was found
                 // This will be needed to build the jars
