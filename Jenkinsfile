@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+timestamps {
+
 podTemplate(yaml: '''
 apiVersion: v1
 kind: Pod
@@ -213,3 +215,6 @@ spec:
         }
     }
 }
+
+}
+
