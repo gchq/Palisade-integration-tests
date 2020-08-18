@@ -2,6 +2,7 @@ List of third-party dependencies grouped by their license type
 
 ### [Apache Software License 2.0](./licenses/apache_software_license_2.0.txt):
 * WireMock ([com.github.tomakehurst:wiremock-standalone:2.20.0](http://wiremock.org))
+* embedded-redis ([it.ozimov:embedded-redis:0.7.3](https://github.com/ozimov/embedded-redis))
 * Apache Hadoop Common ([org.apache.hadoop:hadoop-common:3.2.1](no url defined))
 * Apache Hadoop Mini-Cluster ([org.apache.hadoop:hadoop-minicluster:3.2.1](no url defined))
 * Spring Boot AutoConfigure ([org.springframework.boot:spring-boot-autoconfigure:2.2.0.RELEASE](https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-autoconfigure))
