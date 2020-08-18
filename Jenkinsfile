@@ -137,8 +137,8 @@ spec:
                     }
                 }
             }
-            dir('Palisade-clients') {
-                git branch: 'develop', url: 'https://github.com/gchq/Palisade-clients.git'
+            dir('Palisade-readers') {
+                git branch: 'develop', url: 'https://github.com/gchq/Palisade-readers.git'
                 if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
@@ -147,8 +147,8 @@ spec:
                     }
                 }
             }
-            dir('Palisade-readers') {
-                git branch: 'develop', url: 'https://github.com/gchq/Palisade-readers.git'
+            dir('Palisade-clients') {
+                git branch: 'develop', url: 'https://github.com/gchq/Palisade-clients.git'
                 if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
