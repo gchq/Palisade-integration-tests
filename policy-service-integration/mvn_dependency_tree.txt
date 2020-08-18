@@ -1,5 +1,5 @@
-uk.gov.gchq.palisade:policy-service-integration:jar:0.4.0-SNAPSHOT
-+- uk.gov.gchq.palisade:policy-service:jar:0.4.0-SNAPSHOT:test
+uk.gov.gchq.palisade:policy-service-integration:jar:0.4.0
++- uk.gov.gchq.palisade:policy-service:jar:0.4.0:test
 |  +- com.github.ben-manes.caffeine:caffeine:jar:2.8.0:test
 |  |  +- org.checkerframework:checker-qual:jar:2.10.0:test
 |  |  \- com.google.errorprone:error_prone_annotations:jar:2.3.3:test
@@ -94,8 +94,8 @@ uk.gov.gchq.palisade:policy-service-integration:jar:0.4.0-SNAPSHOT
 |  |  \- com.thoughtworks.xstream:xstream:jar:1.4.11.1:test
 |  |     +- xmlpull:xmlpull:jar:1.1.3.1:test
 |  |     \- xpp3:xpp3_min:jar:1.1.4c:test
-|  \- uk.gov.gchq.palisade:common:jar:0.4.0-SNAPSHOT:test
-+- uk.gov.gchq.palisade:common:jar:tests:0.4.0-SNAPSHOT:test
+|  \- uk.gov.gchq.palisade:common:jar:0.4.0:test
++- uk.gov.gchq.palisade:common:jar:tests:0.4.0:test
 |  +- com.fasterxml.jackson.core:jackson-core:jar:2.10.0:runtime
 |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.10.0:runtime
 |  +- com.fasterxml.jackson.core:jackson-databind:jar:2.10.0:runtime
