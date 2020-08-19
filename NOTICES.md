@@ -10,12 +10,12 @@ List of third-party dependencies grouped by their license type
 * Spring Cloud Starter OpenFeign ([org.springframework.cloud:spring-cloud-starter-openfeign:2.2.0.RELEASE](https://projects.spring.io/spring-cloud))
 * audit-service ([uk.gov.gchq.palisade:audit-service:0.4.0](https://github.com/gchq/Palisade-services/tree/main/audit-service))
 * common ([uk.gov.gchq.palisade:common:0.4.0](https://github.com/gchq/Palisade-common))
-* data-service ([uk.gov.gchq.palisade:data-service:0.4.0](no url defined))
+* data-service ([uk.gov.gchq.palisade:data-service:0.4.0](https://github.com/gchq/Palisade-services/tree/main/data-service))
 * hr-data-generator ([uk.gov.gchq.palisade:hr-data-generator:0.4.0](https://github.com/gchq/Palisade-examples/tree/main/hr-data-generator))
-* palisade-service ([uk.gov.gchq.palisade:palisade-service:0.4.0](no url defined))
+* palisade-service ([uk.gov.gchq.palisade:palisade-service:0.4.0](https://github.com/gchq/Palisade-services/tree/main/palisade-service))
 * policy-service ([uk.gov.gchq.palisade:policy-service:0.4.0](https://github.com/gchq/Palisade-services/tree/main/policy-service))
 * resource-service ([uk.gov.gchq.palisade:resource-service:0.4.0](https://github.com/gchq/Palisade-services/tree/main/resource-service))
-* user-service ([uk.gov.gchq.palisade:user-service:0.4.0](no url defined))
+* user-service ([uk.gov.gchq.palisade:user-service:0.4.0](https://github.com/gchq/Palisade-services/tree/main/user-service))
 
 ### [Eclipse Public License 1.0](./licenses/eclipse_public_license_1.0.html):
 * JUnit ([junit:junit:4.12](http://junit.org))
