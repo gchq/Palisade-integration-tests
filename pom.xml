@@ -51,7 +51,7 @@
         <java.version>11</java.version>
         <encoding>UTF-8</encoding>
         <!-- Sane default when no revision property is passed in from the command line -->
-        <revision>SNAPSHOT</revision>
+        <revision>RELEASE</revision>
 
         <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
         <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
