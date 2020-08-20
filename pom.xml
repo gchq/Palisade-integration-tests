@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2019 Crown Copyright
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <groupId>org.springframework.boot</groupId>
+        <version>2.2.0.RELEASE</version>
+    </parent>
+
+    <groupId>uk.gov.gchq.palisade</groupId>
+    <artifactId>integration-tests</artifactId>
+    <version>0.4.0</version>
+    <name>palisade-integration-tests</name>
+    <description>Integration tests for palisade</description>
+    <url>https://github.com/gchq/Palisade-integration-tests</url>
+    <packaging>pom</packaging>
+
+    <developers>
+        <developer>
+            <name>PalisadeDevelopers</name>
+            <organization>GCHQ</organization>
+            <organizationUrl>https://github.com/gchq</organizationUrl>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <properties>
+        <java.version>11</java.version>
+        <encoding>UTF-8</encoding>
+        <!-- Sane default when no revision property is passed in from the command line -->
+        <revision>RELEASE</revision>
+
+        <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <compiler.plugin.version>3.8.0</compiler.plugin.version>
+        <checkstyle.plugin.version>3.1.0</checkstyle.plugin.version>
+        <depends.maven.version>3.1.2</depends.maven.version>
+        <javadoc.plugin.version>3.2.0</javadoc.plugin.version>
+        <surefire.plugin.version>2.22.1</surefire.plugin.version>
+        <failsafe.version>2.22.1</failsafe.version>
+        <!-- Sonar -->
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+        <sonar.jacoco.reportPath>../../Palisade-services/target/jacoco.xml</sonar.jacoco.reportPath>
+        <sonar.language>java</sonar.language>
+    </properties>
+
+    <modules>
+        <module>audit-service-integration</module>
+        <module>data-service-integration</module>
+        <module>discovery-service-integration</module>
+        <module>palisade-service-integration</module>
+        <module>policy-service-integration</module>
+        <module>resource-service-integration</module>
+        <module>user-service-integration</module>
+    </modules>
+
+    <profiles>
+        <profile>
+            <id>quick</id>
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
+                <checkstyle.skip>true</checkstyle.skip>
+                <dockerfile.skip>true</dockerfile.skip>
+                <license.skipAggregateAddThirdParty>true</license.skipAggregateAddThirdParty>
+                <license.skipAggregateDownloadLicenses>true</license.skipAggregateDownloadLicenses>
+            </properties>
+        </profile>
+    </profiles>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>Hoxton.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <distributionManagement>
+        <!-- in order to use this, one must have nexus up and running on a given url -->
+        <repository>
+            <!-- Snapshot repositories can be build on each commit to develop branch -->
+            <id>nexus</id>
+            <name>releases</name>
+            <url>${release.url}</url>
+        </repository>
+        <snapshotRepository>
+            <!-- Snapshot repositories can be build on each commit to develop branch -->
+            <id>nexus</id>
+            <name>snapshots</name>
+            <url>${snapshot.url}</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <build>
+        <!--this extension provides version number substitution for child poms-->
+        <!--see here: https://github.com/jcgay/unique-revision-maven-filtering-->
+        <!--ths article explains the issue solved by this extension: https://jeanchristophegay.com/en/posts/maven-unique-version-multi-modules-build/-->
+        <extensions>
+            <extension>
+                <groupId>fr.jcgay.maven.extension</groupId>
+                <artifactId>unique-revision-maven-filtering</artifactId>
+                <version>1.1</version>
+            </extension>
+        </extensions>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${compiler.plugin.version}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <compilerArgs>
+                        <arg>-Xlint:deprecation</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${javadoc.plugin.version}</version>
+                <configuration>
+                    <show>private</show>
+                    <nohelp>true</nohelp>
+                    <quiet>true</quiet>
+                    <header>Palisade ${project.version}</header>
+                    <footer>Palisade ${project.version}</footer>
+                    <doctitle>Palisade ${project.version}</doctitle>
+                    <tags>
+                        <tag>
+                            <name>apiNote</name>
+                            <placement>a</placement>
+                            <head>API Note:</head>
+                        </tag>
+                        <tag>
+                            <name>implNote</name>
+                            <placement>a</placement>
+                            <head>Implementation note:</head>
+                        </tag>
+                    </tags>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>javadoc-compile</id>
+                        <phase>compile</phase>
+                        <configuration>
+                            <show>public</show>
+                        </configuration>
+                        <goals>
+                            <goal>javadoc-no-fork</goal>
+                            <goal>aggregate-no-fork</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>javadoc-aggregate</id>
+                        <phase>site</phase>
+                        <configuration>
+                            <show>public</show>
+                        </configuration>
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${depends.maven.version}</version>
+                <executions>
+                    <execution>
+                        <id>dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>tree</goal>
+                        </goals>
+                        <configuration>
+                            <outputFile>mvn_dependency_tree.txt</outputFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>2.0.0</version>
+                <executions>
+                    <execution>
+                        <id>licenses-report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>aggregate-download-licenses</goal>
+                            <goal>aggregate-add-third-party</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <fileTemplate>${project.basedir}/code-style/NOTICES.ftl</fileTemplate>
+                    <outputDirectory>${project.basedir}</outputDirectory>
+                    <thirdPartyFilename>NOTICES.md</thirdPartyFilename>
+                    <licensesOutputDirectory>${project.basedir}/licenses</licensesOutputDirectory>
+                    <includeTransitiveDependencies>false</includeTransitiveDependencies>
+                    <cleanLicensesOutputDirectory>true</cleanLicensesOutputDirectory>
+                    <!--
+                     Normalise equivalent license names (see also NOTICES.ftl)
+                     Format is "<preferred license name> :: <file name>|<license name>|<license name>|..."
+                    -->
+                    <licenseMerges>
+                        <licenseMerge>Apache Software License 2.0 :: apache_software_license_2.0.txt|Apache Software License, Version 2.0|The Apache Software License, Version 2.0|Apache License, Version 2.0|Apache License 2.0|Apache 2|Apache 2.0</licenseMerge>
+                        <licenseMerge>MIT License :: mit_license.txt|MIT License|The MIT License|MIT X11 License</licenseMerge>
+                        <licenseMerge>Eclipse Public License 1.0 :: eclipse_public_license_1.0.html|Eclipse Public License 1.0|The Eclipse Public License 1.0|Eclipse Public License - v 1.0|Eclipse Distribution License - v 1.0</licenseMerge>
+                        <licenseMerge>BSD License 3 :: bsd_license_3.html|BSD Licence 3</licenseMerge>
+                        <licenseMerge>GNU Lesser General Public License 2.1 :: gnu_lgpl_2.1.html|GNU Lesser General Public License</licenseMerge>
+                        <licenseMerge>Mozilla Public License 2.0 or Eclipse Public License 1.0 :: mpl_2.0_or_epl_1.0.html|MPL 2.0 or EPL 1.0</licenseMerge>
+                        <licenseMerge>Common Development and Distribution License (CDDL) 1.1 :: cddl_gpl_1.1.txt|CDDL 1.1|cddl+gpl_1.1.html|CDDL+GPL License</licenseMerge>
+                        <licenseMerge>CDDL and GNU GPL 2 w/ Classpath Exception :: cddl_gplv2_ce.html|CDDL/GPLv2+CE</licenseMerge>
+                        <licenseMerge>GNU General Public License 2 w/ Classpath Exception :: missing|GPL2 w/ CPE</licenseMerge>
+                    </licenseMerges>
+                    <!--
+                     Normalise equivalent license filenames, unfortunately cannot match or change filetype
+                     Must match the above equivalent <file name> field
+                     Must be a valid URL (ie must not contain spaces, pluses (+), etc...)
+                    -->
+                    <licenseUrlFileNameSanitizers>
+                        <licenseUrlFileNameSanitizer>
+                            <regexp>.*apache.*license.*2.*</regexp>
+                            <replacement>apache_software_license_2.0</replacement>
+                        </licenseUrlFileNameSanitizer>
+                        <licenseUrlFileNameSanitizer>
+                            <regexp>.*mit.*license.*</regexp>
+                            <replacement>mit_license</replacement>
+                        </licenseUrlFileNameSanitizer>
+                        <licenseUrlFileNameSanitizer>
+                            <regexp>.*eclipse.*license.*1.0.*</regexp>
+                            <replacement>eclipse_public_license_1.0</replacement>
+                        </licenseUrlFileNameSanitizer>
+                        <licenseUrlFileNameSanitizer>
+                            <regexp>.*bsd.*licence.*3.*</regexp>
+                            <replacement>bsd_license_3</replacement>
+                        </licenseUrlFileNameSanitizer>
+                        <licenseUrlFileNameSanitizer>
+                            <regexp>.*gnu.*lesser.*license.*</regexp>
+                            <replacement>gnu_lgpl_2.1</replacement>
+                        </licenseUrlFileNameSanitizer>
+                        <licenseUrlFileNameSanitizer>
+                            <regexp>.*mpl.*epl.*</regexp>
+                            <replacement>mpl_2.0_or_epl_1.0</replacement>
+                        </licenseUrlFileNameSanitizer>
+                        <licenseUrlFileNameSanitizer>
+                            <regexp>.*cddl.*gpl.*license.*_1.*</regexp>
+                            <replacement>cddl+gpl_1.1</replacement>
+                        </licenseUrlFileNameSanitizer>
+                        <licenseUrlFileNameSanitizer>
+                            <regexp>.*cddl.*gpl.*1.*</regexp>
+                            <replacement>cddl_gpl_1.1</replacement>
+                        </licenseUrlFileNameSanitizer>
+                        <licenseUrlFileNameSanitizer>
+                            <regexp>.*cddl.*gpl.*2.*ce.*</regexp>
+                            <replacement>cddl_gplv2_ce</replacement>
+                        </licenseUrlFileNameSanitizer>
+                    </licenseUrlFileNameSanitizers>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.5</version>
+                <configuration>
+                    <destFile>${sonar.jacoco.reportPath}</destFile>
+                    <append>true</append>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${checkstyle.plugin.version}</version>
+                <configuration>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <configLocation>code-style/checkstyle.xml</configLocation>
+                    <encoding>UTF-8</encoding>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <headerLocation>code-style/licenseHeader.txt
+                    </headerLocation>
+                    <suppressionsLocation>code-style/checkstyle-suppressions.xml</suppressionsLocation>
+                    <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${failsafe.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
