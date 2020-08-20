@@ -1,5 +1,5 @@
-uk.gov.gchq.palisade:user-service-integration:jar:0.4.0
-+- uk.gov.gchq.palisade:user-service:jar:0.4.0:test
+uk.gov.gchq.palisade:user-service-integration:jar:0.5.0-SNAPSHOT
++- uk.gov.gchq.palisade:user-service:jar:0.5.0-SNAPSHOT:test
 |  +- com.jayway.jsonpath:json-path:jar:2.4.0:test
 |  |  +- net.minidev:json-smart:jar:2.3:test
 |  |  |  \- net.minidev:accessors-smart:jar:1.2:test
@@ -126,7 +126,7 @@ uk.gov.gchq.palisade:user-service-integration:jar:0.4.0
 |  |  +- org.springframework.cloud:spring-cloud-context:jar:2.2.0.RELEASE:test
 |  |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.10.0:test
 |  |  \- com.fasterxml.jackson.core:jackson-databind:jar:2.10.0:test
-|  \- uk.gov.gchq.palisade:common:jar:0.4.0:test
+|  \- uk.gov.gchq.palisade:common:jar:0.5.0-SNAPSHOT:test
 |     +- com.fasterxml.jackson.core:jackson-core:jar:2.10.0:test
 |     +- com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.10.0:test
 |     +- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.10.0:test
