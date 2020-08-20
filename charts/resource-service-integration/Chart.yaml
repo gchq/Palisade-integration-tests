@@ -16,4 +16,4 @@ apiVersion: v1
 appVersion: "1.0"
 description: A Helm chart for the Resource Service Test
 name: resource-service-test
-version: 0.4.0
+version: 0.5.0

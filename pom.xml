@@ -26,7 +26,7 @@
 
     <groupId>uk.gov.gchq.palisade</groupId>
     <artifactId>integration-tests</artifactId>
-    <version>0.4.0</version>
+    <version>0.5.0-${revision}</version>
     <name>palisade-integration-tests</name>
     <description>Integration tests for palisade</description>
     <url>https://github.com/gchq/Palisade-integration-tests</url>
@@ -51,7 +51,7 @@
         <java.version>11</java.version>
         <encoding>UTF-8</encoding>
         <!-- Sane default when no revision property is passed in from the command line -->
-        <revision>RELEASE</revision>
+        <revision>SNAPSHOT</revision>
 
         <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
         <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>

@@ -22,13 +22,13 @@
     <parent>
         <groupId>uk.gov.gchq.palisade</groupId>
         <artifactId>integration-tests</artifactId>
-        <version>0.4.0</version>
+        <version>0.5.0-${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <!--  *********** Aritfact ID ***********    -->
     <artifactId>resource-service-integration</artifactId>
-    <url>https://github.com/gchq/Palisade-integration-tests/tree/main/resource-service-integration</url>
+    <url>https://github.com/gchq/Palisade-integration-tests/tree/develop/resource-service-integration</url>
     <!--  *********** Aritfact ID ***********    -->
 
     <properties>
