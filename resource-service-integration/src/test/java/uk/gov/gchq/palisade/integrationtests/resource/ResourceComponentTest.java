@@ -51,7 +51,6 @@ import static org.junit.Assert.assertThat;
 @EnableJpaRepositories(basePackages = {"uk.gov.gchq.palisade.service.resource.repository"})
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class ResourceComponentTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceComponentTest.class);
 
     @Autowired
     private Map<String, ResourceService> serviceMap;

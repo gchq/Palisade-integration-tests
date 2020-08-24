@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,12 +53,13 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
 @EnableFeignClients
-@RunWith(SpringRunner.class)
 @Import(ResourceTestConfiguration.class)
+@RunWith(SpringRunner.class)
 @SpringBootTest(classes = ResourceApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
 @EnableJpaRepositories(basePackages = {"uk.gov.gchq.palisade.service.resource.repository"})
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-public class BasicPersistenceTest {
+@ActiveProfiles("h2")
+public class H2PersistenceTest {
 
     @Autowired
     private JpaPersistenceLayer persistenceLayer;
@@ -131,18 +133,18 @@ public class BasicPersistenceTest {
         // Given - setup
 
         // When
-        Stream<LeafResource> resourcesByResource = client.getResourcesById(TEST_DIRECTORY.getId());
+        Stream<LeafResource> resourcesById = client.getResourcesById(TEST_DIRECTORY.getId());
 
         // Then
         Set<LeafResource> expected = new HashSet<>(Arrays.asList(EMPLOYEE_AVRO_FILE, EMPLOYEE_JSON_FILE, CLIENT_AVRO_FILE));
-        assertThat(resourcesByResource.collect(Collectors.toSet()), equalTo(expected));
+        assertThat(resourcesById.collect(Collectors.toSet()), equalTo(expected));
 
         // When
-        resourcesByResource = client.getResourcesById(EMPLOYEE_AVRO_FILE.getId());
+        resourcesById = client.getResourcesById(EMPLOYEE_AVRO_FILE.getId());
 
         // Then
         expected = Collections.singleton(EMPLOYEE_AVRO_FILE);
-        assertThat(resourcesByResource.collect(Collectors.toSet()), equalTo(expected));
+        assertThat(resourcesById.collect(Collectors.toSet()), equalTo(expected));
     }
 
     @Test

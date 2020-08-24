@@ -12,7 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 spring:
-  cloud:
-    config:
+  data:
+    redis:
+      repositories:
+        enabled: true
+  redis:
+    host: localhost
+    port: 6379
+
+# TODO: spring-boot 2.2.x has cluster bugs, but 2.3.x has health-check bugs
+# Once released, if spring-boot 2.4.x fixes the health-check bugs, re-enable the endpoint here
+management:
+  health:
+    redis:
       enabled: false
