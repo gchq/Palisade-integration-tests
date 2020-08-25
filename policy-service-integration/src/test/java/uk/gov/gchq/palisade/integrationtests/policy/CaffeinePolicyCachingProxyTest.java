@@ -15,20 +15,17 @@
  */
 package uk.gov.gchq.palisade.integrationtests.policy;
 
-import org.hamcrest.CoreMatchers;
-import org.junit.Before;
-import org.junit.Test;
+import com.github.benmanes.caffeine.cache.Cache;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Import;
+import org.springframework.cache.CacheManager;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import uk.gov.gchq.palisade.integrationtests.policy.config.PolicyTestConfiguration;
 import uk.gov.gchq.palisade.policy.PassThroughRule;
 import uk.gov.gchq.palisade.resource.Resource;
 import uk.gov.gchq.palisade.resource.StubResource;
@@ -36,51 +33,50 @@ import uk.gov.gchq.palisade.resource.impl.FileResource;
 import uk.gov.gchq.palisade.resource.impl.SystemResource;
 import uk.gov.gchq.palisade.service.SimpleConnectionDetail;
 import uk.gov.gchq.palisade.service.policy.PolicyApplication;
-import uk.gov.gchq.palisade.service.policy.service.PolicyService;
 import uk.gov.gchq.palisade.service.policy.service.PolicyServiceCachingProxy;
 import uk.gov.gchq.palisade.service.request.Policy;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
-@Import(PolicyTestConfiguration.class)
-@SpringBootTest(classes = { PolicyApplication.class}, webEnvironment = WebEnvironment.NONE)
 @ActiveProfiles("caffeine")
-@ComponentScan(basePackages = "uk.gov.gchq.palisade")
+@SpringBootTest(classes = PolicyApplication.class, webEnvironment = WebEnvironment.NONE)
 public class CaffeinePolicyCachingProxyTest extends PolicyTestCommon {
 
     @Autowired
-    private PolicyServiceCachingProxy cacheProxy;
+    private PolicyServiceCachingProxy policyService;
 
     @Autowired
-    @Qualifier("impl")
-    private PolicyService policyService;
+    private CacheManager cacheManager;
 
-    @Before
+    private void forceCleanUp() {
+        List<String> caches = Arrays.asList("resourcePolicy", "typePolicy", "accessPolicy");
+        caches.forEach(x -> ((Cache<?, ?>) Objects.requireNonNull(cacheManager.getCache(x)).getNativeCache()).cleanUp());
+    }
+
+    @BeforeEach
     public void setup() {
         // Add the system resource to the policy service
-        assertThat(cacheProxy.setResourcePolicy(TXT_SYSTEM, TXT_POLICY), CoreMatchers.equalTo(TXT_POLICY));
+        assertThat(policyService.setResourcePolicy(TXT_SYSTEM, TXT_POLICY)).isEqualTo(TXT_POLICY);
 
         // Add the directory resources to the policy service
-        assertThat(cacheProxy.setResourcePolicy(JSON_DIRECTORY, JSON_POLICY), CoreMatchers.equalTo(JSON_POLICY));
-        assertThat(cacheProxy.setResourcePolicy(SECRET_DIRECTORY, SECRET_POLICY), CoreMatchers.equalTo(SECRET_POLICY));
+        assertThat(policyService.setResourcePolicy(JSON_DIRECTORY, JSON_POLICY)).isEqualTo(JSON_POLICY);
+        assertThat(policyService.setResourcePolicy(SECRET_DIRECTORY, SECRET_POLICY)).isEqualTo(SECRET_POLICY);
 
         // Add the file resources to the policy service
         for (FileResource fileResource : FILE_RESOURCES) {
-            assertThat(cacheProxy.setResourcePolicy(fileResource, PASS_THROUGH_POLICY), CoreMatchers.equalTo(PASS_THROUGH_POLICY));
+            assertThat(policyService.setResourcePolicy(fileResource, PASS_THROUGH_POLICY)).isEqualTo(PASS_THROUGH_POLICY);
         }
     }
 
     @Test
     public void contextLoads() {
-        assertNotNull(policyService);
-        assertNotNull(cacheProxy);
+        assertThat(policyService).isNotNull();
     }
 
     @Test
@@ -90,10 +86,10 @@ public class CaffeinePolicyCachingProxyTest extends PolicyTestCommon {
 
         for (Resource resource : FILE_RESOURCES) {
             // When
-            Optional<Policy> policy = cacheProxy.getPolicy(resource);
+            Optional<Policy> policy = policyService.getPolicy(resource);
 
             // Then
-            assertTrue(policy.isPresent());
+            assertThat(policy).isNotNull();
         }
     }
 
@@ -102,10 +98,10 @@ public class CaffeinePolicyCachingProxyTest extends PolicyTestCommon {
         // Given - the requested resource is not added
 
         // When
-        Optional<Policy> policy = cacheProxy.getPolicy(new FileResource().id("does not exist").type("null").serialisedFormat("null").parent(new SystemResource().id("also does not exist")));
+        Optional<Policy> policy = policyService.getPolicy(new FileResource().id("does not exist").type("null").serialisedFormat("null").parent(new SystemResource().id("also does not exist")));
 
         // Then
-        assertTrue(policy.isEmpty());
+        assertThat(policy).isEmpty();
     }
 
     @Test
@@ -114,36 +110,30 @@ public class CaffeinePolicyCachingProxyTest extends PolicyTestCommon {
         Function<Integer, Resource> makeResource = i -> new StubResource(i.toString(), i.toString(), i.toString(), new SimpleConnectionDetail().serviceName(i.toString()));
         Function<Integer, Policy> makePolicy = i -> new Policy<>().resourceLevelRule(i.toString(), new PassThroughRule<>());
         for (int count = 0; count <= 100; ++count) {
-            cacheProxy.setResourcePolicy(makeResource.apply(count), makePolicy.apply(count));
+            policyService.setResourcePolicy(makeResource.apply(count), makePolicy.apply(count));
         }
 
-        // When - an old entry is requested
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        Optional<Policy> cachedPolicy = cacheProxy.getPolicy(makeResource.apply(0));
+        // When - we try to get the first (now-evicted) entry
+        forceCleanUp();
+        Optional<Policy> cachedPolicy = policyService.getPolicy(makeResource.apply(0));
 
         // Then - it has been evicted
-        assertTrue(cachedPolicy.isEmpty());
+        assertThat(cachedPolicy).isEmpty();
     }
 
     @Test
-    public void cacheTtlTest() {
+    public void cacheTtlTest() throws InterruptedException {
         // Given - the requested resource has policies available
-        assumeTrue(cacheProxy.getPolicy(ACCESSIBLE_JSON_TXT_FILE).isPresent());
+        assertThat(policyService.getPolicy(ACCESSIBLE_JSON_TXT_FILE)).isPresent();
         // Given - a sufficient amount of time has passed
-        try {
-            Thread.sleep(2500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
+        Thread.sleep(2500);
+        forceCleanUp();
 
         // When - an old entry is requested
-        Optional<Policy> cachedPolicy = cacheProxy.getPolicy(ACCESSIBLE_JSON_TXT_FILE);
+        Optional<Policy> cachedPolicy = policyService.getPolicy(ACCESSIBLE_JSON_TXT_FILE);
 
         // Then - it has been evicted
-        assertTrue(cachedPolicy.isEmpty());
+        assertThat(cachedPolicy).isEmpty();
     }
 }
