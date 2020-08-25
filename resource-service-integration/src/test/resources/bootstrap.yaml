@@ -13,6 +13,8 @@
 # limitations under the License.
 #
 spring:
+  application:
+    name: resource-service
   cloud:
     config:
       enabled: false
