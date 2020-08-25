@@ -25,6 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import uk.gov.gchq.palisade.integrationtests.policy.config.PolicyTestConfiguration;
@@ -50,6 +51,7 @@ import static org.junit.Assume.assumeTrue;
 @RunWith(SpringRunner.class)
 @Import(PolicyTestConfiguration.class)
 @SpringBootTest(classes = { PolicyApplication.class}, webEnvironment = WebEnvironment.NONE)
+@ActiveProfiles("caffeine")
 @ComponentScan(basePackages = "uk.gov.gchq.palisade")
 public class CaffeinePolicyCachingProxyTest extends PolicyTestCommon {
 
