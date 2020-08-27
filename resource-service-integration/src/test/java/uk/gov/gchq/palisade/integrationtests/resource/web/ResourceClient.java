@@ -18,6 +18,7 @@ package uk.gov.gchq.palisade.integrationtests.resource.web;
 
 import feign.Response;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
