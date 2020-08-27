@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("caffeine")
 @SpringBootTest(classes = PolicyApplication.class, webEnvironment = WebEnvironment.NONE)
-public class CaffeinePolicyCachingProxyTest extends PolicyTestCommon {
+public class CaffeinePolicyCachingTest extends PolicyTestCommon {
 
     @Autowired
     private PolicyServiceCachingProxy policyService;
@@ -73,12 +73,12 @@ public class CaffeinePolicyCachingProxyTest extends PolicyTestCommon {
     }
 
     @Test
-    public void contextLoads() {
+    public void testContextLoads() {
         assertThat(policyService).isNotNull();
     }
 
     @Test
-    public void addedPolicyIsRetrievable() {
+    public void testAddedPolicyIsRetrievable() {
         // Given - resources have been added as above
         // Given there is no underlying policy storage (gets must be wholly cache-based)
 
@@ -92,7 +92,7 @@ public class CaffeinePolicyCachingProxyTest extends PolicyTestCommon {
     }
 
     @Test
-    public void nonExistentPolicyRetrieveFails() {
+    public void testNonExistentPolicyRetrieveFails() {
         // Given - the requested resource is not added
 
         // When
@@ -103,7 +103,7 @@ public class CaffeinePolicyCachingProxyTest extends PolicyTestCommon {
     }
 
     @Test
-    public void cacheMaxSizeTest() {
+    public void testCacheMaxSize() {
         /// Given - the cache is overfilled
         Function<Integer, Resource> makeResource = i -> new StubResource(i.toString(), i.toString(), i.toString(), new SimpleConnectionDetail().serviceName(i.toString()));
         Function<Integer, Policy> makePolicy = i -> new Policy<>().resourceLevelRule(i.toString(), new PassThroughRule<>());
@@ -120,7 +120,7 @@ public class CaffeinePolicyCachingProxyTest extends PolicyTestCommon {
     }
 
     @Test
-    public void cacheTtlTest() throws InterruptedException {
+    public void testCacheTtl() throws InterruptedException {
         // Given - the requested resource has policies available
         assertThat(policyService.getPolicy(ACCESSIBLE_JSON_TXT_FILE)).isPresent();
         // Given - a sufficient amount of time has passed

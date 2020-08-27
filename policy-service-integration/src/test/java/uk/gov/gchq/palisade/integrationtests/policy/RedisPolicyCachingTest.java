@@ -27,6 +27,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import uk.gov.gchq.palisade.integrationtests.policy.config.PolicyTestConfiguration;
 import uk.gov.gchq.palisade.integrationtests.policy.config.RedisTestConfiguration;
+import uk.gov.gchq.palisade.policy.IsTextResourceRule;
 import uk.gov.gchq.palisade.resource.Resource;
 import uk.gov.gchq.palisade.resource.impl.FileResource;
 import uk.gov.gchq.palisade.resource.impl.SystemResource;
@@ -43,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("redis")
 @SpringBootTest(classes = {PolicyApplication.class, RedisTestConfiguration.class}, webEnvironment = WebEnvironment.NONE)
 @ComponentScan(basePackages = "uk.gov.gchq.palisade")
-public class RedisPolicyCachingProxyTest extends PolicyTestCommon {
+public class RedisPolicyCachingTest extends PolicyTestCommon {
 
     @Autowired
     private PolicyServiceCachingProxy cacheProxy;
@@ -68,13 +69,13 @@ public class RedisPolicyCachingProxyTest extends PolicyTestCommon {
     }
 
     @Test
-    public void contextLoads() {
+    public void testContextLoads() {
         assertThat(policyService).isNotNull();
         assertThat(cacheProxy).isNotNull();
     }
 
     @Test
-    public void addedPolicyIsRetrievable() {
+    public void testAddedPolicyIsRetrievable() {
         // Given - resources have been added as above
         // Given there is no underlying policy storage (gets must be wholly cache-based)
 
@@ -88,7 +89,7 @@ public class RedisPolicyCachingProxyTest extends PolicyTestCommon {
     }
 
     @Test
-    public void nonExistentPolicyRetrieveFails() {
+    public void testNonExistentPolicyRetrieveFails() {
         // Given - the requested resource is not added
 
         // When
@@ -99,15 +100,35 @@ public class RedisPolicyCachingProxyTest extends PolicyTestCommon {
     }
 
     @Test
-    public void cacheTtlTest() {
+    public void testUpdatePolicy() {
+        // Given I add a policy and resource
+        final SystemResource systemResource = new SystemResource().id("/txt");
+        final Policy policy = new Policy<>()
+                .owner(USER)
+                .resourceLevelRule("Resource serialised format is txt", new IsTextResourceRule());
+        cacheProxy.setResourcePolicy(systemResource, policy);
+
+        //Then I update the Policies resourceLevelRules
+        final Policy newPolicy = new Policy<>()
+                .owner(USER)
+                .resourceLevelRule("NewSerialisedFormat", new IsTextResourceRule());
+        cacheProxy.setResourcePolicy(systemResource, newPolicy);
+
+        // When
+        Optional<Policy> returnedPolicy = cacheProxy.getPolicy(systemResource);
+
+        // Then the returned policy should have the updated resource rules
+        assertThat(returnedPolicy.get()).isNotNull();
+        assertThat(returnedPolicy.get().getResourceRules()).isEqualTo(newPolicy.getResourceRules());
+    }
+
+    @Test
+    public void testCacheTtl() throws InterruptedException {
         // Given - the requested resource has policies available
         assertThat(cacheProxy.getPolicy(ACCESSIBLE_JSON_TXT_FILE)).isNotNull();
+
         // Given - a sufficient amount of time has passed
-        try {
-            Thread.sleep(2500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        Thread.sleep(2500);
 
         // When - an old entry is requested
         Optional<Policy> cachedPolicy = cacheProxy.getPolicy(ACCESSIBLE_JSON_TXT_FILE);
