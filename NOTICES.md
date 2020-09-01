@@ -11,12 +11,12 @@ List of third-party dependencies grouped by their license type
 * attribute-masking-service ([uk.gov.gchq.palisade:attribute-masking-service:0.5.0-SNAPSHOT](https://github.com/gchq/Palisade-services/tree/develop/attribute-masking-service))
 * audit-service ([uk.gov.gchq.palisade:audit-service:0.5.0-SNAPSHOT](https://github.com/gchq/Palisade-services/tree/develop/audit-service))
 * common ([uk.gov.gchq.palisade:common:0.5.0-SNAPSHOT](https://github.com/gchq/Palisade-common))
-* data-service ([uk.gov.gchq.palisade:data-service:0.5.0-SNAPSHOT](no url defined))
+* data-service ([uk.gov.gchq.palisade:data-service:0.5.0-SNAPSHOT](https://github.com/gchq/Palisade-services/tree/develop/data-service))
 * hr-data-generator ([uk.gov.gchq.palisade:hr-data-generator:0.5.0-SNAPSHOT](https://github.com/gchq/Palisade-examples/tree/develop/hr-data-generator))
-* palisade-service ([uk.gov.gchq.palisade:palisade-service:0.5.0-SNAPSHOT](no url defined))
+* palisade-service ([uk.gov.gchq.palisade:palisade-service:0.5.0-SNAPSHOT](https://github.com/gchq/Palisade-services/tree/develop/palisade-service))
 * policy-service ([uk.gov.gchq.palisade:policy-service:0.5.0-SNAPSHOT](https://github.com/gchq/Palisade-services/tree/develop/policy-service))
 * resource-service ([uk.gov.gchq.palisade:resource-service:0.5.0-SNAPSHOT](https://github.com/gchq/Palisade-services/tree/develop/resource-service))
-* user-service ([uk.gov.gchq.palisade:user-service:0.5.0-SNAPSHOT](no url defined))
+* user-service ([uk.gov.gchq.palisade:user-service:0.5.0-SNAPSHOT](https://github.com/gchq/Palisade-services/tree/develop/user-service))
 
 ### [Eclipse Public License 1.0](./licenses/eclipse_public_license_1.0.html):
 * JUnit ([junit:junit:4.12](http://junit.org))
