@@ -12,29 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-spring:
-  application:
-    name: attribute-masking-service
-  output:
-    ansi:
-      enabled: always
-  main:
-    allow-bean-definition-overriding: true
+replicaCount: 1
 
-server:
-  port: 8089
+service:
+  port: 8015
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-  endpoint:
-    shutdown:
-      enabled: true
+image:
+  repository: palisade/attribute-masking-service-test
+  tag: 48479c1-SNAPSHOT
+  pullPolicy: IfNotPresent
 
-audit:
-  implementations:
-    stroom:
-    logger:
-    simple:
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 500m
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
