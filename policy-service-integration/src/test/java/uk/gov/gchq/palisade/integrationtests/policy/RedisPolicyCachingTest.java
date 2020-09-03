@@ -81,7 +81,7 @@ public class RedisPolicyCachingTest extends PolicyTestCommon {
 
         for (Resource resource : FILE_RESOURCES) {
             // When
-            Optional<Policy> policy = cacheProxy.getPolicy(resource);
+            Policy policy = cacheProxy.getPolicy(resource).get();
 
             // Then
             assertThat(policy).isNotNull();
