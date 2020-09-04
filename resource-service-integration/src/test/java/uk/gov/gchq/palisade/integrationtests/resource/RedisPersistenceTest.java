@@ -16,9 +16,8 @@
 
 package uk.gov.gchq.palisade.integrationtests.resource;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -28,7 +27,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.gov.gchq.palisade.integrationtests.resource.config.RedisTestConfiguration;
@@ -50,17 +48,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @EnableFeignClients
 @Import({ResourceTestConfiguration.class, RedisTestConfiguration.class})
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = ResourceApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
 @EnableJpaRepositories(basePackages = {"uk.gov.gchq.palisade.service.resource.repository"})
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 @ActiveProfiles("redis")
-public class RedisPersistenceTest {
+class RedisPersistenceTest {
 
     @Autowired
     private JpaPersistenceLayer persistenceLayer;
@@ -70,11 +66,10 @@ public class RedisPersistenceTest {
 
     /**
      * Scenario as follows, where (F)iles, (D)irectories and (S)ystems are annotated respectively
-     *
-     *     S
-     *     |
-     *     D
-     *   / | \
+     * S
+     * |
+     * D
+     * / | \
      * F   F  F
      */
 
@@ -98,20 +93,21 @@ public class RedisPersistenceTest {
             .serialisedFormat(AVRO_FORMAT)
             .connectionDetail(DETAIL);
 
-    @Before
+    @BeforeEach
     @Transactional
     public void setup() {
-        for (FileResource file: Arrays.asList(EMPLOYEE_JSON_FILE, EMPLOYEE_AVRO_FILE, CLIENT_AVRO_FILE)) {
+        for (FileResource file : Arrays.asList(EMPLOYEE_JSON_FILE, EMPLOYEE_AVRO_FILE, CLIENT_AVRO_FILE)) {
             Stream<LeafResource> fileStream = Stream.of(file);
             fileStream = persistenceLayer.withPersistenceById(SYSTEM_ROOT.getId(), fileStream);
             fileStream = persistenceLayer.withPersistenceByType(file.getType(), fileStream);
             fileStream = persistenceLayer.withPersistenceBySerialisedFormat(file.getSerialisedFormat(), fileStream);
-            fileStream.forEach(x -> { });
+            fileStream.forEach(x -> {
+            });
         }
     }
 
     @Test
-    public void getTestResourceByResource() {
+    void getTestResourceByResource() {
         // Given - setup
 
         // When
@@ -119,18 +115,18 @@ public class RedisPersistenceTest {
 
         // Then
         Set<LeafResource> expected = new HashSet<>(Arrays.asList(EMPLOYEE_AVRO_FILE, EMPLOYEE_JSON_FILE, CLIENT_AVRO_FILE));
-        assertThat(resourcesByResource.collect(Collectors.toSet()), equalTo(expected));
+        assertThat(resourcesByResource.collect(Collectors.toSet())).isEqualTo(expected);
 
         // When
         resourcesByResource = client.getResourcesByResource(EMPLOYEE_AVRO_FILE);
 
         // Then
         expected = Collections.singleton(EMPLOYEE_AVRO_FILE);
-        assertThat(resourcesByResource.collect(Collectors.toSet()), equalTo(expected));
+        assertThat(resourcesByResource.collect(Collectors.toSet())).isEqualTo(expected);
     }
 
     @Test
-    public void getTestResourceById() {
+    void getTestResourceById() {
         // Given - setup
 
         // When
@@ -138,18 +134,18 @@ public class RedisPersistenceTest {
 
         // Then
         Set<LeafResource> expected = new HashSet<>(Arrays.asList(EMPLOYEE_AVRO_FILE, EMPLOYEE_JSON_FILE, CLIENT_AVRO_FILE));
-        assertThat(resourcesById.collect(Collectors.toSet()), equalTo(expected));
+        assertThat(resourcesById.collect(Collectors.toSet())).isEqualTo(expected);
 
         // When
         resourcesById = client.getResourcesById(EMPLOYEE_AVRO_FILE.getId());
 
         // Then
         expected = Collections.singleton(EMPLOYEE_AVRO_FILE);
-        assertThat(resourcesById.collect(Collectors.toSet()), equalTo(expected));
+        assertThat(resourcesById.collect(Collectors.toSet())).isEqualTo(expected);
     }
 
     @Test
-    public void getTestResourceByType() {
+    void getTestResourceByType() {
         // Given - setup
 
         // When
@@ -157,19 +153,19 @@ public class RedisPersistenceTest {
 
         // Then
         Set<LeafResource> expected = new HashSet<>(Arrays.asList(EMPLOYEE_AVRO_FILE, EMPLOYEE_JSON_FILE));
-        assertThat(resourcesByType.collect(Collectors.toSet()), equalTo(expected));
+        assertThat(resourcesByType.collect(Collectors.toSet())).isEqualTo(expected);
 
         // When
         resourcesByType = client.getResourcesByType(CLIENT_TYPE);
 
         // Then
         expected = Collections.singleton(CLIENT_AVRO_FILE);
-        assertThat(resourcesByType.collect(Collectors.toSet()), equalTo(expected));
+        assertThat(resourcesByType.collect(Collectors.toSet())).isEqualTo(expected);
 
     }
 
     @Test
-    public void getTestResourceBySerialisedFormat() {
+    void getTestResourceBySerialisedFormat() {
         // Given - setup
 
         // When
@@ -177,14 +173,13 @@ public class RedisPersistenceTest {
 
         // Then
         Set<LeafResource> expected = new HashSet<>(Arrays.asList(EMPLOYEE_AVRO_FILE, CLIENT_AVRO_FILE));
-        assertThat(resourcesBySerialisedFormat.collect(Collectors.toSet()), equalTo(expected));
+        assertThat(resourcesBySerialisedFormat.collect(Collectors.toSet())).isEqualTo(expected);
 
         // When
         resourcesBySerialisedFormat = client.getResourcesBySerialisedFormat(JSON_FORMAT);
 
         // Then
         expected = Collections.singleton(EMPLOYEE_JSON_FILE);
-        assertThat(resourcesBySerialisedFormat.collect(Collectors.toSet()), equalTo(expected));
-
+        assertThat(resourcesBySerialisedFormat.collect(Collectors.toSet())).isEqualTo(expected);
     }
 }

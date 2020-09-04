@@ -16,8 +16,7 @@
 
 package uk.gov.gchq.palisade.integrationtests.resource;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,22 +46,21 @@ import uk.gov.gchq.palisade.util.ResourceBuilder;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @EnableFeignClients
-@RunWith(SpringRunner.class)
 @Import(ResourceTestConfiguration.class)
 @SpringBootTest(classes = ResourceApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
 @EnableJpaRepositories(basePackages = {"uk.gov.gchq.palisade.service.resource.repository"})
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 @ActiveProfiles("h2")
-public class ScenarioPersistenceTest {
+class ScenarioPersistenceTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScenarioPersistenceTest.class);
 
     @Autowired
@@ -138,7 +136,7 @@ public class ScenarioPersistenceTest {
     // For spring reasons, we can't just mark the extractResourceCompleteness method as transactional
     @Test
     @Transactional(readOnly = true)
-    public void runThroughTestScenario() {
+    void runThroughTestScenario() {
         Set<LeafResource> returned;
         Set<LeafResource> expectedReturned;
         Set<Resource> persisted;
@@ -147,21 +145,21 @@ public class ScenarioPersistenceTest {
         // When - Pt 1
         LOGGER.debug("Getting resources for {}", MULTI_FILE_ONE.getId());
         returned = client.getResourcesByResource(MULTI_FILE_ONE).collect(Collectors.toSet());
-        expectedReturned = new HashSet<>(Arrays.asList(MULTI_FILE_ONE));
-        expectedPersisted = new HashSet<>(Arrays.asList(MULTI_FILE_ONE));
+        expectedReturned = new HashSet<>(Collections.singletonList(MULTI_FILE_ONE));
+        expectedPersisted = new HashSet<>(Collections.singletonList(MULTI_FILE_ONE));
         persisted = expectedPersisted.stream().filter(this::extractResourceCompleteness).collect(Collectors.toSet());
         LOGGER.debug("");
 
         // Then - resource service returned expected leaf resources
         expectedReturned.forEach(resource -> LOGGER.debug("Expected: {}", resource.getId()));
         returned.forEach(resource -> LOGGER.debug("Returned: {}", resource.getId()));
-        assertThat(returned, equalTo(expectedReturned));
+        assertThat(returned).isEqualTo(expectedReturned);
         LOGGER.debug("");
 
         // Then - persistence layer stored expected resources of all kinds
         expectedPersisted.forEach(resource -> LOGGER.debug("Expected:  {}", resource.getId()));
         persisted.forEach(resource -> LOGGER.debug("Persisted: {}", resource.getId()));
-        assertThat(persisted, equalTo(expectedPersisted));
+        assertThat(persisted).isEqualTo(expectedPersisted);
         LOGGER.debug("");
         LOGGER.debug("");
 
@@ -177,13 +175,13 @@ public class ScenarioPersistenceTest {
         // Then - resource service returned expected leaf resources
         expectedReturned.forEach(resource -> LOGGER.debug("Expected: {}", resource.getId()));
         returned.forEach(resource -> LOGGER.debug("Returned: {}", resource.getId()));
-        assertThat(returned, equalTo(expectedReturned));
+        assertThat(returned).isEqualTo(expectedReturned);
         LOGGER.debug("");
 
         // Then - persistence layer stored expected resources of all kinds
         expectedPersisted.forEach(resource -> LOGGER.debug("Expected:  {}", resource.getId()));
         persisted.forEach(resource -> LOGGER.debug("Persisted: {}", resource.getId()));
-        assertThat(persisted, equalTo(expectedPersisted));
+        assertThat(persisted).isEqualTo(expectedPersisted);
         LOGGER.debug("");
         LOGGER.debug("");
 
@@ -199,13 +197,13 @@ public class ScenarioPersistenceTest {
         // Then - resource service returned expected leaf resources
         expectedReturned.forEach(resource -> LOGGER.debug("Expected: {}", resource.getId()));
         returned.forEach(resource -> LOGGER.debug("Returned: {}", resource.getId()));
-        assertThat(returned, equalTo(expectedReturned));
+        assertThat(returned).isEqualTo(expectedReturned);
         LOGGER.debug("");
 
         // Then - persistence layer stored expected resources of all kinds
         expectedPersisted.forEach(resource -> LOGGER.debug("Expected:  {}", resource.getId()));
         persisted.forEach(resource -> LOGGER.debug("Persisted: {}", resource.getId()));
-        assertThat(persisted, equalTo(expectedPersisted));
+        assertThat(persisted).isEqualTo(expectedPersisted);
         LOGGER.debug("");
         LOGGER.debug("");
 
@@ -213,7 +211,7 @@ public class ScenarioPersistenceTest {
         // When - Pt 4
         LOGGER.debug("Getting resources for {}", EMPTY_DIR.getId());
         returned = client.getResourcesByResource(EMPTY_DIR).collect(Collectors.toSet());
-        expectedReturned = new HashSet<>(Arrays.asList());
+        expectedReturned = new HashSet<>(Collections.emptyList());
         expectedPersisted = new HashSet<>(Arrays.asList(MULTI_FILE_ONE, MULTI_FILE_TWO, MULTI_FILE_DIR, SINGLE_FILE, SINGLE_FILE_DIR, TOP_LEVEL_DIR, EMPTY_DIR));
         persisted = expectedPersisted.stream().filter(this::extractResourceCompleteness).collect(Collectors.toSet());
         LOGGER.debug("");
@@ -221,13 +219,13 @@ public class ScenarioPersistenceTest {
         // Then - resource service returned expected leaf resources
         expectedReturned.forEach(resource -> LOGGER.debug("Expected: {}", resource.getId()));
         returned.forEach(resource -> LOGGER.debug("Returned: {}", resource.getId()));
-        assertThat(returned, equalTo(expectedReturned));
+        assertThat(returned).isEqualTo(expectedReturned);
         LOGGER.debug("");
 
         // Then - persistence layer stored expected resources of all kinds
         expectedPersisted.forEach(resource -> LOGGER.debug("Expected:  {}", resource.getId()));
         persisted.forEach(resource -> LOGGER.debug("Persisted: {}", resource.getId()));
-        assertThat(persisted, equalTo(expectedPersisted));
+        assertThat(persisted).isEqualTo(expectedPersisted);
         LOGGER.debug("");
         LOGGER.debug("");
 
@@ -243,13 +241,13 @@ public class ScenarioPersistenceTest {
         // Then - resource service returned expected leaf resources
         expectedReturned.forEach(resource -> LOGGER.debug("Expected: {}", resource.getId()));
         returned.forEach(resource -> LOGGER.debug("Returned: {}", resource.getId()));
-        assertThat(returned, equalTo(expectedReturned));
+        assertThat(returned).isEqualTo(expectedReturned);
         LOGGER.debug("");
 
         // Then - persistence layer stored expected resources of all kinds
         expectedPersisted.forEach(resource -> LOGGER.debug("Expected:  {}", resource.getId()));
         persisted.forEach(resource -> LOGGER.debug("Persisted: {}", resource.getId()));
-        assertThat(persisted, equalTo(expectedPersisted));
+        assertThat(persisted).isEqualTo(expectedPersisted);
         LOGGER.debug("");
         LOGGER.debug("");
     }
