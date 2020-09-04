@@ -17,4 +17,4 @@ spring:
   cache:
     type: caffeine
     caffeine:
-      spec: expireAfterWrite=2s, maximumSize=100
+      spec: expireAfterWrite=1s, maximumSize=100

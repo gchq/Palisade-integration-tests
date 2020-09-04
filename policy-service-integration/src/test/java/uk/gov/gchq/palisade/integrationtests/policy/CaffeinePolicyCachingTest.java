@@ -84,10 +84,10 @@ public class CaffeinePolicyCachingTest extends PolicyTestCommon {
 
         for (Resource resource : FILE_RESOURCES) {
             // When
-            Policy policy = policyService.getPolicy(resource).get();
+            Optional<Policy> policy = policyService.getPolicy(resource);
 
             // Then
-            assertThat(policy).isNotNull();
+            assertThat(policy).isPresent();
         }
     }
 

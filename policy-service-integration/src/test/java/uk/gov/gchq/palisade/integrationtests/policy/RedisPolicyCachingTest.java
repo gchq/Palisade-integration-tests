@@ -118,7 +118,7 @@ public class RedisPolicyCachingTest extends PolicyTestCommon {
         Optional<Policy> returnedPolicy = cacheProxy.getPolicy(systemResource);
 
         // Then the returned policy should have the updated resource rules
-        assertThat(returnedPolicy.get()).isNotNull();
+        assertThat(returnedPolicy).isPresent();
         assertThat(returnedPolicy.get().getResourceRules()).isEqualTo(newPolicy.getResourceRules());
     }
 
