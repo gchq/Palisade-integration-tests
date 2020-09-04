@@ -31,6 +31,7 @@ import uk.gov.gchq.palisade.resource.LeafResource;
 import uk.gov.gchq.palisade.rule.Rule;
 import uk.gov.gchq.palisade.rule.Rules;
 
+import java.io.Serializable;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
 import java.util.Map;
@@ -47,7 +48,7 @@ public class PolicyServiceMock {
     @JsonPropertyOrder(value = {"class"}, alphabetic = true)
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
-    static class StubRule<T> implements Rule<T> {
+    static class StubRule<T extends Serializable> implements Rule<T> {
         @Override
         public T apply(final T data, final User user, final Context context) {
             return null;
