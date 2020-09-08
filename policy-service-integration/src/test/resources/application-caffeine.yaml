@@ -12,32 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 spring:
-  application:
-    name: policy-service
-  output:
-    ansi:
-      enabled: always
-  main:
-    allow-bean-definition-overriding: true
-
-server:
-  port: 8085
-
-eureka:
-  client:
-    enabled: false
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-  endpoint:
-    shutdown:
-      enabled: true
-
-population:
-  policyProvider: std
-  userProvider: std
-  resourceProvider: std
+  cache:
+    type: caffeine
+    caffeine:
+      spec: expireAfterWrite=1s, maximumSize=100
