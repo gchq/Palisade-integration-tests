@@ -12,32 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 spring:
-  application:
-    name: policy-service
-  output:
-    ansi:
-      enabled: always
-  main:
-    allow-bean-definition-overriding: true
+  autoconfigure:
+    exclude: []
+  cache:
+    type: redis
+    redis:
+      timeToLive: 1s
+  redis:
+    host: localhost
+    port: 6379
 
-server:
-  port: 8085
-
-eureka:
-  client:
-    enabled: false
-
+# TODO: spring-boot 2.2.x has cluster bugs, but 2.3.x has health-check bugs
+# Once released, if spring-boot 2.4.x fixes the health-check bugs, re-enable the endpoint here
 management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-  endpoint:
-    shutdown:
-      enabled: true
-
-population:
-  policyProvider: std
-  userProvider: std
-  resourceProvider: std
+  health:
+    redis:
+      enabled: false

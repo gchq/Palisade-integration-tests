@@ -21,6 +21,22 @@ uk.gov.gchq.palisade:policy-service-integration:jar:0.5.0-SNAPSHOT
 |  |     \- org.latencyutils:LatencyUtils:jar:2.0.3:test
 |  +- org.springframework.boot:spring-boot-starter-cache:jar:2.2.0.RELEASE:test
 |  |  \- org.springframework:spring-context-support:jar:5.2.0.RELEASE:test
+|  +- org.springframework.boot:spring-boot-starter-data-redis:jar:2.2.0.RELEASE:test
+|  |  +- org.springframework.data:spring-data-redis:jar:2.2.0.RELEASE:test
+|  |  |  +- org.springframework.data:spring-data-keyvalue:jar:2.2.0.RELEASE:test
+|  |  |  |  \- org.springframework.data:spring-data-commons:jar:2.2.0.RELEASE:test
+|  |  |  +- org.springframework:spring-tx:jar:5.2.0.RELEASE:test
+|  |  |  +- org.springframework:spring-oxm:jar:5.2.0.RELEASE:test
+|  |  |  \- org.springframework:spring-aop:jar:5.2.0.RELEASE:compile
+|  |  \- io.lettuce:lettuce-core:jar:5.2.0.RELEASE:test
+|  |     +- io.netty:netty-common:jar:4.1.42.Final:test
+|  |     +- io.netty:netty-handler:jar:4.1.42.Final:test
+|  |     |  +- io.netty:netty-buffer:jar:4.1.42.Final:test
+|  |     |  \- io.netty:netty-codec:jar:4.1.42.Final:test
+|  |     +- io.netty:netty-transport:jar:4.1.42.Final:test
+|  |     |  \- io.netty:netty-resolver:jar:4.1.42.Final:test
+|  |     \- io.projectreactor:reactor-core:jar:3.3.0.RELEASE:compile
+|  |        \- org.reactivestreams:reactive-streams:jar:1.0.3:compile
 |  +- org.springframework.boot:spring-boot-starter-web:jar:2.2.0.RELEASE:test
 |  |  +- org.springframework.boot:spring-boot-starter-json:jar:2.2.0.RELEASE:test
 |  |  |  \- com.fasterxml.jackson.module:jackson-module-parameter-names:jar:2.10.0:test
@@ -34,7 +50,6 @@ uk.gov.gchq.palisade:policy-service-integration:jar:0.5.0-SNAPSHOT
 |  |  |     +- org.jboss.logging:jboss-logging:jar:3.4.1.Final:test
 |  |  |     \- com.fasterxml:classmate:jar:1.5.0:test
 |  |  \- org.springframework:spring-webmvc:jar:5.2.0.RELEASE:test
-|  |     +- org.springframework:spring-aop:jar:5.2.0.RELEASE:compile
 |  |     \- org.springframework:spring-expression:jar:5.2.0.RELEASE:compile
 |  +- org.springframework.cloud:spring-cloud-config-client:jar:2.2.0.RELEASE:test
 |  |  \- org.springframework.cloud:spring-cloud-context:jar:2.2.0.RELEASE:compile
@@ -86,8 +101,6 @@ uk.gov.gchq.palisade:policy-service-integration:jar:0.5.0-SNAPSHOT
 |  |  |  \- io.reactivex:rxjava:jar:1.3.8:compile
 |  |  +- org.springframework.cloud:spring-cloud-starter-loadbalancer:jar:2.2.0.RELEASE:test
 |  |  |  +- org.springframework.cloud:spring-cloud-loadbalancer:jar:2.2.0.RELEASE:test
-|  |  |  |  +- io.projectreactor:reactor-core:jar:3.3.0.RELEASE:compile
-|  |  |  |  |  \- org.reactivestreams:reactive-streams:jar:1.0.3:compile
 |  |  |  |  \- io.projectreactor.addons:reactor-extra:jar:3.3.0.RELEASE:compile
 |  |  |  \- com.stoyanr:evictor:jar:1.0.0:test
 |  |  +- com.netflix.ribbon:ribbon-eureka:jar:2.3.0:test
@@ -95,13 +108,17 @@ uk.gov.gchq.palisade:policy-service-integration:jar:0.5.0-SNAPSHOT
 |  |     +- xmlpull:xmlpull:jar:1.1.3.1:test
 |  |     \- xpp3:xpp3_min:jar:1.1.4c:test
 |  \- uk.gov.gchq.palisade:common:jar:0.5.0-SNAPSHOT:test
++- it.ozimov:embedded-redis:jar:0.7.3:test
+|  +- com.google.guava:guava:jar:21.0:runtime
+|  +- commons-io:commons-io:jar:2.5:compile
+|  +- org.slf4j:slf4j-simple:jar:1.7.28:test
+|  \- commons-logging:commons-logging:jar:1.2:test
 +- uk.gov.gchq.palisade:common:jar:tests:0.5.0-SNAPSHOT:test
 |  +- com.fasterxml.jackson.core:jackson-core:jar:2.10.0:runtime
 |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.10.0:runtime
 |  +- com.fasterxml.jackson.core:jackson-databind:jar:2.10.0:runtime
 |  +- com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.10.0:test
 |  +- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.10.0:test
-|  +- commons-io:commons-io:jar:2.6:compile
 |  +- org.apache.commons:commons-lang3:jar:3.9:test
 |  +- org.slf4j:slf4j-api:jar:1.7.28:compile
 |  \- org.apache.avro:avro:jar:1.8.2:test
@@ -131,8 +148,7 @@ uk.gov.gchq.palisade:policy-service-integration:jar:0.5.0-SNAPSHOT
 |  +- io.github.openfeign:feign-slf4j:jar:10.4.0:compile
 |  \- io.github.openfeign:feign-hystrix:jar:10.4.0:compile
 |     +- com.netflix.archaius:archaius-core:jar:0.7.6:compile
-|     |  +- com.google.code.findbugs:jsr305:jar:3.0.1:runtime
-|     |  \- com.google.guava:guava:jar:16.0:runtime
+|     |  \- com.google.code.findbugs:jsr305:jar:3.0.1:runtime
 |     \- com.netflix.hystrix:hystrix-core:jar:1.5.18:compile
 +- org.springframework.boot:spring-boot-starter-test:jar:2.2.0.RELEASE:test
 |  +- org.springframework.boot:spring-boot-test:jar:2.2.0.RELEASE:test
