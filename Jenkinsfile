@@ -245,6 +245,9 @@ spec:
                              " --set global.persistence.classpathJars.aws.volumeHandle=${VOLUME_HANDLE_CLASSPATH_JARS}" +
                              " --set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} " +
                              " --set global.persistence.storageClassDeploy=true" +
+                             " --set global.persistence.dataStores.palisade-data-store.local.hostPath=$(pwd)/resources/data," +
+                             " --set global.persistence.classpathJars.local.hostPath=$(pwd)/deployment/target" +
+                             " --set global.deployment=example" +
                              " --namespace ${GIT_BRANCH_NAME_LOWER} --create-namespace", returnStatus: true) == 0) {
                          echo("successfully deployed")
                          sleep(time: 2, unit: 'MINUTES')
