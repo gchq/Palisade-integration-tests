@@ -226,7 +226,7 @@ spec:
 
         stage('Run the K8s Example') {
              dir('Palisade-examples') {
-                 container('docker-cmds') {
+                 container('maven') {
                      def GIT_BRANCH_NAME_LOWER = GIT_BRANCH_NAME.toLowerCase().take(24)
                      sh "palisade-login"
                      sh "\$(aws ecr get-login --no-include-email --region eu-west-1) > /dev/null"
