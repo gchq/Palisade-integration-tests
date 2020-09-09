@@ -175,7 +175,7 @@ spec:
                 if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0 || (env.BRANCH_NAME.substring(0, 2) == "PR" && sh(script: "git checkout develop", returnStatus: true) == 0)) {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install -P quick -pl hr-data-generator/'
+                            sh 'mvn -s $MAVEN_SETTINGS install'
                         }
                     }
                 }
@@ -226,7 +226,7 @@ spec:
 
         stage('Run the K8s Example') {
              dir('Palisade-examples') {
-                 container('maven') {
+                 container('docker-cmds') {
                      def GIT_BRANCH_NAME_LOWER = GIT_BRANCH_NAME.toLowerCase().take(24)
                      sh "palisade-login"
                      sh "\$(aws ecr get-login --no-include-email --region eu-west-1) > /dev/null"
@@ -234,9 +234,9 @@ spec:
                      sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER} || true"
                      sh "kubectl delete pv palisade-classpath-jars-example-${GIT_BRANCH_NAME_LOWER} || true"
                      sh "kubectl delete pv palisade-data-store-${GIT_BRANCH_NAME_LOWER} || true"
-                     sh "kubectl describe clusterrole.rbac || true"
+                     //sh "kubectl describe clusterrole.rbac || true"
                      sh "kubectl auth can-i create pvc"
-                     sh "kubectl get pvc --all-namespaces"
+                     //sh "kubectl get pvc --all-namespaces"
                      sh "ls"
                      sh "pwd"
                      sh "helm dep up"
