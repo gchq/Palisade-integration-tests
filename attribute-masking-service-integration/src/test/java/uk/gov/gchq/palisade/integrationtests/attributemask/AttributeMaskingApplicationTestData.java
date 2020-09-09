@@ -27,6 +27,8 @@ import uk.gov.gchq.palisade.rule.Rules;
 import uk.gov.gchq.palisade.service.SimpleConnectionDetail;
 import uk.gov.gchq.palisade.service.attributemask.request.AttributeMaskingRequest;
 
+import java.io.Serializable;
+
 public class AttributeMaskingApplicationTestData {
     /**
      * Common test data for all classes
@@ -54,14 +56,14 @@ public class AttributeMaskingApplicationTestData {
 
     public static final String RULE_MESSAGE = "test-rule";
 
-    public static class PassThroughRule<T> implements Rule<T> {
+    public static class PassThroughRule<T extends Serializable> implements Rule<T> {
         @Override
         public T apply(final T record, final User user, final Context context) {
             return record;
         }
     }
 
-    public static final Rules<?> RULES = new Rules<>().addRule(RULE_MESSAGE, new PassThroughRule<>());
+    public static final Rules<Serializable> RULES = new Rules<Serializable>().addRule(RULE_MESSAGE, new PassThroughRule<Serializable>());
 
     public static final AttributeMaskingRequest REQUEST = AttributeMaskingRequest.Builder.create()
             .withUserId(USER_ID.getId())
