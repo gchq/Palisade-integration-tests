@@ -238,7 +238,7 @@ spec:
                      sh "kubectl auth can-i create pvc"
                      sh "kubectl get pvc --all-namespaces"
                      sh "helm dep up"
-                     if sh(script: "helm install palisade ." +
+                     if (sh(script: "helm install palisade ." +
                              " --set global.hosting=aws" +
                              " --set global.repository=${ECR_REGISTRY}" +
                              " --set global.hostname=${EGRESS_ELB}" +
@@ -246,7 +246,7 @@ spec:
                              " --set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} " +
                              " --set global.persistence.storageClassDeploy=true" +
                              " --namespace ${GIT_BRANCH_NAME_LOWER} --create-namespace", returnStatus: true) == 0) {
-                             echo("successfully deployed")
+                         echo("successfully deployed")
                          sleep(time: 2, unit: 'MINUTES')
                          sh "kubectl get pod --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pod --namespace=${GIT_BRANCH_NAME_LOWER}"
                          sh "kubectl get pvc --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pvc --namespace=${GIT_BRANCH_NAME_LOWER}"
