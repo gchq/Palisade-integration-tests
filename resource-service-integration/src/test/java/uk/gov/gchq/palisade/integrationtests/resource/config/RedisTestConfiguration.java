@@ -16,21 +16,30 @@
 
 package uk.gov.gchq.palisade.integrationtests.resource.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.Bean;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Configuration;
+import redis.embedded.RedisServer;
 
-import uk.gov.gchq.palisade.integrationtests.resource.web.ResourceClient;
-import uk.gov.gchq.palisade.integrationtests.resource.web.ResourceClientWrapper;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 @Configuration
 @EnableAutoConfiguration
-public class ResourceTestConfiguration {
+public class RedisTestConfiguration {
+    private final RedisServer redisServer;
 
-     @Bean
-     public ResourceClientWrapper resourceClientWrapper(final ResourceClient client, final ObjectMapper objectMapper) {
-          return new ResourceClientWrapper(client, objectMapper);
-     }
+    public RedisTestConfiguration(final RedisProperties redisProperties) {
+        this.redisServer = new RedisServer(redisProperties.getPort());
+    }
 
+    @PostConstruct
+    public void postConstruct() {
+        redisServer.start();
+    }
+
+    @PreDestroy
+    public void preDestroy() {
+        redisServer.stop();
+    }
 }

@@ -112,15 +112,31 @@ uk.gov.gchq.palisade:data-service-integration:jar:0.5.0-SNAPSHOT
 |     +- ch.qos.logback:logback-classic:jar:1.2.3:test
 |     +- uk.gov.gchq.palisade:readers-common:jar:0.5.0-SNAPSHOT:test
 |     +- uk.gov.gchq.palisade:shade-hadoop-client:jar:0.5.0-SNAPSHOT:test
+|     |  +- com.google.guava:guava:jar:27.0.1-jre:test
+|     |  |  +- com.google.guava:failureaccess:jar:1.0.1:test
+|     |  |  +- com.google.guava:listenablefuture:jar:9999.0-empty-to-avoid-conflict-with-guava:test
+|     |  |  +- org.checkerframework:checker-qual:jar:2.5.2:test
+|     |  |  +- com.google.errorprone:error_prone_annotations:jar:2.2.0:test
+|     |  |  +- com.google.j2objc:j2objc-annotations:jar:1.1:test
+|     |  |  \- org.codehaus.mojo:animal-sniffer-annotations:jar:1.17:test
+|     |  \- org.apache.hadoop:hadoop-client:jar:3.2.1:test
+|     |     +- org.apache.hadoop:hadoop-hdfs-client:jar:3.2.1:test
+|     |     |  \- com.squareup.okhttp:okhttp:jar:2.7.5:test
+|     |     |     \- com.squareup.okio:okio:jar:1.6.0:test
+|     |     +- org.apache.hadoop:hadoop-yarn-api:jar:3.2.1:test
+|     |     |  \- javax.xml.bind:jaxb-api:jar:2.3.1:test
+|     |     |     \- javax.activation:javax.activation-api:jar:1.2.0:test
+|     |     +- org.apache.hadoop:hadoop-yarn-client:jar:3.2.1:test
+|     |     +- org.apache.hadoop:hadoop-mapreduce-client-core:jar:3.2.1:test
+|     |     |  \- org.apache.hadoop:hadoop-yarn-common:jar:3.2.1:test
+|     |     |     +- log4j:log4j:jar:1.2.17:test
+|     |     |     +- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:jar:2.10.0:test
+|     |     |     \- com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:jar:2.10.0:test
+|     |     |        \- com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:jar:2.10.0:test
+|     |     \- org.apache.hadoop:hadoop-mapreduce-client-jobclient:jar:3.2.1:test
+|     |        \- org.apache.hadoop:hadoop-mapreduce-client-common:jar:3.2.1:test
 |     \- org.apache.hadoop:hadoop-common:jar:3.2.1:test
 |        +- org.apache.hadoop:hadoop-annotations:jar:3.2.1:test
-|        +- com.google.guava:guava:jar:27.0-jre:test
-|        |  +- com.google.guava:failureaccess:jar:1.0:test
-|        |  +- com.google.guava:listenablefuture:jar:9999.0-empty-to-avoid-conflict-with-guava:test
-|        |  +- org.checkerframework:checker-qual:jar:2.5.2:test
-|        |  +- com.google.errorprone:error_prone_annotations:jar:2.2.0:test
-|        |  +- com.google.j2objc:j2objc-annotations:jar:1.1:test
-|        |  \- org.codehaus.mojo:animal-sniffer-annotations:jar:1.17:test
 |        +- commons-cli:commons-cli:jar:1.2:test
 |        +- org.apache.commons:commons-math3:jar:3.1.1:test
 |        +- commons-codec:commons-codec:jar:1.13:test
@@ -139,8 +155,6 @@ uk.gov.gchq.palisade:data-service-integration:jar:0.5.0-SNAPSHOT
 |        +- com.sun.jersey:jersey-servlet:jar:1.19:test
 |        +- com.sun.jersey:jersey-json:jar:1.19:test
 |        |  +- com.sun.xml.bind:jaxb-impl:jar:2.2.3-1:test
-|        |  |  \- javax.xml.bind:jaxb-api:jar:2.3.1:test
-|        |  |     \- javax.activation:javax.activation-api:jar:1.2.0:test
 |        |  +- org.codehaus.jackson:jackson-jaxrs:jar:1.9.2:test
 |        |  \- org.codehaus.jackson:jackson-xc:jar:1.9.2:test
 |        +- com.sun.jersey:jersey-server:jar:1.19:test

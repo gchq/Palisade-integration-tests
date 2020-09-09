@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 spring:
   application:
     name: resource-service
@@ -20,15 +21,23 @@ spring:
       enabled: always
   main:
     allow-bean-definition-overriding: true
-  datasource:
-    url: jdbc:h2:mem:./resource-cache-h2
-    username:
-    password:
-    initialization-mode: always
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-    show-sql: false
+  autoconfigure:
+    exclude:
+     - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+     - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+  data:
+    redis:
+      repositories:
+        enabled: false
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: basic
+    default-config: default
 
 server:
   port: 8086
@@ -42,14 +51,24 @@ management:
     web:
       exposure:
         include: "*"
-    loggers:
+  endpoint:
+    shutdown:
       enabled: true
 
+population:
+  resourceProvider: std
+
 resource:
+  # Available options: simple, hadoop
   implementation: simple
-  defaultType: "java.lang.String"
+  # If a type for the resource cannot be deduced, use this as the default
+  defaultType: java.lang.String
 
 web:
   client:
-    data-service: http://localhost:8082
-    resource-service: http://localhost:${server.port}
+    data-service: "http://localhost:8082"
+    resource-service: "http://localhost:${server.port}"
+
+async:
+  webMvcTimeout: 60000
+  corePoolSize: 6
