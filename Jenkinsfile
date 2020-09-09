@@ -223,8 +223,44 @@ spec:
                 }
             }
         }
+
+        stage('Run the K8s Example') {
+             dir('Palisade-examples') {
+                 container('maven') {
+                     def GIT_BRANCH_NAME_LOWER = GIT_BRANCH_NAME.toLowerCase().take(24)
+                     sh "palisade-login"
+                     sh "\$(aws ecr get-login --no-include-email --region eu-west-1) > /dev/null"
+                     sh "aws eks update-kubeconfig --name pipeline-eks-cluster --region eu-west-1"
+                     sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER} || true"
+                     sh "kubectl delete pv palisade-classpath-jars-example-${GIT_BRANCH_NAME_LOWER} || true"
+                     sh "kubectl delete pv palisade-data-store-${GIT_BRANCH_NAME_LOWER} || true"
+                     sh "kubectl describe clusterrole.rbac || true"
+                     sh "kubectl auth can-i create pvc"
+                     sh "kubectl get pvc --all-namespaces"
+                     sh "helm dep up"
+                     if sh(script: "helm install palisade ." +
+                             " --set global.hosting=aws" +
+                             " --set global.repository=${ECR_REGISTRY}" +
+                             " --set global.hostname=${EGRESS_ELB}" +
+                             " --set global.persistence.classpathJars.aws.volumeHandle=${VOLUME_HANDLE_CLASSPATH_JARS}" +
+                             " --set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} " +
+                             " --set global.persistence.storageClassDeploy=true" +
+                             " --namespace ${GIT_BRANCH_NAME_LOWER} --create-namespace", returnStatus: true) == 0) {
+                             echo("successfully deployed")
+                         sleep(time: 2, unit: 'MINUTES')
+                         sh "kubectl get pod --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pod --namespace=${GIT_BRANCH_NAME_LOWER}"
+                         sh "kubectl get pvc --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pvc --namespace=${GIT_BRANCH_NAME_LOWER}"
+                         sh "kubectl get pv  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
+                         sh "kubectl get sc  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
+                         sh "helm delete palisade --namespace ${GIT_BRANCH_NAME_LOWER}"
+                         } else {
+                            error("Build failed because of failed helm install")
+                         }
+                     }
+                 }
+             }
+        }
     }
 }
 
 }
-
