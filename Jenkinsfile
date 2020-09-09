@@ -202,7 +202,7 @@ spec:
         }
 
         stage('Run the JVM Example') {
-            // Always run some sort of smoke test if this is a Pull Request or from develop or main
+            // Always run some sort of End-to-End test if this is a Pull Request or from develop or main
             if (env.BRANCH_NAME.substring(0, 2) == "PR" || env.BRANCH_NAME == "develop" || env.BRANCH_NAME == "main") {
                 // If this branch name exists in examples, use that
                 // Otherwise, default to examples/develop
@@ -245,8 +245,8 @@ spec:
                              " --set global.persistence.classpathJars.aws.volumeHandle=${VOLUME_HANDLE_CLASSPATH_JARS}" +
                              " --set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} " +
                              " --set global.persistence.storageClassDeploy=true " +
-                             " --set global.persistence.dataStores.palisade-data-store.local.hostPath='$(pwd)'/resources/data," +
-                             " --set global.persistence.classpathJars.local.hostPath='$(pwd)'/deployment/target" +
+                             " --set global.persistence.dataStores.palisade-data-store.local.hostPath=resources/data," +
+                             " --set global.persistence.classpathJars.local.hostPath=deployment/target" +
                              " --set global.deployment=example" +
                              " --namespace ${GIT_BRANCH_NAME_LOWER} --create-namespace", returnStatus: true) == 0) {
                          echo("successfully deployed")
