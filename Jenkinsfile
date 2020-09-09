@@ -237,6 +237,8 @@ spec:
                      sh "kubectl describe clusterrole.rbac || true"
                      sh "kubectl auth can-i create pvc"
                      sh "kubectl get pvc --all-namespaces"
+                     sh "ls"
+                     sh "pwd"
                      sh "helm dep up"
                      if (sh(script: "helm install palisade ." +
                              " --set global.hosting=aws" +
