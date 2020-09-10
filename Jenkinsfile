@@ -93,7 +93,7 @@ spec:
       limits:
         ephemeral-storage: "2Gi"
 
-- name: maven
+  - name: maven
     image: 779921734503.dkr.ecr.eu-west-1.amazonaws.com/jnlp-dood-new-infra:200710
     imagePullPolicy: IfNotPresent
     command: ['docker', 'run', '-p', '80:80', 'httpd:latest']
@@ -231,7 +231,6 @@ spec:
                     sh "palisade-login"
                     sh 'extract-addresses'
                     sh 'namespace-create ${GIT_BRANCH_NAME_LOWER}'
-                    sh 'helm version'
                     // sh "\$(aws ecr get-login --no-include-email --region eu-west-1) > /dev/null"
                     // sh "aws eks update-kubeconfig --name pipeline-eks-cluster --region eu-west-1"
                     // sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER} || true"
@@ -243,6 +242,7 @@ spec:
                     sh "ls"
                     sh "pwd"
                     // sh "helm dep up"
+                    sh "helm version"
 
                     }
                  }
