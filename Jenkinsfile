@@ -240,27 +240,31 @@ spec:
                      sh "ls"
                      sh "pwd"
                      sh "helm dep up"
-                     if (sh(script: "helm install palisade ." +
-                             " --set global.hosting=aws" +
-                             " --set global.repository=${ECR_REGISTRY}" +
-                             " --set global.hostname=${EGRESS_ELB}" +
-                             " --set global.persistence.classpathJars.aws.volumeHandle=${VOLUME_HANDLE_CLASSPATH_JARS}" +
-                             " --set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} " +
-                             " --set global.persistence.storageClassDeploy=true " +
-                             " --set global.persistence.dataStores.palisade-data-store.local.hostPath=\$(pwd)/resources/data," +
-                             " --set global.persistence.classpathJars.local.hostPath=\$(pwd)/deployment/target" +
-                             " --set global.deployment=example" +
-                             " --namespace ${GIT_BRANCH_NAME_LOWER} --create-namespace", returnStatus: true) == 0) {
-                         echo("successfully deployed")
-                         sleep(time: 2, unit: 'MINUTES')
-                         sh "kubectl get pod --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pod --namespace=${GIT_BRANCH_NAME_LOWER}"
-                         sh "kubectl get pvc --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pvc --namespace=${GIT_BRANCH_NAME_LOWER}"
-                         sh "kubectl get pv  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
-                         sh "kubectl get sc  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
-                         sh "helm delete palisade --namespace ${GIT_BRANCH_NAME_LOWER}"
-                         } else {
-                            error("Build failed because of failed helm install")
-                         }
+                     if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
+                        if (sh(script: "helm install palisade ." +
+                                  " --set global.hosting=aws" +
+                                  " --set global.repository=${ECR_REGISTRY}" +
+                                  " --set global.hostname=${EGRESS_ELB}" +
+                                  " --set global.persistence.classpathJars.aws.volumeHandle=${VOLUME_HANDLE_CLASSPATH_JARS}" +
+                                  " --set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} " +
+                                  " --set global.persistence.storageClassDeploy=true " +
+                                  " --set global.persistence.dataStores.palisade-data-store.local.hostPath=\$(pwd)/resources/data," +
+                                  " --set global.persistence.classpathJars.local.hostPath=\$(pwd)/deployment/target" +
+                                  " --set global.deployment=example" +
+                                  " --namespace ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
+                              echo("successfully deployed")
+                              sleep(time: 2, unit: 'MINUTES')
+                              sh "kubectl get pod --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pod --namespace=${GIT_BRANCH_NAME_LOWER}"
+                              sh "kubectl get pvc --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pvc --namespace=${GIT_BRANCH_NAME_LOWER}"
+                              sh "kubectl get pv  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
+                              sh "kubectl get sc  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
+                              sh "helm delete palisade --namespace ${GIT_BRANCH_NAME_LOWER}"
+                          } else {
+                             error("Build failed because of failed helm install")
+                          }
+                     } else {
+                        error("Could not create namespace")
+                     }
                      }
                  }
              }
