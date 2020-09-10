@@ -229,8 +229,8 @@ spec:
                  container('maven') {
                      def GIT_BRANCH_NAME_LOWER = GIT_BRANCH_NAME.toLowerCase().take(24)
                      sh "palisade-login"
-                     sh "\$(aws ecr get-login --no-include-email --region eu-west-1) > /dev/null"
-                     sh "aws eks update-kubeconfig --name pipeline-eks-cluster --region eu-west-1"
+                     // sh "\$(aws ecr get-login --no-include-email --region eu-west-1) > /dev/null"
+                     // sh "aws eks update-kubeconfig --name pipeline-eks-cluster --region eu-west-1"
                      sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER} || true"
                      sh "kubectl delete pv palisade-classpath-jars-example-${GIT_BRANCH_NAME_LOWER} || true"
                      sh "kubectl delete pv palisade-data-store-${GIT_BRANCH_NAME_LOWER} || true"
