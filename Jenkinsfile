@@ -242,30 +242,7 @@ spec:
                     sh "pwd"
                     sh "helm dep up"
                     sh "helm version"
-                    if (sh(script: "helm upgrade --install palisade . " +
-                         "--set global.hosting=aws " +
-                         "--set traefik.install=false,dashboard.install=false " +
-                         "--set global.repository=${ECR_REGISTRY} " +
-                         "--set global.hostname=${EGRESS_ELB} " +
-                         "--set global.deployment=example " +
-                         "--set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} " +
-                         "--set global.persistence.classpathJars.aws.volumeHandle=${VOLUME_HANDLE_CLASSPATH_JARS} " +
-                         "--set global.redisClusterEnabled=false " +
-                         "--set global.redis.install=false " +
-                         "--set global.redis-cluster.install=false " +
-                         " --set global.persistence.dataStores.palisade-data-store.local.hostPath=\$(pwd)/resources/data" +
-                         " --set global.persistence.classpathJars.local.hostPath=\$(pwd)/deployment/target" +
-                         "--namespace ${GIT_BRANCH_NAME_LOWER} --create-namespace", returnStatus: true) == 0) {
-                          echo("successfully deployed")
-                          sleep(time: 2, unit: 'MINUTES')
-                          sh "kubectl get pod --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pod --namespace=${GIT_BRANCH_NAME_LOWER}"
-                          sh "kubectl get pvc --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pvc --namespace=${GIT_BRANCH_NAME_LOWER}"
-                          sh "kubectl get pv  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
-                          sh "kubectl get sc  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
-                          sh "helm delete palisade --namespace ${GIT_BRANCH_NAME_LOWER}"
-                    } else {
-                        error("Build failed because of failed helm install")
-                    }
+
                     }
                  }
              }
