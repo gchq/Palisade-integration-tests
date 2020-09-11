@@ -128,12 +128,12 @@ spec:
         stage('Run the K8s Example') {
             dir('Palisade-services') {
                 container('maven') {
-                    //git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
+                    git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
                 }
             }
-            dir('Palisade-services') {
+            dir('Palisade-examples') {
                  container('maven') {
-                    git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
+                    git branch: 'Pal-544-K8s-End-to-End', url: 'https://github.com/gchq/Palisade-examples.git'
                     def GIT_BRANCH_NAME_LOWER = GIT_BRANCH_NAME.toLowerCase().take(24)
 
                     sh "palisade-login"
@@ -158,7 +158,7 @@ spec:
                                 "--set global.redis-cluster.install=false " +
                                 "--set global.persistence.dataStores.palisade-data-store.local.hostPath=\$(pwd)/resources/data" +
                                 "--set global.persistence.classpathJars.local.hostPath=\$(pwd)/deployment/target" +
-                                "--namespace ${HELM_DEPLOY_NAMESPACE}", returnStatus: true) == 0) {
+                                "--namespace ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
                             echo("successfully deployed")
                        } else {
                           error("Helm deploy failed")
