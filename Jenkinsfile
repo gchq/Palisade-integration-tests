@@ -128,7 +128,10 @@ spec:
         stage('Run the K8s Example') {
             dir('Palisade-services') {
                 container('maven') {
-                    git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
+                    configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                        git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
+                        sh "mvn -s ${MAVEN_SETTINGS} -Dmaven.test.skip=true install"
+                    }
                 }
             }
             dir('Palisade-examples') {
