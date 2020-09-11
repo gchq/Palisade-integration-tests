@@ -143,21 +143,9 @@ spec:
                     sh "kubectl delete pv palisade-data-store-${GIT_BRANCH_NAME_LOWER} || true"
                     if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
                        //sh 'bash deployment/local-k8s/example-model/deployServicesToK8s.sh'
-                       sh "helm dep up"
+                       //sh "helm dep up"
                        sh "helm version"
                        if (sh(script: "helm upgrade --install palisade . " +
-                                "--set global.hosting=aws  " +
-                                "--set traefik.install=false,dashboard.install=false " +
-                                "--set global.repository=${ECR_REGISTRY} " +
-                                "--set global.hostname=${EGRESS_ELB} " +
-                                "--set global.deployment=example " +
-                                "--set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} " +
-                                "--set global.persistence.classpathJars.aws.volumeHandle=${VOLUME_HANDLE_CLASSPATH_JARS} " +
-                                "--set global.redisClusterEnabled=false " +
-                                "--set global.redis.install=false " +
-                                "--set global.redis-cluster.install=false " +
-                                "--set global.persistence.dataStores.palisade-data-store.local.hostPath=\$(pwd)/resources/data" +
-                                "--set global.persistence.classpathJars.local.hostPath=\$(pwd)/deployment/target" +
                                 "--namespace ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
                             echo("successfully deployed")
                        } else {
