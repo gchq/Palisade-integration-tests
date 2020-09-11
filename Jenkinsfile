@@ -19,8 +19,8 @@ timestamps {
 podTemplate(yaml: '''
 apiVersion: v1
 kind: Pod
-metadata: 
-    name: dind 
+metadata:
+    name: dind
 spec:
   affinity:
     nodeAffinity:
@@ -30,7 +30,7 @@ spec:
           matchExpressions:
           - key: palisade-node-name
             operator: In
-            values: 
+            values:
             - node1
             - node2
             - node3
@@ -38,7 +38,7 @@ spec:
   - name: jnlp
     image: jenkins/jnlp-slave
     imagePullPolicy: Always
-    args: 
+    args:
     - $(JENKINS_SECRET)
     - $(JENKINS_NAME)
     resources:
@@ -62,13 +62,13 @@ spec:
         ephemeral-storage: "4Gi"
       limits:
         ephemeral-storage: "8Gi"
-  
+
   - name: hadolint
     image: hadolint/hadolint:v1.18.0-6-ga0d655d-alpine@sha256:e0f960b5acf09ccbf092ec1e8f250cd6b5c9a586a0e9783c53618d76590b6aec
     imagePullPolicy: IfNotPresent
     command:
         - cat
-    tty: true  
+    tty: true
     resources:
       requests:
         ephemeral-storage: "1Gi"
@@ -164,7 +164,7 @@ spec:
                 // This will be needed to build the jars
                 container('docker-cmds') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                        sh 'mvn -s $MAVEN_SETTINGS install -Dmaven.test.skip=true'
+                        sh 'mvn -s $MAVEN_SETTINGS install -P quick'
                     }
                 }
             }
@@ -173,7 +173,7 @@ spec:
                 if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0 || (env.BRANCH_NAME.substring(0, 2) == "PR" && sh(script: "git checkout develop", returnStatus: true) == 0)) {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install -Dmaven.test.skip=true'
+                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
                         }
                     }
                 }
@@ -185,7 +185,6 @@ spec:
                 git branch: GIT_BRANCH_NAME, url: 'https://github.com/gchq/Palisade-integration-tests.git'
                 container('docker-cmds') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                        sh 'mvn -s $MAVEN_SETTINGS install -Dmaven.test.skip=true'
                     }
                 }
             }
@@ -236,29 +235,28 @@ spec:
                     // sh "kubectl describe clusterrole.rbac || true"
                     // sh "kubectl auth can-i create pvc"
                     // sh "kubectl get pvc --all-namespaces"
-                    sh "ls"
-                    sh "pwd"
                     if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                        sh "helm dep up"
-                        sh "helm version"
-                        if (sh(script: "helm upgrade --install palisade . " +
-                                 "--set global.hosting=aws  " +
-                                 "--set traefik.install=false,dashboard.install=false " +
-                                 "--set global.repository=${ECR_REGISTRY} " +
-                                 "--set global.hostname=${EGRESS_ELB} " +
-                                 "--set global.deployment=example " +
-                                 "--set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} " +
-                                 "--set global.persistence.classpathJars.aws.volumeHandle=${VOLUME_HANDLE_CLASSPATH_JARS} " +
-                                 "--set global.redisClusterEnabled=false " +
-                                 "--set global.redis.install=false " +
-                                 "--set global.redis-cluster.install=false " +
-                                 "--set global.persistence.dataStores.palisade-data-store.local.hostPath=\$(pwd)/resources/data" +
-                                 "--set global.persistence.classpathJars.local.hostPath=\$(pwd)/deployment/target" +
-                                 "--namespace ${HELM_DEPLOY_NAMESPACE}", returnStatus: true) == 0) {
-                             echo("successfully deployed")
-                        } else {
-                           error("Helm deploy failed")
-                        }
+                        bash deployment/local-k8s/example-model/deployServicesToK8s.sh
+                       // sh "helm dep up"
+                       // sh "helm version"
+                        //if (sh(script: "helm upgrade --install palisade . " +
+                          //       "--set global.hosting=aws  " +
+                          //       "--set traefik.install=false,dashboard.install=false " +
+                          //       "--set global.repository=${ECR_REGISTRY} " +
+                          //       "--set global.hostname=${EGRESS_ELB} " +
+                           //      "--set global.deployment=example " +
+                           //      "--set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} " +
+                           //      "--set global.persistence.classpathJars.aws.volumeHandle=${VOLUME_HANDLE_CLASSPATH_JARS} " +
+                           //      "--set global.redisClusterEnabled=false " +
+                           //      "--set global.redis.install=false " +
+                           //      "--set global.redis-cluster.install=false " +
+                           //      "--set global.persistence.dataStores.palisade-data-store.local.hostPath=\$(pwd)/resources/data" +
+                           //      "--set global.persistence.classpathJars.local.hostPath=\$(pwd)/deployment/target" +
+                           //      "--namespace ${HELM_DEPLOY_NAMESPACE}", returnStatus: true) == 0) {
+                           //  echo("successfully deployed")
+                      //  } else {
+                       //    error("Helm deploy failed")
+                      //  }
                     } else {
                         error("Failed to create namespace")
                     }
