@@ -133,7 +133,7 @@ spec:
             }
             dir('Palisade-examples') {
                  container('maven') {
-                    git branch: 'PAL-544-K8s-End-to-End', url: 'https://github.com/gchq/Palisade-examples.git'
+                    git branch: 'Pal-544-K8s-End-to-End', url: 'https://github.com/gchq/Palisade-examples.git'
                     def GIT_BRANCH_NAME_LOWER = GIT_BRANCH_NAME.toLowerCase().take(24)
 
                     sh "palisade-login"
