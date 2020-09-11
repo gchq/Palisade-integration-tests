@@ -164,7 +164,7 @@ spec:
                 // This will be needed to build the jars
                 container('docker-cmds') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                        sh 'mvn -s $MAVEN_SETTINGS install -P quick'
+                        sh 'mvn -s $MAVEN_SETTINGS install -Dmaven.test.skip=true'
                     }
                 }
             }
@@ -173,7 +173,7 @@ spec:
                 if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0 || (env.BRANCH_NAME.substring(0, 2) == "PR" && sh(script: "git checkout develop", returnStatus: true) == 0)) {
                     container('docker-cmds') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install'
+                            sh 'mvn -s $MAVEN_SETTINGS install -Dmaven.test.skip=true'
                         }
                     }
                 }
@@ -239,7 +239,7 @@ spec:
                     sh "ls"
                     sh "pwd"
                     if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                        sh "helm dep up"
+                        // sh "helm dep up"
                         sh "helm version"
                         if (sh(script: "helm upgrade --install palisade . " +
                              "--set global.hosting=aws " +
