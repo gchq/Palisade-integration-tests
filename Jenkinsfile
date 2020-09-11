@@ -128,12 +128,12 @@ spec:
         stage('Run the K8s Example') {
             dir('Palisade-services') {
                 container('maven') {
-                    git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
+                    //git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
                 }
             }
-            dir('Palisade-examples') {
+            dir('Palisade-services') {
                  container('maven') {
-                    git branch: 'Pal-544-K8s-End-to-End', url: 'https://github.com/gchq/Palisade-examples.git'
+                    git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
                     def GIT_BRANCH_NAME_LOWER = GIT_BRANCH_NAME.toLowerCase().take(24)
 
                     sh "palisade-login"
