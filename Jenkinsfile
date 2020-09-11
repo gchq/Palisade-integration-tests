@@ -145,6 +145,7 @@ spec:
                         sh "kubectl delete pv palisade-data-store-${GIT_BRANCH_NAME_LOWER} || true"
                         if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
                            //sh 'bash deployment/local-k8s/example-model/deployServicesToK8s.sh'
+                           sh 'ls charts/'
                            sh "helm dep up"
                            sh "helm version"
                            if (sh(script: "helm upgrade --install palisade . " +
