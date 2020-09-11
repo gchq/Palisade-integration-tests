@@ -162,11 +162,9 @@ spec:
                 // Checkout services if a similarly-named branch exists
                 // If this is a PR, a example smoke-test will be run, so checkout services develop if no similarly-named branch was found
                 // This will be needed to build the jars
-                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0 || (env.BRANCH_NAME.substring(0, 2) == "PR" && sh(script: "git checkout develop", returnStatus: true) == 0)) {
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
-                        }
+                container('docker-cmds') {
+                    configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                        sh 'mvn -s $MAVEN_SETTINGS install -P quick'
                     }
                 }
             }
@@ -240,9 +238,36 @@ spec:
                     // sh "kubectl get pvc --all-namespaces"
                     sh "ls"
                     sh "pwd"
-                    sh "helm dep up"
-                    sh "helm version"
-
+                    if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
+                        sh "helm dep up"
+                        sh "helm version"
+                        if (sh(script: "helm upgrade --install palisade . " +
+                             "--set global.hosting=aws " +
+                             "--set traefik.install=false,dashboard.install=false " +
+                             "--set global.repository=${ECR_REGISTRY} " +
+                             "--set global.hostname=${EGRESS_ELB} " +
+                             "--set global.deployment=example " +
+                             "--set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} " +
+                             "--set global.persistence.classpathJars.aws.volumeHandle=${VOLUME_HANDLE_CLASSPATH_JARS} " +
+                             "--set global.redisClusterEnabled=false " +
+                             "--set global.redis.install=false " +
+                             "--set global.redis-cluster.install=false " +
+                             "--set global.persistence.dataStores.palisade-data-store.local.hostPath=\$(pwd)/resources/data" +
+                             "--set global.persistence.classpathJars.local.hostPath=\$(pwd)/deployment/target" +
+                             "--namespace ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
+                              echo("successfully deployed")
+                              sleep(time: 2, unit: 'MINUTES')
+                              sh "kubectl get pod --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pod --namespace=${GIT_BRANCH_NAME_LOWER}"
+                              sh "kubectl get pvc --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pvc --namespace=${GIT_BRANCH_NAME_LOWER}"
+                              sh "kubectl get pv  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
+                              sh "kubectl get sc  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
+                              sh "helm delete palisade --namespace ${GIT_BRANCH_NAME_LOWER}"
+                        } else {
+                            error("Build failed because of failed helm install")
+                        }
+                    } else {
+                        error("Failed to create namespace")
+                    }
                     }
                  }
              }
