@@ -125,144 +125,51 @@ spec:
             }
             echo sh(script: 'env | sort', returnStdout: true)
         }
-
-        stage('Prerequisites') {
-            dir('Palisade-common') {
-                git branch: 'develop', url: 'https://github.com/gchq/Palisade-common.git'
-                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                          //  sh 'mvn -s $MAVEN_SETTINGS install -P quick'
-                        }
-                    }
-                }
-            }
-            dir('Palisade-readers') {
-                git branch: 'develop', url: 'https://github.com/gchq/Palisade-readers.git'
-                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                           // sh 'mvn -s $MAVEN_SETTINGS install -P quick'
-                        }
-                    }
-                }
-            }
-            dir('Palisade-clients') {
-                git branch: 'develop', url: 'https://github.com/gchq/Palisade-clients.git'
-                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            // sh 'mvn -s $MAVEN_SETTINGS install -P quick'
-                        }
-                    }
-                }
-            }
+        stage('Run the K8s Example') {
             dir('Palisade-services') {
-                git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
-                // Checkout services if a similarly-named branch exists
-                // If this is a PR, a example smoke-test will be run, so checkout services develop if no similarly-named branch was found
-                // This will be needed to build the jars
-                container('docker-cmds') {
-                    configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                        // sh 'mvn -s $MAVEN_SETTINGS install -P quick'
-                    }
+                container('maven') {
+                    git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
                 }
             }
             dir('Palisade-examples') {
-                git branch: 'develop', url: 'https://github.com/gchq/Palisade-examples.git'
-                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0 || (env.BRANCH_NAME.substring(0, 2) == "PR" && sh(script: "git checkout develop", returnStatus: true) == 0)) {
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                           // sh 'mvn -s $MAVEN_SETTINGS install -P quick'
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Integration Tests, Checkstyle') {
-            dir('Palisade-integration-tests') {
-                git branch: GIT_BRANCH_NAME, url: 'https://github.com/gchq/Palisade-integration-tests.git'
-                container('docker-cmds') {
-                    configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                    }
-                }
-            }
-        }
-
-        stage('Hadolinting') {
-            dir("Palisade-integration-tests") {
-                container('hadolint') {
-                    sh 'hadolint */Dockerfile'
-                }
-            }
-        }
-
-        stage('Run the JVM Example') {
-            // Always run some sort of End-to-End test if this is a Pull Request or from develop or main
-            if (env.BRANCH_NAME.substring(0, 2) == "PR" || env.BRANCH_NAME == "develop" || env.BRANCH_NAME == "main") {
-                // If this branch name exists in examples, use that
-                // Otherwise, default to examples/develop
-                dir ('Palisade-examples') {
-                    git branch: 'develop', url: 'https://github.com/gchq/Palisade-examples.git'
-                    sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true)
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
-                            sh '''
-                                bash deployment/local-jvm/example-model/startServices.sh
-                                bash deployment/local-jvm/example-model/runFormattedLocalJVMExample.sh | tee deployment/local-jvm/example-model/exampleOutput.txt
-                                bash deployment/local-jvm/example-model/stopServices.sh
-                            '''
-                            sh 'bash deployment/local-jvm/example-model/verify.sh'
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Run the K8s Example') {
-             dir('Palisade-examples') {
                  container('maven') {
+                    git branch: 'PAL-544-K8s-End-to-End', url: 'https://github.com/gchq/Palisade-examples.git'
                     def GIT_BRANCH_NAME_LOWER = GIT_BRANCH_NAME.toLowerCase().take(24)
+
                     sh "palisade-login"
                     sh 'extract-addresses'
-                    // sh "\$(aws ecr get-login --no-include-email --region eu-west-1) > /dev/null"
-                    // sh "aws eks update-kubeconfig --name pipeline-eks-cluster --region eu-west-1"
                     sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER} || true"
                     sh "kubectl delete pv palisade-classpath-jars-example-${GIT_BRANCH_NAME_LOWER} || true"
                     sh "kubectl delete pv palisade-data-store-${GIT_BRANCH_NAME_LOWER} || true"
-                    // sh "kubectl describe clusterrole.rbac || true"
-                    // sh "kubectl auth can-i create pvc"
-                    // sh "kubectl get pvc --all-namespaces"
                     if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                        sh 'bash deployment/local-k8s/example-model/deployServicesToK8s.sh'
-                       // sh "helm dep up"
-                       // sh "helm version"
-                        //if (sh(script: "helm upgrade --install palisade . " +
-                          //       "--set global.hosting=aws  " +
-                          //       "--set traefik.install=false,dashboard.install=false " +
-                          //       "--set global.repository=${ECR_REGISTRY} " +
-                          //       "--set global.hostname=${EGRESS_ELB} " +
-                           //      "--set global.deployment=example " +
-                           //      "--set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} " +
-                           //      "--set global.persistence.classpathJars.aws.volumeHandle=${VOLUME_HANDLE_CLASSPATH_JARS} " +
-                           //      "--set global.redisClusterEnabled=false " +
-                           //      "--set global.redis.install=false " +
-                           //      "--set global.redis-cluster.install=false " +
-                           //      "--set global.persistence.dataStores.palisade-data-store.local.hostPath=\$(pwd)/resources/data" +
-                           //      "--set global.persistence.classpathJars.local.hostPath=\$(pwd)/deployment/target" +
-                           //      "--namespace ${HELM_DEPLOY_NAMESPACE}", returnStatus: true) == 0) {
-                           //  echo("successfully deployed")
-                      //  } else {
-                       //    error("Helm deploy failed")
-                      //  }
+                       //sh 'bash deployment/local-k8s/example-model/deployServicesToK8s.sh'
+                       sh "helm dep up"
+                       sh "helm version"
+                       if (sh(script: "helm upgrade --install palisade . " +
+                                "--set global.hosting=aws  " +
+                                "--set traefik.install=false,dashboard.install=false " +
+                                "--set global.repository=${ECR_REGISTRY} " +
+                                "--set global.hostname=${EGRESS_ELB} " +
+                                "--set global.deployment=example " +
+                                "--set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} " +
+                                "--set global.persistence.classpathJars.aws.volumeHandle=${VOLUME_HANDLE_CLASSPATH_JARS} " +
+                                "--set global.redisClusterEnabled=false " +
+                                "--set global.redis.install=false " +
+                                "--set global.redis-cluster.install=false " +
+                                "--set global.persistence.dataStores.palisade-data-store.local.hostPath=\$(pwd)/resources/data" +
+                                "--set global.persistence.classpathJars.local.hostPath=\$(pwd)/deployment/target" +
+                                "--namespace ${HELM_DEPLOY_NAMESPACE}", returnStatus: true) == 0) {
+                            echo("successfully deployed")
+                       } else {
+                          error("Helm deploy failed")
+                       }
                     } else {
-                        error("Failed to create namespace")
+                       error("Failed to create namespace")
                     }
                     }
-                 }
-             }
+                }
+            }
         }
     }
 }
+0
