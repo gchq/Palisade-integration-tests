@@ -239,7 +239,7 @@ spec:
                     sh "ls"
                     sh "pwd"
                     if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                        // sh "helm dep up"
+                        sh "helm dep up"
                         sh "helm version"
                         if (sh(script: "helm upgrade --install palisade . " +
                                  "--set global.hosting=aws  " +
