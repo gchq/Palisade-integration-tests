@@ -126,20 +126,27 @@ spec:
             echo sh(script: 'env | sort', returnStdout: true)
         }
         stage('Run the K8s Example') {
+            dir('Palisade-examples') {
+                 container('maven') {
+                    configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                        git branch: 'Pal-544-K8s-End-to-End', url: 'https://github.com/gchq/Palisade-examples.git'
+                        sh "mvn -s ${MAVEN_SETTINGS} install"
+                    }
+                }
+            }
+
             dir('Palisade-services') {
                 container('maven') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                         git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
-                        sh "mvn -s ${MAVEN_SETTINGS} -Dmaven.test.skip=true install"
+                        sh "mvn -s ${MAVEN_SETTINGS} install"
                     }
                 }
             }
             dir('Palisade-examples') {
                  container('maven') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                        git branch: 'Pal-544-K8s-End-to-End', url: 'https://github.com/gchq/Palisade-examples.git'
                         def GIT_BRANCH_NAME_LOWER = GIT_BRANCH_NAME.toLowerCase().take(24)
-                        sh "mvn -s ${MAVEN_SETTINGS} install"
 
                         sh "palisade-login"
                         sh 'extract-addresses'
