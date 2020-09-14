@@ -158,7 +158,7 @@ spec:
                            sh 'helm list --all'
                            sh 'kubectl get pods --all'
                            sh 'ls charts/'
-                           sh "helm dep up"
+                           sh "helm dep up --debug"
                            sh 'ls charts/'
                            sh "helm version"
                            if (sh(script: "helm upgrade --install palisade . " +
