@@ -129,8 +129,10 @@ spec:
             dir('Palisade-examples') {
                  container('maven') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                        git branch: '${GIT_BRANCH_NAME}', url: 'https://github.com/gchq/Palisade-examples.git'
-                        sh "mvn -s ${MAVEN_SETTINGS} install -Dmaven.test.skip=true"
+                        git branch: 'develop', url: 'https://github.com/gchq/Palisade-examples.git'
+                        if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                           sh "mvn -s ${MAVEN_SETTINGS} install -Dmaven.test.skip=true"
+                        }
                     }
                 }
             }
@@ -138,8 +140,10 @@ spec:
             dir('Palisade-services') {
                 container('maven') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                        git branch: '${GIT_BRANCH_NAME}', url: 'https://github.com/gchq/Palisade-services.git'
-                        sh "mvn -s ${MAVEN_SETTINGS} install -Dmaven.test.skip=true"
+                        git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
+                        if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                           sh "mvn -s ${MAVEN_SETTINGS} install -Dmaven.test.skip=true"
+                        }
                     }
                 }
             }
