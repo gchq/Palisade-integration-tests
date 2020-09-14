@@ -116,66 +116,110 @@ spec:
 ''') {
     node(POD_LABEL) {
         def GIT_BRANCH_NAME
+        def GIT_BRANCH_NAME_LOWER
+        def SERVICES_REVISION
+        def COMMON_REVISION
+        def READERS_REVISION
+        def CLIENTS_REVISION
+        def EXAMPLES_REVISION
+        def INTEGRATION_REVISION
+        def IS_PR
+        def FEATURE_BRANCH
 
         stage('Bootstrap') {
             if (env.CHANGE_BRANCH) {
                 GIT_BRANCH_NAME=env.CHANGE_BRANCH
+                IS_PR = "true"
             } else {
                 GIT_BRANCH_NAME=env.BRANCH_NAME
+                IS_PR = "false"
+            }
+            // set default values for the variables
+            FEATURE_BRANCH = "true"
+            COMMON_REVISION = "SNAPSHOT"
+            READERS_REVISION = "SNAPSHOT"
+            CLIENTS_REVISION = "SNAPSHOT"
+            EXAMPLES_REVISION = "SNAPSHOT"
+            INTEGRATION_REVISION = "SNAPSHOT"
+            GIT_BRANCH_NAME_LOWER = GIT_BRANCH_NAME.toLowerCase().take(7)
+            SERVICES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+            // update values for the variables if this is the develop branch build
+            if ("${env.BRANCH_NAME}" == "develop") {
+                SERVICES_REVISION = "SNAPSHOT"
+                FEATURE_BRANCH = "false"
+            }
+            // update values for the variables if this is the main branch build
+            if ("${env.BRANCH_NAME}" == "main") {
+                SERVICES_REVISION = "RELEASE"
+                COMMON_REVISION = "RELEASE"
+                READERS_REVISION = "RELEASE"
+                CLIENTS_REVISION = "RELEASE"
+                EXAMPLES_REVISION = "RELEASE"
+                INTEGRATION_REVISION = "RELEASE"
+                FEATURE_BRANCH = "false"
             }
             echo sh(script: 'env | sort', returnStdout: true)
         }
 
         stage('Prerequisites') {
-            dir('Palisade-common') {
-                git branch: 'develop', url: 'https://github.com/gchq/Palisade-common.git'
-                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
+            container('docker-cmds') {
+                configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                    if (FEATURE_BRANCH == "true") {
+                        dir('Palisade-common') {
+                            git branch: 'develop', url: 'https://github.com/gchq/Palisade-common.git'
+                            if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                                COMMON_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                            }
                         }
-                    }
-                }
-            }
-            dir('Palisade-readers') {
-                git branch: 'develop', url: 'https://github.com/gchq/Palisade-readers.git'
-                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
+
+                        dir('Palisade-readers') {
+                            git branch: 'develop', url: 'https://github.com/gchq/Palisade-readers.git'
+                            if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                                READERS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                            } else {
+                                 if (COMMON_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
+                                    sh "mvn -s ${MAVEN_SETTINGS} -D revision=${READERS_REVISION} -D common.revision=${COMMON_REVISION} -P quick deploy"
+                                    READERS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                 }
+                            }
                         }
-                    }
-                }
-            }
-            dir('Palisade-clients') {
-                git branch: 'develop', url: 'https://github.com/gchq/Palisade-clients.git'
-                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
+
+                        dir('Palisade-clients') {
+                            git branch: 'develop', url: 'https://github.com/gchq/Palisade-clients.git'
+                            if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                                CLIENTS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                            } else {
+                                 if (READERS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
+                                    sh "mvn -s ${MAVEN_SETTINGS} -D revision=${CLIENTS_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -P quick deploy"
+                                    CLIENTS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                 }
+                            }
                         }
-                    }
-                }
-            }
-            dir('Palisade-services') {
-                git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
-                // Checkout services if a similarly-named branch exists
-                // If this is a PR, a example smoke-test will be run, so checkout services develop if no similarly-named branch was found
-                // This will be needed to build the jars
-                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0 || (env.BRANCH_NAME.substring(0, 2) == "PR" && sh(script: "git checkout develop", returnStatus: true) == 0)) {
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
+
+                        dir('Palisade-examples') {
+                            git branch: 'develop', url: 'https://github.com/gchq/Palisade-examples.git'
+                            if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                                EXAMPLES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                // do an install now ready for the JVM end to end test if we are not doing the full deploy
+                                sh "mvn -s ${MAVEN_SETTINGS} -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} -P quick install"
+                            } else {
+                                if (CLIENTS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
+                                    sh "mvn -s ${MAVEN_SETTINGS} -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} -P quick deploy"
+                                    EXAMPLES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                }
+                            }
                         }
-                    }
-                }
-            }
-            dir('Palisade-HR-data-gen') {
-                git branch: 'develop', url: 'https://github.com/gchq/Palisade-examples.git'
-                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0 || (env.BRANCH_NAME.substring(0, 2) == "PR" && sh(script: "git checkout develop", returnStatus: true) == 0)) {
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install -P quick -pl hr-data-generator/'
+
+                        dir('Palisade-services') {
+                            git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
+                            if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                                SERVICES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                            } else {
+                                if (READERS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
+                                    sh "mvn -s ${MAVEN_SETTINGS} -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -P quick deploy"
+                                    SERVICES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                }
+                            }
                         }
                     }
                 }
@@ -187,7 +231,7 @@ spec:
                 git branch: GIT_BRANCH_NAME, url: 'https://github.com/gchq/Palisade-integration-tests.git'
                 container('docker-cmds') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                        sh 'mvn -s $MAVEN_SETTINGS install'
+                        sh "mvn -s ${MAVEN_SETTINGS} -D revision=${INTEGRATION_REVISION} -D common.revision=${COMMON_REVISION} -D examples.revision=${EXAMPLES_REVISION} -D services.revision=${SERVICES_REVISION} deploy"
                     }
                 }
             }
@@ -202,16 +246,13 @@ spec:
         }
 
         stage('Run the JVM Example') {
-            // Always run some sort of smoke test if this is a Pull Request or from develop or main
-            if (env.BRANCH_NAME.substring(0, 2) == "PR" || env.BRANCH_NAME == "develop" || env.BRANCH_NAME == "main") {
-                // If this branch name exists in examples, use that
-                // Otherwise, default to examples/develop
-                dir ('Palisade-examples') {
-                    git branch: 'develop', url: 'https://github.com/gchq/Palisade-examples.git'
-                    sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true)
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'mvn -s $MAVEN_SETTINGS install -P quick'
+            container('docker-cmds') {
+                configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                    // Always run some sort of smoke test if this is a Pull Request or from develop or main
+                    if (IS_PR == "true" || FEATURE_BRANCH == "false") {
+                        // If this branch name exists in examples, use that
+                        // Otherwise, default to examples/develop
+                        dir ('Palisade-examples') {
                             sh '''
                                 bash deployment/local-jvm/example-model/startServices.sh
                                 bash deployment/local-jvm/example-model/runFormattedLocalJVMExample.sh | tee deployment/local-jvm/example-model/exampleOutput.txt
