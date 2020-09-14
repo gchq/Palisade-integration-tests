@@ -144,6 +144,7 @@ spec:
                         if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                            sh "mvn -s ${MAVEN_SETTINGS} install -Dmaven.test.skip=true"
 
+                           def GIT_BRANCH_NAME_LOWER = GIT_BRANCH_NAME.toLowerCase().take(24)
                            sh "palisade-login"
                            sh 'extract-addresses'
                            sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER} || true"
