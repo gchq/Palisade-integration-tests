@@ -140,12 +140,12 @@ spec:
             READERS_REVISION = "SNAPSHOT"
             CLIENTS_REVISION = "SNAPSHOT"
             EXAMPLES_REVISION = "SNAPSHOT"
-            INTEGRATION_REVISION = "SNAPSHOT"
+            SERVICES_REVISION = "SNAPSHOT"
             GIT_BRANCH_NAME_LOWER = GIT_BRANCH_NAME.toLowerCase().take(7)
-            SERVICES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+            INTEGRATION_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
             // update values for the variables if this is the develop branch build
             if ("${env.BRANCH_NAME}" == "develop") {
-                SERVICES_REVISION = "SNAPSHOT"
+                INTEGRATION_REVISION = "SNAPSHOT"
                 FEATURE_BRANCH = "false"
             }
             // update values for the variables if this is the main branch build
