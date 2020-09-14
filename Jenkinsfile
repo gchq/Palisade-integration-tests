@@ -130,7 +130,7 @@ spec:
                  container('maven') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                         git branch: 'Pal-544-K8s-End-to-End', url: 'https://github.com/gchq/Palisade-examples.git'
-                        sh "mvn -s ${MAVEN_SETTINGS} install"
+                        sh "mvn -s ${MAVEN_SETTINGS} install -Dmaven.test.skip=true"
                     }
                 }
             }
@@ -139,7 +139,7 @@ spec:
                 container('maven') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                         git branch: 'PAL-710-ECR-push', url: 'https://github.com/gchq/Palisade-services.git'
-                        sh "mvn -s ${MAVEN_SETTINGS} install"
+                        sh "mvn -s ${MAVEN_SETTINGS} install -Dmaven.test.skip=true"
                     }
                 }
             }
