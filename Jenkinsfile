@@ -143,6 +143,30 @@ spec:
                         git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
                         if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                            sh "mvn -s ${MAVEN_SETTINGS} install -Dmaven.test.skip=true"
+
+                           sh "palisade-login"
+                           sh 'extract-addresses'
+                           sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER} || true"
+                           sh "kubectl delete pv palisade-classpath-jars-example-${GIT_BRANCH_NAME_LOWER} || true"
+                           sh "kubectl delete pv palisade-data-store-${GIT_BRANCH_NAME_LOWER} || true"
+                           if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
+                                if (sh(script: "helm upgrade --install palisade . " +
+                                        "--set global.hosting=aws  " +
+                                        "--set traefik.install=false,dashboard.install=false " +
+                                        "--set global.repository=${ECR_REGISTRY} " +
+                                        "--set global.hostname=${EGRESS_ELB} " +
+                                        "--set global.deployment=example " +
+                                        "--set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} " +
+                                        "--set global.persistence.classpathJars.aws.volumeHandle=${VOLUME_HANDLE_CLASSPATH_JARS} " +
+                                        "--set global.redisClusterEnabled=true " +
+                                        "--set global.redis.install=false " +
+                                        "--set global.redis-cluster.install=true " +
+                                        "--namespace ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
+                                    echo("successfully deployed")
+                                } else {
+                                    error("Build failed because of failed maven deploy")
+                                }
+                            }
                         }
                     }
                 }
@@ -164,7 +188,7 @@ spec:
                            sh 'ls ..'
                            sh 'ls'
                            sh 'ls charts/'
-                           //sh "helm dep up --debug"
+                           sh "helm dep up --debug"
                            sh 'ls charts/'
 
                            if (sh(script: "helm upgrade --install palisade . " +
