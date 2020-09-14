@@ -156,7 +156,7 @@ spec:
                         if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
                            //sh 'bash deployment/local-k8s/example-model/deployServicesToK8s.sh'
                            sh 'helm list --all'
-                           sh 'kubectl get pods --all'
+                           sh 'kubectl get pods --all-namespaces'
                            sh 'ls charts/'
                            sh "helm dep up --debug"
                            sh 'ls charts/'
