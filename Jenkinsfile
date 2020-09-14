@@ -138,7 +138,7 @@ spec:
             dir('Palisade-services') {
                 container('maven') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                        git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
+                        git branch: 'PAL-710-ECR-push', url: 'https://github.com/gchq/Palisade-services.git'
                         sh "mvn -s ${MAVEN_SETTINGS} install"
                     }
                 }
