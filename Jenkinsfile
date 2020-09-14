@@ -142,7 +142,7 @@ spec:
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                         git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
                         if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
-                           sh "mvn -s ${MAVEN_SETTINGS} install -Dmaven.test.skip=true"
+                           // sh "mvn -s ${MAVEN_SETTINGS} install -Dmaven.test.skip=true"
                         }
                     }
                 }
