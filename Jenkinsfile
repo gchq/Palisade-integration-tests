@@ -164,7 +164,7 @@ spec:
                            sh 'ls ..'
                            sh 'ls'
                            sh 'ls charts/'
-                           sh "helm dep up --debug"
+                           //sh "helm dep up --debug"
                            sh 'ls charts/'
 
                            if (sh(script: "helm upgrade --install palisade . " +
