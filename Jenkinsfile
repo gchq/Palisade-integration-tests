@@ -157,6 +157,7 @@ spec:
                            //sh 'bash deployment/local-k8s/example-model/deployServicesToK8s.sh'
                            sh 'ls charts/'
                            sh "helm dep up"
+                           sh 'ls charts/'
                            sh "helm version"
                            if (sh(script: "helm upgrade --install palisade . " +
                                     "--set global.hosting=aws  " +
