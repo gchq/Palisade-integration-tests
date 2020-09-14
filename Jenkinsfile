@@ -157,6 +157,8 @@ spec:
                            sh 'helm list --all'
                            sh 'kubectl get pods --all-namespaces'
                            sh "helm version"
+                           sh 'ls ..'
+                           sh 'ls'
                            sh 'ls charts/'
                            sh "helm dep up --debug"
                            sh 'ls charts/'
