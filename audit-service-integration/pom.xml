@@ -34,13 +34,13 @@
         <dependency>
             <groupId>uk.gov.gchq.palisade</groupId>
             <artifactId>audit-service</artifactId>
-            <version>${project.parent.version}</version>
+            <version>0.5.0-${services.revision}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.palisade</groupId>
             <artifactId>common</artifactId>
-            <version>${project.parent.version}</version>
+            <version>0.5.0-${common.revision}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
