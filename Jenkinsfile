@@ -179,8 +179,15 @@ spec:
                                 "--set global.redis-cluster.install=false " +
                                 "--set global.persistence.dataStores.palisade-data-store.local.hostPath=\$(pwd)/resources/data " +
                                 "--set global.persistence.classpathJars.local.hostPath=\$(pwd)/deployment/target " +
-                                "--namespace ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                            echo("successfully deployed")
+                                "--namespace ${GIT_BRANCH_NAME_LOWER} " +
+                                "--timeout 300s", returnStatus: true) == 0) {
+                                echo("successfully deployed")
+                                sleep(time: 2, unit: 'MINUTES')
+                                sh "kubectl get pod --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pod --namespace=${GIT_BRANCH_NAME_LOWER}"
+                                sh "kubectl get pvc --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pvc --namespace=${GIT_BRANCH_NAME_LOWER}"
+                                sh "kubectl get pv  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
+                                sh "kubectl get sc  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
+                                sh "helm delete palisade --namespace ${GIT_BRANCH_NAME_LOWER}"
                            } else {
                                error("Build failed because of failed helm deploy")
                            }
