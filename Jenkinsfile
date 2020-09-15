@@ -159,6 +159,7 @@ spec:
                         if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
                            //sh 'bash deployment/local-k8s/example-model/deployServicesToK8s.sh'
                            sh "helm dep up --debug"
+                           sh 'docker images'
                            if (sh(script: "helm upgrade --install palisade . " +
                                 "--set global.hosting=aws  " +
                                 "--set traefik.install=false,dashboard.install=false " +
