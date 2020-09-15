@@ -261,11 +261,9 @@ spec:
                         // If this branch name exists in examples, use that
                         // Otherwise, default to examples/develop
                         dir ('Palisade-examples') {
-                            sh '''
-                                bash deployment/local-jvm/example-model/startServices.sh
-                                bash deployment/local-jvm/example-model/runFormattedLocalJVMExample.sh | tee deployment/local-jvm/example-model/exampleOutput.txt
-                                bash deployment/local-jvm/example-model/stopServices.sh
-                            '''
+                            sh 'bash deployment/local-jvm/example-model/startServices.sh'
+                            sh 'bash deployment/local-jvm/example-model/runFormattedLocalJVMExample.sh | tee deployment/local-jvm/example-model/exampleOutput.txt'
+                            sh 'bash deployment/local-jvm/example-model/stopServices.sh'
                             sh 'bash deployment/local-jvm/example-model/verify.sh'
                         }
                     }
