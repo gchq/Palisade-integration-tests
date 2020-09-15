@@ -140,7 +140,7 @@ spec:
             DEPLOY_EXAMPLES_IMAGES = "false"
             DEPLOY_SERVICES_IMAGES = "false"
             FEATURE_BRANCH = "true"
-            COMMON_REVISION = "SNAPSHOT"
+            COMMON_REVISION = "0.5.0-SNAPSHOT"
             READERS_REVISION = "SNAPSHOT"
             CLIENTS_REVISION = "SNAPSHOT"
             EXAMPLES_REVISION = "SNAPSHOT"
@@ -172,7 +172,7 @@ spec:
                         dir('Palisade-common') {
                             git branch: 'develop', url: 'https://github.com/gchq/Palisade-common.git'
                             if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
-                                COMMON_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                COMMON_REVISION = "0.5.0-SNAPSHOT"
                             }
                         }
 
@@ -229,7 +229,7 @@ spec:
                                     DEPLOY_SERVICES_IMAGES = "true"
                                 } else {
                                     // do an install now ready for the JVM end to end test if we are not doing the full deploy
-                                    sh "mvn -s ${MAVEN_SETTINGS} -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} -P quick install"
+                                    sh "mvn -s ${MAVEN_SETTINGS} -D revision=${SERVICES_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} -P quick install"
                                 }
                             }
                         }
@@ -244,11 +244,11 @@ spec:
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                         sh 'palisade-login'
                         dir("Palisade-examples") {
-                            sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
+                            sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
                         }
 
                         dir("Palisade-services") {
-                            sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
+                            sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
                         }
                     }
                 }
@@ -260,7 +260,7 @@ spec:
                 git branch: GIT_BRANCH_NAME, url: 'https://github.com/gchq/Palisade-integration-tests.git'
                 container('docker-cmds') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                        sh "mvn -s ${MAVEN_SETTINGS} -D revision=${INTEGRATION_REVISION} deploy"
+                        sh "mvn -s ${MAVEN_SETTINGS} -D revision=${INTEGRATION_REVISION} -D examples.revision=${EXAMPLES_REVISION} -D services.revision=${SERVICES_REVISION} deploy"
                     }
                 }
             }
