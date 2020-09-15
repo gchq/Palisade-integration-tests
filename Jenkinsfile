@@ -150,7 +150,6 @@ spec:
             // update values for the variables if this is the develop branch build
             if ("${env.BRANCH_NAME}" == "develop") {
                 INTEGRATION_REVISION = "SNAPSHOT"
-                HELM_DEPLOY_NAMESPACE = "dev"
                 FEATURE_BRANCH = "false"
             }
             // update values for the variables if this is the main branch build
@@ -250,6 +249,89 @@ spec:
 
                         dir("Palisade-services") {
                             sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
+            container('docker-cmds') {
+                configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                    if (FEATURE_BRANCH == "true") {
+                        dir('Palisade-common') {
+                            git branch: 'develop', url: 'https://github.com/gchq/Palisade-common.git'
+                            if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                                COMMON_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                            }
+                        }
+
+                        dir('Palisade-readers') {
+                            git branch: 'develop', url: 'https://github.com/gchq/Palisade-readers.git'
+                            if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                                READERS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                            } else {
+                                 if (COMMON_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
+                                     READERS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                     sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${READERS_REVISION} -D common.revision=${COMMON_REVISION} deploy"
+                                 }
+                            }
+                        }
+
+                        dir('Palisade-clients') {
+                            git branch: 'develop', url: 'https://github.com/gchq/Palisade-clients.git'
+                            if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                                CLIENTS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                            } else {
+                                 if (READERS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
+                                     CLIENTS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                     sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${CLIENTS_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} deploy"
+                                 }
+                            }
+                        }
+
+                        dir('Palisade-examples') {
+                            git branch: 'develop', url: 'https://github.com/gchq/Palisade-examples.git'
+                            if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                                EXAMPLES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                // do an install now ready for the JVM end to end test if we are not doing the full deploy
+                                sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} install"
+                            } else {
+                                if (CLIENTS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
+                                    EXAMPLES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                    DEPLOY_EXAMPLES_IMAGES = "true"
+                                } else {
+                                    // do an install now ready for the JVM end to end test if we are not doing the full deploy
+                                    sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} install"
+                                }
+                            }
+                        }
+
+                        dir('Palisade-services') {
+                            git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
+                            if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                                SERVICES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                // do an install now ready for the JVM end to end test if we are not doing the full deploy
+                                sh "mvn -s ${MAVEN_SETTINGS} -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} -P quick install"
+                            } else {
+                                if (READERS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
+                                    SERVICES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                    DEPLOY_SERVICES_IMAGES = "true"
+                                } else {
+                                    // do an install now ready for the JVM end to end test if we are not doing the full deploy
+                                    sh "mvn -s ${MAVEN_SETTINGS} -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} -P quick install"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Deploy Prerequisites') {
+            stage('Helm deploy') {
+                container('maven') {
+                    configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                        sh 'palisade-login'
+                        dir("Palisade-examples") {
+                            sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
+                        }
+
+                        dir("Palisade-services") {
+                            sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
                         }
                     }
                 }

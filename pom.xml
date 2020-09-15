@@ -52,7 +52,9 @@
         <encoding>UTF-8</encoding>
         <!-- Sane default when no revision property is passed in from the command line -->
         <revision>SNAPSHOT</revision>
-
+        <services.revision>SNAPSHOT</services.revision>
+        <common.revision>SNAPSHOT</common.revision>
+        <examples.revision>SNAPSHOT</examples.revision>
         <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
         <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
