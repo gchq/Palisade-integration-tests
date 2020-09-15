@@ -178,8 +178,8 @@ spec:
                                 READERS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
                             } else {
                                  if (COMMON_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
-                                    sh "mvn -s ${MAVEN_SETTINGS} -D revision=${READERS_REVISION} -D common.revision=${COMMON_REVISION} -P quick deploy"
-                                    READERS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                     READERS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                     sh "mvn -s ${MAVEN_SETTINGS} -D revision=${READERS_REVISION} -D common.revision=${COMMON_REVISION} -P quick deploy"
                                  }
                             }
                         }
@@ -190,8 +190,8 @@ spec:
                                 CLIENTS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
                             } else {
                                  if (READERS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
-                                    sh "mvn -s ${MAVEN_SETTINGS} -D revision=${CLIENTS_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -P quick deploy"
-                                    CLIENTS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                     CLIENTS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                     sh "mvn -s ${MAVEN_SETTINGS} -D revision=${CLIENTS_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -P quick deploy"
                                  }
                             }
                         }
@@ -204,8 +204,8 @@ spec:
                                 sh "mvn -s ${MAVEN_SETTINGS} -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} -P quick install"
                             } else {
                                 if (CLIENTS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
-                                    sh "mvn -s ${MAVEN_SETTINGS} -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} -P quick deploy"
                                     EXAMPLES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                    sh "mvn -s ${MAVEN_SETTINGS} -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} -P quick deploy"
                                 } else {
                                     // do an install now ready for the JVM end to end test if we are not doing the full deploy
                                     sh "mvn -s ${MAVEN_SETTINGS} -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} -P quick install"
@@ -221,8 +221,8 @@ spec:
                                 sh "mvn -s ${MAVEN_SETTINGS} -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} -P quick install"
                             } else {
                                 if (READERS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
-                                    sh "mvn -s ${MAVEN_SETTINGS} -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} -P quick deploy"
                                     SERVICES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                    sh "mvn -s ${MAVEN_SETTINGS} -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} -P quick deploy"
                                 } else {
                                     // do an install now ready for the JVM end to end test if we are not doing the full deploy
                                     sh "mvn -s ${MAVEN_SETTINGS} -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} -P quick install"
