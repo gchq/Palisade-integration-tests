@@ -158,14 +158,7 @@ spec:
                         sh "kubectl delete pv palisade-data-store-${GIT_BRANCH_NAME_LOWER} || true"
                         if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
                            //sh 'bash deployment/local-k8s/example-model/deployServicesToK8s.sh'
-                           sh 'helm list --all'
-                           sh 'kubectl get pods --all-namespaces'
-                           sh "helm version"
-                           sh 'ls ..'
-                           sh 'ls'
-                           sh 'ls charts/'
                            sh "helm dep up --debug"
-                           sh 'ls charts/'
                            if (sh(script: "helm upgrade --install palisade . " +
                                 "--set global.hosting=aws  " +
                                 "--set traefik.install=false,dashboard.install=false " +
@@ -182,13 +175,14 @@ spec:
                                 "--namespace ${GIT_BRANCH_NAME_LOWER} " +
                                 "--timeout 300s", returnStatus: true) == 0) {
                                 echo("successfully deployed")
-                                sleep(time: 2, unit: 'MINUTES')
+                                sleep(time: 3, unit: 'MINUTES')
                                 sh "kubectl get pod --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pod --namespace=${GIT_BRANCH_NAME_LOWER}"
                                 sh "kubectl get pvc --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pvc --namespace=${GIT_BRANCH_NAME_LOWER}"
                                 sh "kubectl get pv  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
                                 sh "kubectl get sc  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
                                 sh "helm delete palisade --namespace ${GIT_BRANCH_NAME_LOWER}"
                            } else {
+                               sleep(time: 3, unit: 'MINUTES')
                                sh "kubectl get pod --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pod --namespace=${GIT_BRANCH_NAME_LOWER}"
                                sh "kubectl get pvc --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pvc --namespace=${GIT_BRANCH_NAME_LOWER}"
                                sh "kubectl get pv  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
