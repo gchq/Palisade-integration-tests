@@ -140,7 +140,7 @@ spec:
             DEPLOY_EXAMPLES_IMAGES = "false"
             DEPLOY_SERVICES_IMAGES = "false"
             FEATURE_BRANCH = "true"
-            COMMON_REVISION = "0.5.0-SNAPSHOT"
+            COMMON_REVISION = "SNAPSHOT"
             READERS_REVISION = "SNAPSHOT"
             CLIENTS_REVISION = "SNAPSHOT"
             EXAMPLES_REVISION = "SNAPSHOT"
