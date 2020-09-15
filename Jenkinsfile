@@ -242,6 +242,7 @@ spec:
             stage('Helm deploy') {
                 container('maven') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                        sh 'palisade-login'
                         dir("Palisade-examples") {
                             if (DEPLOY_EXAMPLES_IMAGES == "true") {
                                 sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
