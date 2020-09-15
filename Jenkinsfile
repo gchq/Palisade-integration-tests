@@ -177,8 +177,8 @@ spec:
                                 "--set global.redisClusterEnabled=false " +
                                 "--set global.redis.install=false " +
                                 "--set global.redis-cluster.install=false " +
-                                "--set global.persistence.dataStores.palisade-data-store.local.hostPath=\$(pwd)/resources/data" +
-                                "--set global.persistence.classpathJars.local.hostPath=\$(pwd)/deployment/target" +
+                                "--set global.persistence.dataStores.palisade-data-store.local.hostPath=\$(pwd)/resources/data " +
+                                "--set global.persistence.classpathJars.local.hostPath=\$(pwd)/deployment/target " +
                                 "--namespace ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
                             echo("successfully deployed")
                            } else {
