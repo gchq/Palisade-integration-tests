@@ -298,8 +298,6 @@ spec:
         stage('Run the K8s Example') {
             dir('Palisade-examples') {
                  container('maven') {
-                        def GIT_BRANCH_NAME_LOWER = GIT_BRANCH_NAME.toLowerCase().take(24)
-
                         sh "palisade-login"
                         sh 'extract-addresses'
                         sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER} || true"
