@@ -174,7 +174,6 @@ spec:
                             if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                                 COMMON_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
                             }
-                            sh "echo COMMON_REVISION ${COMMON_REVISION}"
                         }
 
                         dir('Palisade-readers') {
@@ -265,8 +264,7 @@ spec:
                 git branch: GIT_BRANCH_NAME, url: 'https://github.com/gchq/Palisade-integration-tests.git'
                 container('docker-cmds') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                        sh "echo COMMON_REVISION ${COMMON_REVISION}"
-                        sh "mvn -s ${MAVEN_SETTINGS} -D revision=${INTEGRATION_REVISION} -D common.revision=${COMMON_REVISION} -D examples.revision=${EXAMPLES_REVISION} -D services.revision=${SERVICES_REVISION} deploy"
+                        sh "mvn -s ${MAVEN_SETTINGS} -D revision=${INTEGRATION_REVISION} -D common.revision=0.5.0-SNAPSHOT -D examples.revision=${EXAMPLES_REVISION} -D services.revision=${SERVICES_REVISION} deploy"
                     }
                 }
             }
@@ -297,55 +295,57 @@ spec:
                 }
             }
         }
+
         stage('Run the K8s Example') {
             dir('Palisade-examples') {
                  container('maven') {
-                        sh "palisade-login"
-                        sh 'extract-addresses'
-                        sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER} || true"
-                        sh "kubectl delete pv palisade-classpath-jars-example-${GIT_BRANCH_NAME_LOWER} || true"
-                        sh "kubectl delete pv palisade-data-store-${GIT_BRANCH_NAME_LOWER} || true"
-                        if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                           //sh 'bash deployment/local-k8s/example-model/deployServicesToK8s.sh'
-                           sh "helm dep up --debug"
-                           sh 'docker images'
-                           if (sh(script: "helm upgrade --install palisade . " +
-                                "--set global.hosting=aws  " +
-                                "--set traefik.install=false,dashboard.install=false " +
-                                "--set global.repository=${ECR_REGISTRY} " +
-                                "--set global.hostname=${EGRESS_ELB} " +
-                                "--set global.deployment=example " +
-                                "--set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} " +
-                                "--set global.persistence.classpathJars.aws.volumeHandle=${VOLUME_HANDLE_CLASSPATH_JARS} " +
-                                "--set global.redisClusterEnabled=false " +
-                                "--set global.redis.install=false " +
-                                "--set global.redis-cluster.install=false " +
-                                "--set global.persistence.dataStores.palisade-data-store.local.hostPath=\$(pwd)/resources/data " +
-                                "--set global.persistence.classpathJars.local.hostPath=\$(pwd)/deployment/target " +
-                                "--namespace ${GIT_BRANCH_NAME_LOWER} " +
-                                "--timeout 300s", returnStatus: true) == 0) {
-                                echo("successfully deployed")
-                                sleep(time: 3, unit: 'MINUTES')
-                                sh "kubectl get pod --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pod --namespace=${GIT_BRANCH_NAME_LOWER}"
-                                //sh "kubectl get pvc --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pvc --namespace=${GIT_BRANCH_NAME_LOWER}"
-                                //sh "kubectl get pv  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
-                                //sh "kubectl get sc  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
-                                sh "helm delete palisade --namespace ${GIT_BRANCH_NAME_LOWER}"
-                           } else {
-                               sleep(time: 3, unit: 'MINUTES')
-                               sh "kubectl get pod --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pod --namespace=${GIT_BRANCH_NAME_LOWER}"
-                               sh "kubectl get pvc --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pvc --namespace=${GIT_BRANCH_NAME_LOWER}"
-                               sh "kubectl get pv  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
-                               sh "kubectl get sc  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
-                               sh "helm delete palisade --namespace ${GIT_BRANCH_NAME_LOWER}"
-                               error("Build failed because of failed helm deploy")
-                           }
-                        } else {
-                           error("Failed to create namespace")
-                        }
+                    sh "palisade-login"
+                    sh 'extract-addresses'
+                    sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER} || true"
+                    sh "kubectl delete pv palisade-classpath-jars-example-${GIT_BRANCH_NAME_LOWER} || true"
+                    sh "kubectl delete pv palisade-data-store-${GIT_BRANCH_NAME_LOWER} || true"
+                    if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
+                       //sh 'bash deployment/local-k8s/example-model/deployServicesToK8s.sh'
+                       sh "helm dep up --debug"
+                       sh 'docker images'
+                       if (sh(script: "helm upgrade --install palisade . " +
+                            "--set global.hosting=aws  " +
+                            "--set traefik.install=false,dashboard.install=false " +
+                            "--set global.repository=${ECR_REGISTRY} " +
+                            "--set global.hostname=${EGRESS_ELB} " +
+                            "--set global.deployment=example " +
+                            "--set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} " +
+                            "--set global.persistence.classpathJars.aws.volumeHandle=${VOLUME_HANDLE_CLASSPATH_JARS} " +
+                            "--set global.redisClusterEnabled=false " +
+                            "--set global.redis.install=false " +
+                            "--set global.redis-cluster.install=false " +
+                            "--set global.persistence.dataStores.palisade-data-store.local.hostPath=\$(pwd)/resources/data " +
+                            "--set global.persistence.classpathJars.local.hostPath=\$(pwd)/deployment/target " +
+                            "--namespace ${GIT_BRANCH_NAME_LOWER} " +
+                            "--timeout 300s", returnStatus: true) == 0) {
+                            echo("successfully deployed")
+                            sleep(time: 3, unit: 'MINUTES')
+                            sh "kubectl get pod --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pod --namespace=${GIT_BRANCH_NAME_LOWER}"
+                            //sh "kubectl get pvc --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pvc --namespace=${GIT_BRANCH_NAME_LOWER}"
+                            //sh "kubectl get pv  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
+                            //sh "kubectl get sc  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
+                            sh "helm delete palisade --namespace ${GIT_BRANCH_NAME_LOWER}"
+                       } else {
+                           sleep(time: 3, unit: 'MINUTES')
+                           sh "kubectl get pod --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pod --namespace=${GIT_BRANCH_NAME_LOWER}"
+                           sh "kubectl get pvc --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pvc --namespace=${GIT_BRANCH_NAME_LOWER}"
+                           sh "kubectl get pv  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
+                           sh "kubectl get sc  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
+                           sh "helm delete palisade --namespace ${GIT_BRANCH_NAME_LOWER}"
+                           error("Build failed because of failed helm deploy")
+                       }
+                    } else {
+                       error("Failed to create namespace")
                     }
                 }
             }
         }
     }
+}
+
 }
