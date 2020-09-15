@@ -150,6 +150,7 @@ spec:
             // update values for the variables if this is the develop branch build
             if ("${env.BRANCH_NAME}" == "develop") {
                 INTEGRATION_REVISION = "SNAPSHOT"
+                HELM_DEPLOY_NAMESPACE = "dev"
                 FEATURE_BRANCH = "false"
             }
             // update values for the variables if this is the main branch build
@@ -260,7 +261,7 @@ spec:
                 git branch: GIT_BRANCH_NAME, url: 'https://github.com/gchq/Palisade-integration-tests.git'
                 container('docker-cmds') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                        sh "mvn -s ${MAVEN_SETTINGS} -D revision=${INTEGRATION_REVISION} -D examples.revision=${EXAMPLES_REVISION} -D services.revision=${SERVICES_REVISION} deploy"
+                        //sh "mvn -s ${MAVEN_SETTINGS} -D revision=${INTEGRATION_REVISION} -D examples.revision=${EXAMPLES_REVISION} -D services.revision=${SERVICES_REVISION} deploy"
                     }
                 }
             }
