@@ -125,6 +125,8 @@ spec:
         def INTEGRATION_REVISION
         def IS_PR
         def FEATURE_BRANCH
+        def DEPLOY_EXAMPLES_IMAGES
+        def DEPLOY_SERVICES_IMAGES
 
         stage('Bootstrap') {
             if (env.CHANGE_BRANCH) {
@@ -135,6 +137,8 @@ spec:
                 IS_PR = "false"
             }
             // set default values for the variables
+            DEPLOY_EXAMPLES_IMAGES = "false"
+            DEPLOY_SERVICES_IMAGES = "false"
             FEATURE_BRANCH = "true"
             COMMON_REVISION = "SNAPSHOT"
             READERS_REVISION = "SNAPSHOT"
@@ -179,7 +183,7 @@ spec:
                             } else {
                                  if (COMMON_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
                                      READERS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
-                                     sh "mvn -s ${MAVEN_SETTINGS} -D revision=${READERS_REVISION} -D common.revision=${COMMON_REVISION} -P quick deploy"
+                                     sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${READERS_REVISION} -D common.revision=${COMMON_REVISION} deploy"
                                  }
                             }
                         }
@@ -191,7 +195,7 @@ spec:
                             } else {
                                  if (READERS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
                                      CLIENTS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
-                                     sh "mvn -s ${MAVEN_SETTINGS} -D revision=${CLIENTS_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -P quick deploy"
+                                     sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${CLIENTS_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} deploy"
                                  }
                             }
                         }
@@ -201,14 +205,14 @@ spec:
                             if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                                 EXAMPLES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
                                 // do an install now ready for the JVM end to end test if we are not doing the full deploy
-                                sh "mvn -s ${MAVEN_SETTINGS} -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} -P quick install"
+                                sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} install"
                             } else {
                                 if (CLIENTS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
                                     EXAMPLES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
-                                    sh "mvn -s ${MAVEN_SETTINGS} -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} -P quick deploy"
+                                    DEPLOY_EXAMPLES_IMAGES = "true"
                                 } else {
                                     // do an install now ready for the JVM end to end test if we are not doing the full deploy
-                                    sh "mvn -s ${MAVEN_SETTINGS} -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} -P quick install"
+                                    sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} install"
                                 }
                             }
                         }
@@ -222,11 +226,31 @@ spec:
                             } else {
                                 if (READERS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
                                     SERVICES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
-                                    sh "mvn -s ${MAVEN_SETTINGS} -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} -P quick deploy"
+                                    DEPLOY_SERVICES_IMAGES = "true"
                                 } else {
                                     // do an install now ready for the JVM end to end test if we are not doing the full deploy
                                     sh "mvn -s ${MAVEN_SETTINGS} -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} -P quick install"
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Deploy Prerequisites') {
+            stage('Helm deploy') {
+                container('maven') {
+                    configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                        dir("Palisade-examples") {
+                            if (DEPLOY_EXAMPLES_IMAGES == "true") {
+                                sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
+                            }
+                        }
+
+                        dir("Palisade-services") {
+                            if (DEPLOY_SERVICES_IMAGES == "true") {
+                                sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
                             }
                         }
                     }
