@@ -264,6 +264,11 @@ spec:
                 git branch: GIT_BRANCH_NAME, url: 'https://github.com/gchq/Palisade-integration-tests.git'
                 container('docker-cmds') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                        sh "echo INTEGRATION_REVISION ${INTEGRATION_REVISION}"
+                        sh "echo COMMON_REVISION ${COMMON_REVISION}"
+                        sh "echo EXAMPLES_REVISION ${EXAMPLES_REVISION}"
+                        sh "echo SERVICES_REVISION ${SERVICES_REVISION}"
+                        sh "echo mvn -s ${MAVEN_SETTINGS} -D revision=${INTEGRATION_REVISION} -D common.revision=0.5.0-SNAPSHOT -D examples.revision=${EXAMPLES_REVISION} -D services.revision=${SERVICES_REVISION} deploy"
                         sh "mvn -s ${MAVEN_SETTINGS} -D revision=${INTEGRATION_REVISION} -D common.revision=0.5.0-SNAPSHOT -D examples.revision=${EXAMPLES_REVISION} -D services.revision=${SERVICES_REVISION} deploy"
                     }
                 }
