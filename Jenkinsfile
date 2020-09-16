@@ -321,7 +321,7 @@ spec:
                             //sh "kubectl get pvc --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pvc --namespace=${GIT_BRANCH_NAME_LOWER}"
                             //sh "kubectl get pv  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
                             //sh "kubectl get sc  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
-                            sh "kubectl exec $(kubectl get pods | awk '/example-model/ {print $1}') -- bash -c 'cd /usr/share/example-model && bash ./runFormattedK8sExample.sh'"
+                            sh "kubectl exec \$(kubectl get pods | awk '/example-model/ {print $1}') -- bash -c 'cd /usr/share/example-model && bash ./runFormattedK8sExample.sh'"
                             sh "bash deployment/local-k8s/example-model/runFormattedK8sExample.sh"
                             sh "bash deployment/local-k8s/example-model/verify.sh"
                             sh "helm delete palisade --namespace ${GIT_BRANCH_NAME_LOWER}"
