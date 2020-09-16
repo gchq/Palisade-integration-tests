@@ -321,8 +321,8 @@ spec:
                             //sh "kubectl get pvc --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pvc --namespace=${GIT_BRANCH_NAME_LOWER}"
                             //sh "kubectl get pv  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
                             //sh "kubectl get sc  --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe pv  --namespace=${GIT_BRANCH_NAME_LOWER}"
-                            sh "bash deployment/local-k8s/example-model/runFormattedK8sExample.sh"
-                            sh "bash deployment/local-k8s/example-model/verify.sh"
+                            sh "bash deployment/local-k8s/example-model/runFormattedK8sExample.sh ${GIT_BRANCH_NAME_LOWER}"
+                            sh "bash deployment/local-k8s/example-model/verify.sh ${GIT_BRANCH_NAME_LOWER}"
                             sh "helm delete palisade --namespace ${GIT_BRANCH_NAME_LOWER}"
                        } else {
                            sleep(time: 3, unit: 'MINUTES')
