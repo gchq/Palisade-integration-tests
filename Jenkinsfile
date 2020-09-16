@@ -308,7 +308,7 @@ spec:
                             "--set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} " +
                             "--set global.persistence.classpathJars.aws.volumeHandle=${VOLUME_HANDLE_CLASSPATH_JARS} " +
                             "--set global.redisClusterEnabled=false " +
-                            "--set global.redis.install=false " +
+                            "--set global.redis.install=true " +
                             "--set global.redis-cluster.install=false " +
                             "--set global.persistence.dataStores.palisade-data-store.local.hostPath=\$(pwd)/resources/data " +
                             "--set global.persistence.classpathJars.local.hostPath=\$(pwd)/deployment/target " +
