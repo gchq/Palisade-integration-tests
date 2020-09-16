@@ -199,38 +199,38 @@ spec:
                                  }
                             }
                         }
-
-                        dir('Palisade-examples') {
-                            git branch: 'develop', url: 'https://github.com/gchq/Palisade-examples.git'
-                            if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                    }
+                    // examples and services need to be build locally to enable the services manager to work and deploy the JVM example
+                    dir('Palisade-examples') {
+                        git branch: 'develop', url: 'https://github.com/gchq/Palisade-examples.git'
+                        if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0 && FEATURE_BRANCH == "true") {
+                            EXAMPLES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                            // do an install now ready for the JVM end to end test if we are not doing the full deploy
+                            sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} install"
+                        } else {
+                            if (CLIENTS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
                                 EXAMPLES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                DEPLOY_EXAMPLES_IMAGES = "true"
+                            } else {
                                 // do an install now ready for the JVM end to end test if we are not doing the full deploy
                                 sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} install"
-                            } else {
-                                if (CLIENTS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
-                                    EXAMPLES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
-                                    DEPLOY_EXAMPLES_IMAGES = "true"
-                                } else {
-                                    // do an install now ready for the JVM end to end test if we are not doing the full deploy
-                                    sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} install"
-                                }
                             }
                         }
+                    }
 
-                        dir('Palisade-services') {
-                            git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
-                            if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                    dir('Palisade-services') {
+                        git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
+                        if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0  && FEATURE_BRANCH == "true") {
+                            SERVICES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                            // do an install now ready for the JVM end to end test if we are not doing the full deploy
+                            sh "mvn -s ${MAVEN_SETTINGS} -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} -P quick install"
+                        } else {
+                            if (READERS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
                                 SERVICES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                DEPLOY_SERVICES_IMAGES = "true"
+                            } else {
                                 // do an install now ready for the JVM end to end test if we are not doing the full deploy
                                 sh "mvn -s ${MAVEN_SETTINGS} -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} -P quick install"
-                            } else {
-                                if (READERS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
-                                    SERVICES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
-                                    DEPLOY_SERVICES_IMAGES = "true"
-                                } else {
-                                    // do an install now ready for the JVM end to end test if we are not doing the full deploy
-                                    sh "mvn -s ${MAVEN_SETTINGS} -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} -P quick install"
-                                }
                             }
                         }
                     }
