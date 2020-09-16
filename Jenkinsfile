@@ -245,13 +245,13 @@ spec:
                         sh 'palisade-login'
                         dir("Palisade-examples") {
                             if (DEPLOY_EXAMPLES_IMAGES == "true") {
-                                sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
+                                sh "mvn -s ${MAVEN_SETTINGS} -P pi -D maven.test.skip=true -D revision=${EXAMPLE_REVISION} -D common.revision=${COMMON_REVISION}  -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
                             }
                         }
 
                         dir("Palisade-services") {
                             if (DEPLOY_SERVICES_IMAGES == "true") {
-                                sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
+                                sh "mvn -s ${MAVEN_SETTINGS} -P pi -D maven.test.skip=true -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} deploy"
                             }
                         }
                     }
