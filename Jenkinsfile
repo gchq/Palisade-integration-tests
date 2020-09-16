@@ -270,21 +270,21 @@ timestamps {
             }
 
             stage('Run the JVM Example') {
-                container('docker-cmds') {
-                    configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                        // Always run some sort of smoke test if this is a Pull Request or from develop or main
-                        if (IS_PR == "true" || FEATURE_BRANCH == "false") {
-                            // If this branch name exists in examples, use that
-                            // Otherwise, default to examples/develop
-                            dir ('Palisade-examples') {
-                                sh 'bash deployment/local-jvm/example-model/startServices.sh'
-                                sh 'bash deployment/local-jvm/example-model/runFormattedLocalJVMExample.sh | tee deployment/local-jvm/example-model/exampleOutput.txt'
-                                sh 'bash deployment/local-jvm/example-model/stopServices.sh'
-                                sh 'bash deployment/local-jvm/example-model/verify.sh'
-                            }
-                        }
-                    }
-                }
+                // container('docker-cmds') {
+                //     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                //         // Always run some sort of smoke test if this is a Pull Request or from develop or main
+                //         if (IS_PR == "true" || FEATURE_BRANCH == "false") {
+                //             // If this branch name exists in examples, use that
+                //             // Otherwise, default to examples/develop
+                //             dir ('Palisade-examples') {
+                //                 sh 'bash deployment/local-jvm/example-model/startServices.sh'
+                //                 sh 'bash deployment/local-jvm/example-model/runFormattedLocalJVMExample.sh | tee deployment/local-jvm/example-model/exampleOutput.txt'
+                //                 sh 'bash deployment/local-jvm/example-model/stopServices.sh'
+                //                 sh 'bash deployment/local-jvm/example-model/verify.sh'
+                //             }
+                //         }
+                //     }
+                // }
             }
 
             stage('Run the K8s Example') {
