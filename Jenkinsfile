@@ -160,10 +160,10 @@ timestamps {
                 echo sh(script: 'env | sort', returnStdout: true)
             }
 
-            // stage('Prerequisites') {
-            //     container('docker-cmds') {
-            //         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-            //             if (FEATURE_BRANCH == "true") {
+            stage('Prerequisites') {
+                container('docker-cmds') {
+                    configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                        if (FEATURE_BRANCH == "true") {
             //                 dir('Palisade-common') {
             //                     git branch: 'develop', url: 'https://github.com/gchq/Palisade-common.git'
             //                     if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
