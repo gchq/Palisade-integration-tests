@@ -292,8 +292,6 @@ timestamps {
                         sh 'extract-addresses'
                         sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER} || true"
                         if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                            sh "bash deployment/aws-k8s/example-model/copyExampleData.sh -d ${VOLUME_HANDLE_DATA_STORE} -c ${VOLUME_HANDLE_CLASSPATH_JARS}"
-                            sh "ls /mnt/*"
                             if (sh("bash deployment/aws-k8s/example-model/deployServicesToK8s.sh -n ${GIT_BRANCH_NAME_LOWER} -r ${ECR_REGISTRY} -h ${EGRESS_ELB} -d ${VOLUME_HANDLE_DATA_STORE} -c ${VOLUME_HANDLE_CLASSPATH_JARS}", returnStatus: true) == 0) {
                                 echo("successfully deployed")
                                 sleep(time: 10, unit: 'SECONDS')
