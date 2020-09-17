@@ -292,7 +292,21 @@ timestamps {
                         sh 'extract-addresses'
                         sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER} || true"
                         if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                            if (sh("bash deployment/aws-k8s/example-model/deployServicesToK8s.sh -n ${GIT_BRANCH_NAME_LOWER} -r ${ECR_REGISTRY} -h ${EGRESS_ELB} -d ${VOLUME_HANDLE_DATA_STORE} -c ${VOLUME_HANDLE_CLASSPATH_JARS}", returnStatus: true) == 0) {
+                        if (sh(script: "helm upgrade --install palisade . " +
+                                "--set global.hosting=aws  " +
+                                "--set traefik.install=false,dashboard.install=false " +
+                                "--set global.repository=${ECR_REGISTRY} " +
+                                "--set global.hostname=${EGRESS_ELB} " +
+                                "--set global.deployment=example " +
+                                "--set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} " +
+                                "--set global.persistence.classpathJars.aws.volumeHandle=${VOLUME_HANDLE_CLASSPATH_JARS} " +
+                                "--set global.redisClusterEnabled=false " +
+                                "--set global.redis.install=true " +
+                                "--set global.redis-cluster.install=false " +
+                                "--set global.persistence.dataStores.palisade-data-store.local.hostPath=\$(pwd)/resources/data " +
+                                "--set global.persistence.classpathJars.local.hostPath=\$(pwd)/deployment/target " +
+                                "--namespace ${GIT_BRANCH_NAME_LOWER} " +
+                                "--timeout 300s", returnStatus: true) == 0) {
                                 echo("successfully deployed")
                                 sleep(time: 10, unit: 'SECONDS')
                                 sh "kubectl get pods --namespace=${GIT_BRANCH_NAME_LOWER}"
