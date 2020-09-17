@@ -292,6 +292,7 @@ timestamps {
                         sh 'extract-addresses'
                         sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER} || true"
                         if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
+                        sh "helm dep up"
                         if (sh(script: "helm upgrade --install palisade . " +
                                 "--set global.hosting=aws  " +
                                 "--set traefik.install=false,dashboard.install=false " +
