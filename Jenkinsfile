@@ -292,19 +292,20 @@ timestamps {
                         sh 'extract-addresses'
                         sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER} || true"
                         if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                        sh "helm dep up"
-                        if (sh(script: "bash deployment/aws-k8s/example-model/deployServicesToK8s.sh -n ${GIT_BRANCH_NAME_LOWER} -r ${ECR_REGISTRY} -h ${EGRESS_ELB} -d ${VOLUME_HANDLE_DATA_STORE} -c ${VOLUME_HANDLE_CLASSPATH_JARS}", returnStatus: true)
-                        == 0) {
+                            if (sh(script: "bash deployment/aws-k8s/example-model/deployServicesToK8s.sh -n ${GIT_BRANCH_NAME_LOWER} -r ${ECR_REGISTRY} -h ${EGRESS_ELB} -d ${VOLUME_HANDLE_DATA_STORE} -c ${VOLUME_HANDLE_CLASSPATH_JARS}", returnStatus:
+                            true) == 0) {
                                 echo("successfully deployed")
                                 sleep(time: 180, unit: 'SECONDS')
                                 sh "kubectl get pods --namespace=${GIT_BRANCH_NAME_LOWER}"
                                 sh "bash deployment/aws-k8s/example-model/runFormattedK8sExample.sh ${GIT_BRANCH_NAME_LOWER}"
                                 sh "bash deployment/aws-k8s/example-model/verify.sh ${GIT_BRANCH_NAME_LOWER}"
+                                sh "kubectl get pvc --namespace ${GIT_BRANCH_NAME_LOWER}"
                                 sh "helm delete palisade --namespace ${GIT_BRANCH_NAME_LOWER}"
                             } else {
                                 echo("failed to deploy")
                                 sleep(time: 3, unit: 'MINUTES')
-                                sh "kubectl get all --namespace=${GIT_BRANCH_NAME_LOWER} && kubectl describe all --namespace=${GIT_BRANCH_NAME_LOWER}"
+                                sh "kubectl get all --namespace ${GIT_BRANCH_NAME_LOWER} && kubectl describe all --namespace ${GIT_BRANCH_NAME_LOWER}"
+                                sh "kubectl get pvc --namespace ${GIT_BRANCH_NAME_LOWER}"
                                 sh "helm delete palisade --namespace ${GIT_BRANCH_NAME_LOWER}"
                                 error("Build failed because of failed helm deploy")
                             }
