@@ -309,7 +309,7 @@ timestamps {
                                 "--namespace ${GIT_BRANCH_NAME_LOWER} " +
                                 "--timeout 300s", returnStatus: true) == 0) {
                                 echo("successfully deployed")
-                                sleep(time: 10, unit: 'SECONDS')
+                                sleep(time: 180, unit: 'SECONDS')
                                 sh "kubectl get pods --namespace=${GIT_BRANCH_NAME_LOWER}"
                                 sh "bash deployment/aws-k8s/example-model/runFormattedK8sExample.sh ${GIT_BRANCH_NAME_LOWER}"
                                 sh "bash deployment/aws-k8s/example-model/verify.sh ${GIT_BRANCH_NAME_LOWER}"
