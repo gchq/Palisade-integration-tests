@@ -291,7 +291,7 @@ timestamps {
                         sh "palisade-login"
                         sh 'extract-addresses'
                         if (sh(script: "kubectl get ns ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                            sh "helm delete palisade -n ${GIT_BRANCH_NAME_LOWER}"
+                            sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER}"
                             sleep(time: 30, unit: 'SECONDS')
                         }
                         sh "kubectl get all --namespace ${GIT_BRANCH_NAME_LOWER}"
