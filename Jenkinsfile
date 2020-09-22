@@ -290,7 +290,7 @@ timestamps {
                     container('maven') {
                         sh "palisade-login"
                         sh 'extract-addresses'
-                        //sh "helm delete palisade --namespace ${GIT_BRANCH_NAME_LOWER}"
+                        sh "helm delete palisade --namespace ${GIT_BRANCH_NAME_LOWER}"
                         sleep(time:3, unit: 'MINUTES')
                         sh "kubectl get all --namespace ${GIT_BRANCH_NAME_LOWER}"
                         if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
