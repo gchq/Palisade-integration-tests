@@ -296,18 +296,7 @@ timestamps {
                         }
                         sh "kubectl get all --namespace ${GIT_BRANCH_NAME_LOWER}"
                         if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                        sh '''
-                            helm upgrade --install palisade . \
-                                --namespace ${GIT_BRANCH_NAME_LOWER} \
-                                --set global.repository=${ECR_REGISTRY} \
-                                --set global.hostname=${EGRESS_ELB} \
-                                --set global.persistence.dataStores.palisade-data-store.aws.volumeHandle=${VOLUME_HANDLE_DATA_STORE} \
-                                --set global.persistence.classpathJars.aws.volumeHandle=${VOLUME_HANDLE_CLASSPATH_JARS} \
-                                --set global.deployment=example \
-                                --set global.hosting=aws \
-                                --dry-run
-                            '''
-                            /* if (sh(script: "bash deployment/aws-k8s/example-model/deployServicesToK8s.sh -n ${GIT_BRANCH_NAME_LOWER} -r ${ECR_REGISTRY} -h ${EGRESS_ELB} -d ${VOLUME_HANDLE_DATA_STORE} -c ${VOLUME_HANDLE_CLASSPATH_JARS}", returnStatus:
+                            if (sh(script: "bash deployment/aws-k8s/example-model/deployServicesToK8s.sh -n ${GIT_BRANCH_NAME_LOWER} -r ${ECR_REGISTRY} -h ${EGRESS_ELB} -d ${VOLUME_HANDLE_DATA_STORE} -c ${VOLUME_HANDLE_CLASSPATH_JARS}", returnStatus:
                             true) == 0) {
                                 echo("successfully deployed")
                                 sleep(time: 2, unit: 'MINUTES')
@@ -322,7 +311,7 @@ timestamps {
                                 sh "kubectl get all -n ${GIT_BRANCH_NAME_LOWER}"
                                 sh "kubectl describe all -n ${GIT_BRANCH_NAME_LOWER}"
                                 error("Build failed because of failed helm deploy")
-                            } */
+                            }
                         } else {
                             error("Failed to create namespace")
                         }
