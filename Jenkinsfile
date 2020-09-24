@@ -258,7 +258,7 @@ timestamps {
                 stage('Deploy Example') {
                     container('maven') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            if (DEPLOY_EXAMPLES_IMAGES == "true") {
+                            if (DEPLOY_EXAMPLES_IMAGES == "true" && (IS_PR == "true" || FEATURE_BRANCH == "false")) {
                                 sh 'palisade-login'
                                 dir("Palisade-examples") {
                                     sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
@@ -273,7 +273,7 @@ timestamps {
                 stage('Deploy Services') {
                     container('maven') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            if (DEPLOY_SERVICES_IMAGES == "true") {
+                            if (DEPLOY_SERVICES_IMAGES == "true" && (IS_PR == "true" || FEATURE_BRANCH == "false")) {
                                 sh 'palisade-login'
                                 dir("Palisade-services") {
                                     sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
@@ -306,34 +306,34 @@ timestamps {
 
             RunK8s: {
                 stage('Run the K8s Example') {
-                    dir('Palisade-examples') {
-                        container('maven') {
-                            sh "palisade-login"
-                            sh 'extract-addresses'
-                            if (sh(script: "kubectl get ns ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                                sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER}"
-                            }
-                            sh "kubectl get all --namespace ${GIT_BRANCH_NAME_LOWER}"
-                            if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                                if (sh(script: "bash deployment/aws-k8s/example-model/deployServicesToK8s.sh -n ${GIT_BRANCH_NAME_LOWER} -r ${ECR_REGISTRY} -h ${EGRESS_ELB} -d ${VOLUME_HANDLE_DATA_STORE} -c ${VOLUME_HANDLE_CLASSPATH_JARS}", returnStatus:
-                                true) == 0) {
-                                    echo("successfully deployed")
-                                    sleep(time: 60, unit: 'SECONDS')
-                                    sh "kubectl get pods -n ${GIT_BRANCH_NAME_LOWER}"
-                                    sh "bash deployment/aws-k8s/example-model/runFormattedK8sExample.sh ${GIT_BRANCH_NAME_LOWER}"
-                                    sh "bash deployment/aws-k8s/example-model/verify.sh ${GIT_BRANCH_NAME_LOWER}"
-                                } else {
-                                    echo("failed to deploy")
-                                    sleep(time: 2, unit: 'MINUTES')
-                                    sh "kubectl get pvc -n ${GIT_BRANCH_NAME_LOWER}"
-                                    sh "kubectl get all -n ${GIT_BRANCH_NAME_LOWER}"
-                                    sh "kubectl describe all -n ${GIT_BRANCH_NAME_LOWER}"
-                                    error("Build failed because of failed helm deploy")
+                    container('maven') {
+                        //if (IS_PR == "true" || FEATURE_BRANCH == "false") {
+                            dir('Palisade-examples') {
+                                sh "palisade-login"
+                                sh 'extract-addresses'
+                                if (sh(script: "kubectl get ns ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
+                                    sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER}"
                                 }
-                            } else {
-                                error("Failed to create namespace")
+                                if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
+                                    if (sh(script: "bash deployment/aws-k8s/example-model/deployServicesToK8s.sh -n ${GIT_BRANCH_NAME_LOWER} -r ${ECR_REGISTRY} -h ${EGRESS_ELB} -d ${VOLUME_HANDLE_DATA_STORE} -c ${VOLUME_HANDLE_CLASSPATH_JARS}", returnStatus:
+                                    true) == 0) {
+                                        echo("successfully deployed")
+                                        sleep(time: 90, unit: 'SECONDS')
+                                        sh "bash deployment/aws-k8s/example-model/runFormattedK8sExample.sh ${GIT_BRANCH_NAME_LOWER}"
+                                        sh "bash deployment/aws-k8s/example-model/verify.sh ${GIT_BRANCH_NAME_LOWER}"
+                                    } else {
+                                        echo("failed to deploy")
+                                        sleep(time: 1, unit: 'MINUTES')
+                                        sh "kubectl get pvc -n ${GIT_BRANCH_NAME_LOWER}"
+                                        sh "kubectl get all -n ${GIT_BRANCH_NAME_LOWER}"
+                                        sh "kubectl describe all -n ${GIT_BRANCH_NAME_LOWER}"
+                                        error("Build failed because of failed helm deploy")
+                                    }
+                                } else {
+                                    error("Failed to create namespace")
+                                }
                             }
-                        }
+                        //}
                     }
                 }
             }
