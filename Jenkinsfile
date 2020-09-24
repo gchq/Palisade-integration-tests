@@ -252,83 +252,75 @@ timestamps {
                 }
             }
 
-            parallel Deploy-Examples: {
-                stage('Deploy Example') {
-                    container('maven') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'palisade-login'
-                            dir("Palisade-examples") {
-                                sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
-                            }
+            stage('Deploy Example') {
+                container('maven') {
+                    configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                        sh 'palisade-login'
+                        dir("Palisade-examples") {
+                            sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
                         }
                     }
                 }
-            },
+            }
 
-            Deploy-Services: {
-                stage('Deploy Services') {
-                    container('maven') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'palisade-login'
-                            dir("Palisade-services") {
-                                sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
+            stage('Deploy Services') {
+                container('maven') {
+                    configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                        sh 'palisade-login'
+                        dir("Palisade-services") {
+                            sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
+                        }
+                    }
+                }
+            }
+
+            stage('Run the JVM Example') {
+                container('docker-cmds') {
+                    configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                        // Always run some sort of smoke test if this is a Pull Request or from develop or main
+                        if (IS_PR == "true" || FEATURE_BRANCH == "false") {
+                            // If this branch name exists in examples, use that
+                            // Otherwise, default to examples/develop
+                            dir ('Palisade-examples') {
+                                sh 'bash deployment/local-jvm/example-model/startServices.sh'
+                                sh 'bash deployment/local-jvm/example-model/runFormattedLocalJVMExample.sh | tee deployment/local-jvm/example-model/exampleOutput.txt'
+                                sh 'bash deployment/local-jvm/example-model/stopServices.sh'
+                                sh 'bash deployment/local-jvm/example-model/verify.sh'
                             }
                         }
                     }
                 }
             }
 
-            parallel Jvm: {
-                stage('Run the JVM Example') {
-                    container('docker-cmds') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            // Always run some sort of smoke test if this is a Pull Request or from develop or main
-                            if (IS_PR == "true" || FEATURE_BRANCH == "false") {
-                                // If this branch name exists in examples, use that
-                                // Otherwise, default to examples/develop
-                                dir ('Palisade-examples') {
-                                    sh 'bash deployment/local-jvm/example-model/startServices.sh'
-                                    sh 'bash deployment/local-jvm/example-model/runFormattedLocalJVMExample.sh | tee deployment/local-jvm/example-model/exampleOutput.txt'
-                                    sh 'bash deployment/local-jvm/example-model/stopServices.sh'
-                                    sh 'bash deployment/local-jvm/example-model/verify.sh'
-                                }
-                            }
+            stage('Run the K8s Example') {
+                dir('Palisade-examples') {
+                    container('maven') {
+                        sh "palisade-login"
+                        sh 'extract-addresses'
+                        if (sh(script: "kubectl get ns ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
+                            sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER}"
+                            sleep(time: 30, unit: 'SECONDS')
                         }
-                    }
-                }
-            },
-
-            K8s: {
-                stage('Run the K8s Example') {
-                    dir('Palisade-examples') {
-                        container('maven') {
-                            sh "palisade-login"
-                            sh 'extract-addresses'
-                            if (sh(script: "kubectl get ns ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                                sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER}"
-                                sleep(time: 30, unit: 'SECONDS')
-                            }
-                            sh "kubectl get all --namespace ${GIT_BRANCH_NAME_LOWER}"
-                            if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                                if (sh(script: "bash deployment/aws-k8s/example-model/deployServicesToK8s.sh -n ${GIT_BRANCH_NAME_LOWER} -r ${ECR_REGISTRY} -h ${EGRESS_ELB} -d ${VOLUME_HANDLE_DATA_STORE} -c ${VOLUME_HANDLE_CLASSPATH_JARS}", returnStatus:
-                                true) == 0) {
-                                    echo("successfully deployed")
-                                    sleep(time: 90, unit: 'SECONDS')
-                                    sh "kubectl get pods -n ${GIT_BRANCH_NAME_LOWER}"
-                                    sh "kubectl get pvc -n ${GIT_BRANCH_NAME_LOWER}"
-                                    sh "bash deployment/aws-k8s/example-model/runFormattedK8sExample.sh ${GIT_BRANCH_NAME_LOWER}"
-                                    sh "bash deployment/aws-k8s/example-model/verify.sh ${GIT_BRANCH_NAME_LOWER}"
-                                } else {
-                                    echo("failed to deploy")
-                                    sleep(time: 2, unit: 'MINUTES')
-                                    sh "kubectl get pvc -n ${GIT_BRANCH_NAME_LOWER}"
-                                    sh "kubectl get all -n ${GIT_BRANCH_NAME_LOWER}"
-                                    sh "kubectl describe all -n ${GIT_BRANCH_NAME_LOWER}"
-                                    error("Build failed because of failed helm deploy")
-                                }
+                        sh "kubectl get all --namespace ${GIT_BRANCH_NAME_LOWER}"
+                        if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
+                            if (sh(script: "bash deployment/aws-k8s/example-model/deployServicesToK8s.sh -n ${GIT_BRANCH_NAME_LOWER} -r ${ECR_REGISTRY} -h ${EGRESS_ELB} -d ${VOLUME_HANDLE_DATA_STORE} -c ${VOLUME_HANDLE_CLASSPATH_JARS}", returnStatus:
+                            true) == 0) {
+                                echo("successfully deployed")
+                                sleep(time: 90, unit: 'SECONDS')
+                                sh "kubectl get pods -n ${GIT_BRANCH_NAME_LOWER}"
+                                sh "kubectl get pvc -n ${GIT_BRANCH_NAME_LOWER}"
+                                sh "bash deployment/aws-k8s/example-model/runFormattedK8sExample.sh ${GIT_BRANCH_NAME_LOWER}"
+                                sh "bash deployment/aws-k8s/example-model/verify.sh ${GIT_BRANCH_NAME_LOWER}"
                             } else {
-                                error("Failed to create namespace")
+                                echo("failed to deploy")
+                                sleep(time: 2, unit: 'MINUTES')
+                                sh "kubectl get pvc -n ${GIT_BRANCH_NAME_LOWER}"
+                                sh "kubectl get all -n ${GIT_BRANCH_NAME_LOWER}"
+                                sh "kubectl describe all -n ${GIT_BRANCH_NAME_LOWER}"
+                                error("Build failed because of failed helm deploy")
                             }
+                        } else {
+                            error("Failed to create namespace")
                         }
                     }
                 }
