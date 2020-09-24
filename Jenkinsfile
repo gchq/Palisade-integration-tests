@@ -252,31 +252,33 @@ timestamps {
                 }
             }
 
-            parallel Deploy Example: {
-                stage('Deploy Example') {
-                    container('maven') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'palisade-login'
-                            dir("Palisade-examples") {
-                                sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
+            parallel (
+                Deploy Example: {
+                    stage('Deploy Example') {
+                        container('maven') {
+                            configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                                sh 'palisade-login'
+                                dir("Palisade-examples") {
+                                    sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
+                                }
                             }
                         }
                     }
-                }
-            },
+                },
 
-            Deploy Services: {
-                stage('Deploy Services') {
-                    container('maven') {
-                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                            sh 'palisade-login'
-                            dir("Palisade-services") {
-                                sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
+                Deploy Services: {
+                    stage('Deploy Services') {
+                        container('maven') {
+                            configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                                sh 'palisade-login'
+                                dir("Palisade-services") {
+                                    sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
+                                }
                             }
                         }
                     }
                 }
-            }
+            )
 
             stage('Run the JVM Example') {
                 container('docker-cmds') {
