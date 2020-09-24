@@ -253,7 +253,7 @@ timestamps {
             }
 
             parallel (
-                DeployExample {
+                DeployExample: {
                     stage('Deploy Example') {
                         container('maven') {
                             configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
@@ -266,7 +266,7 @@ timestamps {
                     }
                 },
 
-                DeployServices {
+                DeployServices: {
                     stage('Deploy Services') {
                         container('maven') {
                             configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
