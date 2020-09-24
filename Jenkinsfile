@@ -164,50 +164,50 @@ timestamps {
                 container('docker-cmds') {
                     configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
                         if (FEATURE_BRANCH == "true") {
-            //                 dir('Palisade-common') {
-            //                     git branch: 'develop', url: 'https://github.com/gchq/Palisade-common.git'
-            //                     if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
-            //                         COMMON_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
-            //                     }
-            //                 }
+                            dir('Palisade-common') {
+                                git branch: 'develop', url: 'https://github.com/gchq/Palisade-common.git'
+                                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                                    COMMON_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                }
+                            }
 
-            //                 dir('Palisade-readers') {
-            //                     git branch: 'develop', url: 'https://github.com/gchq/Palisade-readers.git'
-            //                     if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
-            //                         READERS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
-            //                     } else {
-            //                          if (COMMON_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
-            //                              READERS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
-            //                              sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${READERS_REVISION} -D common.revision=${COMMON_REVISION} deploy"
-            //                          }
-            //                     }
-            //                 }
+                            dir('Palisade-readers') {
+                                git branch: 'develop', url: 'https://github.com/gchq/Palisade-readers.git'
+                                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                                    READERS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                } else {
+                                     if (COMMON_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
+                                         READERS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                         sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${READERS_REVISION} -D common.revision=${COMMON_REVISION} deploy"
+                                     }
+                                }
+                            }
 
-            //                 dir('Palisade-clients') {
-            //                     git branch: 'develop', url: 'https://github.com/gchq/Palisade-clients.git'
-            //                     if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
-            //                         CLIENTS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
-            //                     } else {
-            //                          if (READERS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
-            //                              CLIENTS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
-            //                              sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${CLIENTS_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} deploy"
-            //                          }
-            //                     }
-            //                 }
+                            dir('Palisade-clients') {
+                                git branch: 'develop', url: 'https://github.com/gchq/Palisade-clients.git'
+                                if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                                    CLIENTS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                } else {
+                                     if (READERS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
+                                         CLIENTS_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
+                                         sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${CLIENTS_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} deploy"
+                                     }
+                                }
+                            }
 
                             dir('Palisade-examples') {
                                 git branch: 'develop', url: 'https://github.com/gchq/Palisade-examples.git'
                                 if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                                     EXAMPLES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
                                     // do an install now ready for the JVM end to end test if we are not doing the full deploy
-                                    // sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} install"
+                                    sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} install"
                                 } else {
                                     if (CLIENTS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
                                         EXAMPLES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
                                         DEPLOY_EXAMPLES_IMAGES = "true"
                                     } else {
                                         // do an install now ready for the JVM end to end test if we are not doing the full deploy
-                                        // sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} install"
+                                        sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} install"
                                     }
                                 }
                             }
@@ -217,14 +217,14 @@ timestamps {
                                 if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                                     SERVICES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
                                     // do an install now ready for the JVM end to end test if we are not doing the full deploy
-                                    // sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} install"
+                                    sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} install"
                                 } else {
                                     if (READERS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
                                         SERVICES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
                                         DEPLOY_SERVICES_IMAGES = "true"
                                     } else {
                                         // do an install now ready for the JVM end to end test if we are not doing the full deploy
-                                        // sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} install"
+                                        sh "mvn -s ${MAVEN_SETTINGS} -P quick -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} install"
                                     }
                                 }
                             }
@@ -233,87 +233,104 @@ timestamps {
                 }
             }
 
-            // stage('Integration Tests, Checkstyle') {
-            //     dir('Palisade-integration-tests') {
-            //         git branch: GIT_BRANCH_NAME, url: 'https://github.com/gchq/Palisade-integration-tests.git'
-            //         container('docker-cmds') {
-            //             configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-            //                 sh "mvn -s ${MAVEN_SETTINGS} -D revision=${INTEGRATION_REVISION} -D common.revision=${COMMON_REVISION} -D examples.revision=${EXAMPLES_REVISION} -D services.revision=${SERVICES_REVISION} deploy"
-            //             }
-            //         }
-            //     }
-            // }
-
-            // stage('Hadolinting') {
-            //     dir("Palisade-integration-tests") {
-            //         container('hadolint') {
-            //             sh 'hadolint */Dockerfile'
-            //         }
-            //     }
-            // }
-
-            stage('Deploy Prerequisites') {
-                container('maven') {
-                    configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                        sh 'palisade-login'
-                        dir("Palisade-examples") {
-                            sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
+            parallel Test: {
+                stage('Integration Tests, Checkstyle') {
+                    dir('Palisade-integration-tests') {
+                        git branch: GIT_BRANCH_NAME, url: 'https://github.com/gchq/Palisade-integration-tests.git'
+                        container('docker-cmds') {
+                            configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                                sh "mvn -s ${MAVEN_SETTINGS} -D revision=${INTEGRATION_REVISION} -D common.revision=${COMMON_REVISION} -D examples.revision=${EXAMPLES_REVISION} -D services.revision=${SERVICES_REVISION} deploy"
+                            }
                         }
+                    }
+                }
 
-                        dir("Palisade-services") {
-                            sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
+                stage('Hadolinting') {
+                    dir("Palisade-integration-tests") {
+                        container('hadolint') {
+                            sh 'hadolint */Dockerfile'
+                        }
+                    }
+                }
+            },
+
+            Deploy Examples: {
+                stage('Deploy Example') {
+                    container('maven') {
+                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                            sh 'palisade-login'
+                            dir("Palisade-examples") {
+                                sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
+                            }
+                        }
+                    }
+                }
+            },
+
+            Deploy Services: {
+                stage('Deploy Services') {
+                    container('maven') {
+                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                            sh 'palisade-login'
+                            dir("Palisade-services") {
+                                sh "mvn -s ${MAVEN_SETTINGS} -D maven.test.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} deploy"
+                            }
                         }
                     }
                 }
             }
 
-            // stage('Run the JVM Example') {
-            //     container('docker-cmds') {
-            //         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-            //             // Always run some sort of smoke test if this is a Pull Request or from develop or main
-            //             if (IS_PR == "true" || FEATURE_BRANCH == "false") {
-            //                 // If this branch name exists in examples, use that
-            //                 // Otherwise, default to examples/develop
-            //                 dir ('Palisade-examples') {
-            //                     sh 'bash deployment/local-jvm/example-model/startServices.sh'
-            //                     sh 'bash deployment/local-jvm/example-model/runFormattedLocalJVMExample.sh | tee deployment/local-jvm/example-model/exampleOutput.txt'
-            //                     sh 'bash deployment/local-jvm/example-model/stopServices.sh'
-            //                     sh 'bash deployment/local-jvm/example-model/verify.sh'
-            //                 }
-            //             }
-            //         }
-            //     }
-            // }
-
-            stage('Run the K8s Example') {
-                dir('Palisade-examples') {
-                    container('maven') {
-                        sh "palisade-login"
-                        sh 'extract-addresses'
-                        if (sh(script: "kubectl get ns ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                            sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER}"
-                            sleep(time: 30, unit: 'SECONDS')
-                        }
-                        sh "kubectl get all --namespace ${GIT_BRANCH_NAME_LOWER}"
-                        if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                            if (sh(script: "bash deployment/aws-k8s/example-model/deployServicesToK8s.sh -n ${GIT_BRANCH_NAME_LOWER} -r ${ECR_REGISTRY} -h ${EGRESS_ELB} -d ${VOLUME_HANDLE_DATA_STORE} -c ${VOLUME_HANDLE_CLASSPATH_JARS}", returnStatus:
-                            true) == 0) {
-                                echo("successfully deployed")
-                                sleep(time: 2, unit: 'MINUTES')
-                                sh "kubectl get pods -n ${GIT_BRANCH_NAME_LOWER}"
-                                sh "kubectl get pvc -n ${GIT_BRANCH_NAME_LOWER}"
-                                sh "bash deployment/aws-k8s/example-model/runFormattedK8sExample.sh ${GIT_BRANCH_NAME_LOWER}"
-                                sh "bash deployment/aws-k8s/example-model/verify.sh ${GIT_BRANCH_NAME_LOWER}"
-                            } else {
-                                echo("failed to deploy")
-                                sleep(time: 2, unit: 'MINUTES')
-                                sh "kubectl get pvc -n ${GIT_BRANCH_NAME_LOWER}"
-                                sh "kubectl get all -n ${GIT_BRANCH_NAME_LOWER}"
-                                sh "kubectl describe all -n ${GIT_BRANCH_NAME_LOWER}"
-                                error("Build failed because of failed helm deploy")
+            parallel Jvm: {
+                stage('Run the JVM Example') {
+                    container('docker-cmds') {
+                        configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
+                            // Always run some sort of smoke test if this is a Pull Request or from develop or main
+                            if (IS_PR == "true" || FEATURE_BRANCH == "false") {
+                                // If this branch name exists in examples, use that
+                                // Otherwise, default to examples/develop
+                                dir ('Palisade-examples') {
+                                    sh 'bash deployment/local-jvm/example-model/startServices.sh'
+                                    sh 'bash deployment/local-jvm/example-model/runFormattedLocalJVMExample.sh | tee deployment/local-jvm/example-model/exampleOutput.txt'
+                                    sh 'bash deployment/local-jvm/example-model/stopServices.sh'
+                                    sh 'bash deployment/local-jvm/example-model/verify.sh'
+                                }
                             }
-                        } else {
-                            error("Failed to create namespace")
+                        }
+                    }
+                }
+            },
+
+            K8s: {
+                stage('Run the K8s Example') {
+                    dir('Palisade-examples') {
+                        container('maven') {
+                            sh "palisade-login"
+                            sh 'extract-addresses'
+                            if (sh(script: "kubectl get ns ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
+                                sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER}"
+                                sleep(time: 30, unit: 'SECONDS')
+                            }
+                            sh "kubectl get all --namespace ${GIT_BRANCH_NAME_LOWER}"
+                            if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
+                                if (sh(script: "bash deployment/aws-k8s/example-model/deployServicesToK8s.sh -n ${GIT_BRANCH_NAME_LOWER} -r ${ECR_REGISTRY} -h ${EGRESS_ELB} -d ${VOLUME_HANDLE_DATA_STORE} -c ${VOLUME_HANDLE_CLASSPATH_JARS}", returnStatus:
+                                true) == 0) {
+                                    echo("successfully deployed")
+                                    sleep(time: 90, unit: 'SECONDS')
+                                    sh "kubectl get pods -n ${GIT_BRANCH_NAME_LOWER}"
+                                    sh "kubectl get pvc -n ${GIT_BRANCH_NAME_LOWER}"
+                                    sh "bash deployment/aws-k8s/example-model/runFormattedK8sExample.sh ${GIT_BRANCH_NAME_LOWER}"
+                                    sh "bash deployment/aws-k8s/example-model/verify.sh ${GIT_BRANCH_NAME_LOWER}"
+                                } else {
+                                    echo("failed to deploy")
+                                    sleep(time: 2, unit: 'MINUTES')
+                                    sh "kubectl get pvc -n ${GIT_BRANCH_NAME_LOWER}"
+                                    sh "kubectl get all -n ${GIT_BRANCH_NAME_LOWER}"
+                                    sh "kubectl describe all -n ${GIT_BRANCH_NAME_LOWER}"
+                                    error("Build failed because of failed helm deploy")
+                                }
+                            } else {
+                                error("Failed to create namespace")
+                            }
                         }
                     }
                 }
