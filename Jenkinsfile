@@ -254,7 +254,7 @@ timestamps {
                 }
             },
 
-            Deploy Examples: {
+            Deploy-Examples: {
                 stage('Deploy Example') {
                     container('maven') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
@@ -267,7 +267,7 @@ timestamps {
                 }
             },
 
-            Deploy Services: {
+            Deploy-Services: {
                 stage('Deploy Services') {
                     container('maven') {
                         configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
