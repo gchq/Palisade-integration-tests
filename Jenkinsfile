@@ -307,7 +307,7 @@ timestamps {
             RunK8s: {
                 stage('Run the K8s Example') {
                     container('maven') {
-                        //if (IS_PR == "true" || FEATURE_BRANCH == "false") {
+                        if (IS_PR == "true" || FEATURE_BRANCH == "false") {
                             dir('Palisade-examples') {
                                 sh "palisade-login"
                                 sh 'extract-addresses'
@@ -333,7 +333,7 @@ timestamps {
                                     error("Failed to create namespace")
                                 }
                             }
-                        //}
+                        }
                     }
                 }
             }
