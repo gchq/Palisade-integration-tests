@@ -319,10 +319,6 @@ timestamps {
                                     true) == 0) {
                                         echo("successfully deployed")
                                         sleep(time: 90, unit: 'SECONDS')
-                                        sh "kubectl get pods -n ${GIT_BRANCH_NAME_LOWER}"
-                                        sh '''
-                                            kubectl get pods -n ${GIT_BRANCH_NAME_LOWER} | awk '/example-model/ {print $1}'
-                                        '''
                                         sh "bash deployment/aws-k8s/example-model/runFormattedK8sExample.sh "${GIT_BRANCH_NAME_LOWER}""
                                         sh "bash deployment/aws-k8s/example-model/verify.sh ${GIT_BRANCH_NAME_LOWER}"
                                     } else {
