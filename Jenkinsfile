@@ -319,8 +319,9 @@ timestamps {
                                     true) == 0) {
                                         echo("successfully deployed")
                                         sleep(time: 90, unit: 'SECONDS')
-                                        sh "bash deployment/aws-k8s/example-model/runFormattedK8sExample.sh ${GIT_BRANCH_NAME_LOWER}"
-                                        sh "bash deployment/aws-k8s/example-model/verify.sh ${GIT_BRANCH_NAME_LOWER}"
+                                        sh "kubectl exec $(kubectl get pods --namespace=${GIT_BRANCH_NAME_LOWER} | awk '/example-model/ {print $1}') --namespace=${GIT_BRANCH_NAME_LOWER}"
+                                        //sh "bash deployment/aws-k8s/example-model/runFormattedK8sExample.sh ${GIT_BRANCH_NAME_LOWER}"
+                                        //sh "bash deployment/aws-k8s/example-model/verify.sh ${GIT_BRANCH_NAME_LOWER}"
                                     } else {
                                         echo("failed to deploy")
                                         sleep(time: 1, unit: 'MINUTES')
