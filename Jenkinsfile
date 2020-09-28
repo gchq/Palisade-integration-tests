@@ -203,14 +203,14 @@ timestamps {
                                 if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                                     EXAMPLES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
                                     // do an install now ready for the JVM end to end test if we are not doing the full deploy
-                                    sh "mvn -s ${MAVEN_SETTINGS} -P pi -D maven.tests.skip=true -D dockerfile.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} install"
+                                    sh "mvn -s ${MAVEN_SETTINGS} -P pi -D maven.test.skip=true -D dockerfile.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} install"
                                 } else {
                                     if (CLIENTS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
                                         EXAMPLES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
                                         DEPLOY_EXAMPLES_IMAGES = "true"
                                     } else {
                                         // do an install now ready for the JVM end to end test if we are not doing the full deploy
-                                        sh "mvn -s ${MAVEN_SETTINGS} -P pi -D maven.tests.skip=true -D dockerfile.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} install"
+                                        sh "mvn -s ${MAVEN_SETTINGS} -P pi -D maven.test.skip=true -D dockerfile.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} install"
                                     }
                                 }
                             }
@@ -220,14 +220,14 @@ timestamps {
                                 if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
                                     SERVICES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
                                     // do an install now ready for the JVM end to end test if we are not doing the full deploy
-                                    sh "mvn -s ${MAVEN_SETTINGS} -P pi -D maven.tests.skip=true -D dockerfile.skip=true -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} install"
+                                    sh "mvn -s ${MAVEN_SETTINGS} -P pi -D maven.test.skip=true -D dockerfile.skip=true -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} install"
                                 } else {
                                     if (READERS_REVISION == "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT") {
                                         SERVICES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
                                         DEPLOY_SERVICES_IMAGES = "true"
                                     } else {
                                         // do an install now ready for the JVM end to end test if we are not doing the full deploy
-                                        sh "mvn -s ${MAVEN_SETTINGS} -P pi -D maven.tests.skip=true -D dockerfile.skip=true -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} install"
+                                        sh "mvn -s ${MAVEN_SETTINGS} -P pi -D maven.test.skip=true -D dockerfile.skip=true -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} install"
                                     }
                                 }
                             }
