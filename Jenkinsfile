@@ -141,10 +141,12 @@ timestamps {
                 EXAMPLES_REVISION = "SNAPSHOT"
                 SERVICES_REVISION = "SNAPSHOT"
                 GIT_BRANCH_NAME_LOWER = GIT_BRANCH_NAME.toLowerCase().take(7)
+                HELM_DEPLOY_NAMESPACE = GIT_BRANCH_NAME_LOWER + "-example"
                 INTEGRATION_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
                 // update values for the variables if this is the develop branch build
                 if ("${env.BRANCH_NAME}" == "develop") {
                     INTEGRATION_REVISION = "SNAPSHOT"
+                    HELM_DEPLOY_NAMESPACE = "dev-example"
                     FEATURE_BRANCH = "false"
                 }
                 // update values for the variables if this is the main branch build
@@ -155,6 +157,7 @@ timestamps {
                     CLIENTS_REVISION = "RELEASE"
                     EXAMPLES_REVISION = "RELEASE"
                     INTEGRATION_REVISION = "RELEASE"
+                    HELM_DEPLOY_NAMESPACE = "release-example"
                     FEATURE_BRANCH = "false"
                 }
                 echo sh(script: 'env | sort', returnStdout: true)
@@ -311,22 +314,22 @@ timestamps {
                             dir('Palisade-examples') {
                                 sh "palisade-login"
                                 sh 'extract-addresses'
-                                if (sh(script: "kubectl get ns ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                                    sh "kubectl delete ns ${GIT_BRANCH_NAME_LOWER}"
+                                if (sh(script: "kubectl get ns ${HELM_DEPLOY_NAMESPACE}", returnStatus: true) == 0) {
+                                    sh "kubectl delete ns ${HELM_DEPLOY_NAMESPACE}"
                                 }
-                                if (sh(script: "namespace-create ${GIT_BRANCH_NAME_LOWER}", returnStatus: true) == 0) {
-                                    if (sh(script: "bash deployment/aws-k8s/example-model/deployServicesToK8s.sh -n ${GIT_BRANCH_NAME_LOWER} -r ${ECR_REGISTRY} -h ${EGRESS_ELB} -d ${VOLUME_HANDLE_DATA_STORE} -c ${VOLUME_HANDLE_CLASSPATH_JARS}", returnStatus:
+                                if (sh(script: "namespace-create ${HELM_DEPLOY_NAMESPACE}", returnStatus: true) == 0) {
+                                    if (sh(script: "bash deployment/aws-k8s/example-model/deployServicesToK8s.sh -n ${HELM_DEPLOY_NAMESPACE} -r ${ECR_REGISTRY} -h ${EGRESS_ELB} -d ${VOLUME_HANDLE_DATA_STORE} -c ${VOLUME_HANDLE_CLASSPATH_JARS}", returnStatus:
                                     true) == 0) {
                                         echo("successfully deployed")
                                         sleep(time: 90, unit: 'SECONDS')
-                                        sh "bash deployment/aws-k8s/example-model/runFormattedK8sExample.sh "${GIT_BRANCH_NAME_LOWER}""
-                                        sh "bash deployment/aws-k8s/example-model/verify.sh ${GIT_BRANCH_NAME_LOWER}"
+                                        sh "bash deployment/aws-k8s/example-model/runFormattedK8sExample.sh ${HELM_DEPLOY_NAMESPACE}"
+                                        sh "bash deployment/aws-k8s/example-model/verify.sh ${HELM_DEPLOY_NAMESPACE}"
                                     } else {
                                         echo("failed to deploy")
                                         sleep(time: 1, unit: 'MINUTES')
-                                        sh "kubectl get pvc -n ${GIT_BRANCH_NAME_LOWER}"
-                                        sh "kubectl get all -n ${GIT_BRANCH_NAME_LOWER}"
-                                        sh "kubectl describe all -n ${GIT_BRANCH_NAME_LOWER}"
+                                        sh "kubectl get pvc -n ${HELM_DEPLOY_NAMESPACE}"
+                                        sh "kubectl get all -n ${HELM_DEPLOY_NAMESPACE}"
+                                        sh "kubectl describe all -n ${HELM_DEPLOY_NAMESPACE}"
                                         error("Build failed because of failed helm deploy")
                                     }
                                 } else {
