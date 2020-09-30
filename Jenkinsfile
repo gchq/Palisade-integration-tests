@@ -324,6 +324,7 @@ timestamps {
                                         sleep(time: 90, unit: 'SECONDS')
                                         sh "bash deployment/aws-k8s/example-model/runFormattedK8sExample.sh ${HELM_DEPLOY_NAMESPACE}"
                                         sh "bash deployment/aws-k8s/example-model/verify.sh ${HELM_DEPLOY_NAMESPACE}"
+                                        sh "kubectl delete ns ${HELM_DEPLOY_NAMESPACE}"
                                     } else {
                                         echo("failed to deploy")
                                         sleep(time: 1, unit: 'MINUTES')
