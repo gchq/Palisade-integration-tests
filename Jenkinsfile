@@ -201,7 +201,7 @@ timestamps {
 
                         dir('Palisade-examples') {
                             git branch: 'develop', url: 'https://github.com/gchq/Palisade-examples.git'
-                            if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                            if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0 && FEATURE_BRANCH == "true") {
                                 EXAMPLES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
                                 // do an install now ready for the JVM end to end test if we are not doing the full deploy
                                 sh "mvn -s ${MAVEN_SETTINGS} -P pi -D maven.test.skip=true -D dockerfile.skip=true -D revision=${EXAMPLES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D clients.revision=${CLIENTS_REVISION} install"
@@ -218,7 +218,7 @@ timestamps {
 
                         dir('Palisade-services') {
                             git branch: 'develop', url: 'https://github.com/gchq/Palisade-services.git'
-                            if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0) {
+                            if (sh(script: "git checkout ${GIT_BRANCH_NAME}", returnStatus: true) == 0 && FEATURE_BRANCH == "true") {
                                 SERVICES_REVISION = "BRANCH-${GIT_BRANCH_NAME_LOWER}-SNAPSHOT"
                                 // do an install now ready for the JVM end to end test if we are not doing the full deploy
                                 sh "mvn -s ${MAVEN_SETTINGS} -P pi -D maven.test.skip=true -D dockerfile.skip=true -D revision=${SERVICES_REVISION} -D common.revision=${COMMON_REVISION} -D readers.revision=${READERS_REVISION} -D examples.revision=${EXAMPLES_REVISION} install"
