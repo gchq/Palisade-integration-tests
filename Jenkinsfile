@@ -247,14 +247,6 @@ timestamps {
                         }
                     }
                 }
-
-                stage('Hadolinting') {
-                    dir("Palisade-integration-tests") {
-                        container('hadolint') {
-                            sh 'hadolint */Dockerfile'
-                        }
-                    }
-                }
             },
 
             DeployExample: {
