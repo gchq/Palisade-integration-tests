@@ -236,19 +236,6 @@ timestamps {
                 }
             }
 
-            parallel Test: {
-                stage('Integration Tests, Checkstyle') {
-                    dir('Palisade-integration-tests') {
-                        git branch: GIT_BRANCH_NAME, url: 'https://github.com/gchq/Palisade-integration-tests.git'
-                        container('docker-cmds') {
-                            configFileProvider([configFile(fileId: "${env.CONFIG_FILE}", variable: 'MAVEN_SETTINGS')]) {
-                                sh "mvn -s ${MAVEN_SETTINGS} -D revision=${INTEGRATION_REVISION} -D common.revision=${COMMON_REVISION} -D examples.revision=${EXAMPLES_REVISION} -D services.revision=${SERVICES_REVISION} deploy"
-                            }
-                        }
-                    }
-                }
-            },
-
             DeployExample: {
                 stage('Deploy Example') {
                     container('maven') {
