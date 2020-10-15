@@ -65,21 +65,9 @@
         <javadoc.plugin.version>3.2.0</javadoc.plugin.version>
         <surefire.plugin.version>2.22.1</surefire.plugin.version>
         <failsafe.version>2.22.1</failsafe.version>
-        <!-- Sonar -->
-        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-        <sonar.jacoco.reportPath>../../Palisade-services/target/jacoco.xml</sonar.jacoco.reportPath>
-        <sonar.language>java</sonar.language>
     </properties>
 
     <modules>
-        <module>audit-service-integration</module>
-        <module>data-service-integration</module>
-        <module>discovery-service-integration</module>
-        <module>palisade-service-integration</module>
-        <module>policy-service-integration</module>
-        <module>resource-service-integration</module>
-        <module>user-service-integration</module>
     </modules>
 
     <profiles>
