@@ -16,5 +16,5 @@
 @Library('jenkinsfile-lib')_
 
 timestamps {
-    integration-tests()
+    integrationTests()
 }
