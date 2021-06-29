@@ -1,4 +1,3 @@
-
 <!---
 Copyright 2018-2021 Crown Copyright
 
@@ -14,19 +13,30 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 --->
-
-
 # <img src="logos/logo.svg" width="180">
 
-### Integration Tests for the Palisade Services
+## A Tool for Complex and Scalable Data Access Policy Enforcement
 
-## Status
-<span style="color:red">
-This is the main Palisade Integration Repository. 
-</span>
+# Integration Tests for Palisade Services
+
+### Prerequisites
+1. [Git](https://git-scm.com/)
+2. [Maven](https://maven.apache.org/)
 
 ## Getting started
 The integration test suite is to be run after the build but before the deployment as part of the CI/CD pipeline.
+
+To get started, clone the Palisade Common repo:
+
+```bash
+git clone https://github.com/gchq/Palisade-integration-tests.git
+cd Palisade-integration-tests
+```
+
+You are then ready to build with Maven:
+```bash
+mvn install
+```
 
 ## License
 Palisade-Common is licensed under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0) and is covered by [Crown Copyright](https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/copyright-and-re-use/crown-copyright/).
@@ -37,5 +47,6 @@ We welcome contributions to the project. Detailed information on our ways of wor
 
 
 ## FAQ
-What versions of Java are supported? We are currently using Java 11.
+Q: What versions of Java are supported?  
+A: We are currently using Java 11.
 
